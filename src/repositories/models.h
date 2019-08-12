@@ -26,7 +26,7 @@ namespace lotr {
         uint32_t x;
         uint32_t y;
 
-        location() : id(0), map_name(), x(), y() {}
+        location() : id(), map_name(), x(), y() {}
         location(uint64_t id, string map_name, uint32_t x, uint32_t y) : id(id), map_name(move(map_name)), x(x), y(y) {}
     };
 
