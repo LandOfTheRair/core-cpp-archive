@@ -44,11 +44,11 @@ namespace lotr {
 
         unique_ptr<transaction_T> create_transaction();
 
-        bool insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction);
-        void update_player(player const &plyr, unique_ptr<transaction_T> const &transaction);
-        optional<player> get_player(string const &name, included_tables includes, unique_ptr<transaction_T> const &transaction);
-        optional<player> get_player(uint64_t id, included_tables includes, unique_ptr<transaction_T> const &transaction);
-        vector<player> get_by_user_id(uint64_t user_id, included_tables includes, unique_ptr<transaction_T> const &transaction);
+        bool insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction) const;
+        void update_player(player const &plyr, unique_ptr<transaction_T> const &transaction) const;
+        optional<player> get_player(string const &name, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
+        optional<player> get_player(uint64_t id, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
+        vector<player> get_by_user_id(uint64_t user_id, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
     private:
         shared_ptr<pool_T> _database_pool;
     };

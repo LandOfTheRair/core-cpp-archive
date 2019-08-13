@@ -18,6 +18,7 @@
 
 #include <catch2/catch.hpp>
 #include "test_helpers/startup_helper.h"
+#include "../src/repositories/users_repository.h"
 #include "../src/repositories/players_repository.h"
 #include "../src/repositories/locations_repository.h"
 
@@ -28,6 +29,7 @@ TEST_CASE("players repository tests") {
     auto pool = make_shared<database_pool>();
     pool->create_connections(config.connection_string, 1);
 
+    users_repository<database_pool, database_transaction> users_repo(pool);
     players_repository<database_pool, database_transaction> players_repo(pool);
     locations_repository<database_pool, database_transaction> locations_repo(pool);
     auto transaction = players_repo.create_transaction();
@@ -37,7 +39,10 @@ TEST_CASE("players repository tests") {
         location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
-        player plyr{0, 1, loc.id, "john doe"s, {}, {}, {}};
+        user usr{0, "user", "pass", "email", 0, "code", 0, 0};
+        users_repo.insert_if_not_exists(usr, transaction);
+
+        player plyr{0, usr.id, loc.id, "john doe"s, {}, {}, {}};
         players_repo.insert_or_update_player(plyr, transaction);
 
         auto plyr2 = players_repo.get_player(plyr.id, included_tables::none, transaction);
@@ -51,8 +56,11 @@ TEST_CASE("players repository tests") {
         location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
-        player plyr{0, 2, loc.id, "john doe"s, {}, {}, {}};
-        player plyr2{0, 2, loc.id, "john doe2"s, {}, {}, {}};
+        user usr{0, "user", "pass", "email", 0, "code", 0, 0};
+        users_repo.insert_if_not_exists(usr, transaction);
+
+        player plyr{0, usr.id, loc.id, "john doe"s, {}, {}, {}};
+        player plyr2{0, usr.id, loc.id, "john doe2"s, {}, {}, {}};
         players_repo.insert_or_update_player(plyr, transaction);
         players_repo.insert_or_update_player(plyr2, transaction);
 

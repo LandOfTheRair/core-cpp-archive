@@ -23,7 +23,7 @@
 using namespace std;
 using namespace lotr;
 
-TEST_CASE("players repository tests") {
+TEST_CASE("users repository tests") {
     auto pool = make_shared<database_pool>();
     pool->create_connections(config.connection_string, 1);
 
@@ -31,7 +31,7 @@ TEST_CASE("players repository tests") {
 
     SECTION( "user inserted correctly" ) {
         auto transaction = user_repo.create_transaction();
-        user usr{0, "user"s, "pass"s, "email"s, 2, 3, 4};
+        user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         user_repo.insert_if_not_exists(usr, transaction);
         REQUIRE(usr.id != 0);
         
@@ -44,6 +44,7 @@ TEST_CASE("players repository tests") {
         REQUIRE(usr2->login_attempts == usr.login_attempts);
         REQUIRE(usr2->admin == usr.admin);
         REQUIRE(usr2->no_of_players == usr.no_of_players);
+        REQUIRE(usr2->verification_code == usr.verification_code);
         
         uint64_t old_id = usr.id;
         user_repo.insert_if_not_exists(usr, transaction);
@@ -52,7 +53,7 @@ TEST_CASE("players repository tests") {
     
     SECTION( "update user" ) {
         auto transaction = user_repo.create_transaction();
-        user usr{0, "user"s, "pass"s, "email"s, 2, 3, 4};
+        user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         user_repo.insert_if_not_exists(usr, transaction);
         REQUIRE(usr.id != 0);
         

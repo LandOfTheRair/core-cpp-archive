@@ -18,7 +18,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # only support linux/g++ for now
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRAPIDJSON_SSE42 -DSPDLOG_COMPILED_LIB -Wall -Wextra -Wno-unused-variable -Wno-long-long -Wno-unused-parameter -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -pedantic -std=c++2a ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRAPIDJSON_SSE42 -DSPDLOG_COMPILED_LIB -DCATCH_CONFIG_FAST_COMPILE -Wall -Wextra -Wno-unused-variable -Wno-long-long -Wno-unused-parameter -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -pedantic -std=c++2a ")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -ggdb -Og -mavx -mavx2")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG -mavx -mavx2")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -ggdb -O2 -mavx -mavx2")

@@ -43,7 +43,7 @@ void database_pool::create_connections(const string& connection_string, uint32_t
     _min_connections = min_connections;
     for(uint32_t i = 0; i < min_connections; i++) {
         auto conn = make_shared<connection>(connection_string);
-        _connections.emplace_back(make_tuple(true, i, conn));
+        _connections.emplace_back(true, i, conn);
     }
 
 }

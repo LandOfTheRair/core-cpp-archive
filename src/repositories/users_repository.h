@@ -35,10 +35,10 @@ namespace lotr {
         explicit users_repository(shared_ptr<pool_T> database_pool);
 
         unique_ptr<transaction_T> create_transaction();
-        bool insert_if_not_exists(user& usr, unique_ptr<transaction_T> const &transaction);
-        void update(user const &usr, unique_ptr<transaction_T> const &transaction);
-        optional<user> get(int id, unique_ptr<transaction_T> const &transaction);
-        optional<user> get(string const &username, unique_ptr<transaction_T> const &transaction);
+        bool insert_if_not_exists(user& usr, unique_ptr<transaction_T> const &transaction) const;
+        void update(user const &usr, unique_ptr<transaction_T> const &transaction) const;
+        optional<user> get(int id, unique_ptr<transaction_T> const &transaction) const;
+        optional<user> get(string const &username, unique_ptr<transaction_T> const &transaction) const;
     private:
         shared_ptr<pool_T> _database_pool;
     };

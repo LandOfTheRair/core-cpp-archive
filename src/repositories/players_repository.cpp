@@ -34,7 +34,7 @@ unique_ptr<transaction_T> players_repository<pool_T, transaction_T>::create_tran
 }
 
 template<typename pool_T, typename transaction_T>
-bool players_repository<pool_T, transaction_T>::insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction) {
+bool players_repository<pool_T, transaction_T>::insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction) const {
 
     auto result = transaction->execute(fmt::format(
             "INSERT INTO players (user_id, location_id, player_name) VALUES ({}, {}, '{}') "
@@ -58,7 +58,7 @@ bool players_repository<pool_T, transaction_T>::insert_or_update_player(player &
 }
 
 template<typename pool_T, typename transaction_T>
-void players_repository<pool_T, transaction_T>::update_player(player const &plyr, unique_ptr<transaction_T> const &transaction) {
+void players_repository<pool_T, transaction_T>::update_player(player const &plyr, unique_ptr<transaction_T> const &transaction) const {
     transaction->execute(fmt::format("UPDATE players SET user_id = {}, location_id = {} WHERE id = {}", plyr.user_id, plyr.location_id, plyr.id));
 
     spdlog::debug("{} updated player {}", __FUNCTION__, plyr.id);
@@ -66,7 +66,7 @@ void players_repository<pool_T, transaction_T>::update_player(player const &plyr
 
 template<typename pool_T, typename transaction_T>
 optional<player> players_repository<pool_T, transaction_T>::get_player(string const &name, included_tables includes,
-                                                    unique_ptr<transaction_T> const &transaction) {
+                                                    unique_ptr<transaction_T> const &transaction) const {
     pqxx::result result;
 
     if(includes == included_tables::none) {
@@ -100,7 +100,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(string co
 
 template<typename pool_T, typename transaction_T>
 optional<player> players_repository<pool_T, transaction_T>::get_player(uint64_t id, included_tables includes,
-                                                    unique_ptr<transaction_T> const &transaction) {
+                                                    unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.player_name FROM players p WHERE id = {}", id));
 
     if(result.empty()) {
@@ -119,7 +119,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(uint64_t 
 
 template<typename pool_T, typename transaction_T>
 vector<player> players_repository<pool_T, transaction_T>::get_by_user_id(uint64_t user_id, included_tables includes,
-                                                          unique_ptr<transaction_T> const &transaction) {
+                                                          unique_ptr<transaction_T> const &transaction) const {
     pqxx::result result;
     if(includes == included_tables::none) {
         result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.player_name FROM players p WHERE user_id = {}", user_id));
