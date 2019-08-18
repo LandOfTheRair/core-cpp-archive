@@ -1,5 +1,5 @@
 /*
-    lotr_backend
+    Land of the Rair
     Copyright (C) 2019 Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,8 @@
 using namespace lotr;
 using namespace rapidjson;
 
-register_request::register_request(string username, string password) noexcept : username(move(username)), password(move(password)) {
+register_request::register_request(string username, string password, string email) noexcept
+ : username(move(username)), password(move(password)), email(move(email)) {
 
 }
 
@@ -40,6 +41,9 @@ string register_request::serialize() const {
     writer.String("password");
     writer.String(password.c_str(), password.size());
 
+    writer.String("email");
+    writer.String(email.c_str(), email.size());
+
     writer.EndObject();
     return sb.GetString();
 }
@@ -53,10 +57,10 @@ optional<register_request> register_request::deserialize(string const &data) {
     Document d;
     d.Parse(data.c_str());
 
-    if (d.HasParseError() || !d.IsObject() || !d.HasMember("username") || ! d.HasMember("password")) {
+    if (d.HasParseError() || !d.IsObject() || !d.HasMember("username") || ! d.HasMember("password") || ! d.HasMember("email")) {
         spdlog::warn("[register_request] deserialize failed");
         return nullopt;
     }
 
-    return register_request(d["username"].GetString(), d["password"].GetString());
+    return register_request(d["username"].GetString(), d["password"].GetString(), d["email"].GetString());
 }

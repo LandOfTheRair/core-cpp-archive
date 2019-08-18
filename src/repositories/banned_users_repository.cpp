@@ -1,5 +1,5 @@
 /*
-    lotr_backend
+    Land of the Rair
     Copyright (C) 2019 Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,7 @@ template<typename pool_T, typename transaction_T>
 bool banned_users_repository<pool_T, transaction_T>::insert_if_not_exists(banned_user &usr, unique_ptr<transaction_T> const &transaction) const {
     string ip = !usr.ip.empty() ? "'" + transaction->escape(usr.ip) + "'" : "NULL";
     string user_id = usr._user ? to_string(usr._user->id) : "NULL";
-    string until = usr.until ? "to_timestamp(" + to_string(duration_cast<seconds>(usr.until->time_since_epoch()).count()) + ")" : "NULL";
+    string until = usr.until ? to_string(usr.until->time_since_epoch().count()) : "NULL";
 
     auto result = transaction->execute(fmt::format("INSERT INTO banned_users (ip, user_id, until) VALUES ({}, {}, {}) RETURNING id", ip, user_id, until));
 
@@ -58,7 +58,7 @@ template<typename pool_T, typename transaction_T>
 void banned_users_repository<pool_T, transaction_T>::update(banned_user const &usr, unique_ptr<transaction_T> const &transaction) const {
     string ip = !usr.ip.empty() ? "'" + transaction->escape(usr.ip) + "'" : "NULL";
     string user_id = usr._user ? to_string(usr._user->id) : "NULL";
-    string until = usr.until ? fmt::format("to_timestamp({})", duration_cast<seconds>(usr.until->time_since_epoch()).count()) : "NULL";
+    string until = usr.until ? to_string(usr.until->time_since_epoch().count()) : "NULL";
 
     auto result = transaction->execute(fmt::format("UPDATE banned_users SET ip = {}, user_id = {}, until = {}", ip, user_id, until));
 
@@ -67,7 +67,7 @@ void banned_users_repository<pool_T, transaction_T>::update(banned_user const &u
 
 template<typename pool_T, typename transaction_T>
 optional<banned_user> banned_users_repository<pool_T, transaction_T>::get(int id, unique_ptr<transaction_T> const &transaction) const {
-    auto result = transaction->execute(fmt::format("SELECT id, ip, user_id, extract(epoch from until)::bigint as until FROM banned_users WHERE id = {}", id));
+    auto result = transaction->execute(fmt::format("SELECT id, ip, user_id, until FROM banned_users WHERE id = {}", id));
 
     spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
 
@@ -88,7 +88,7 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::get(int id
     }
 
     if(!result[0]["until"].is_null()) {
-        until = system_clock::time_point(seconds(result[0]["until"].as(int64_t{})));
+        until = system_clock::time_point(nanoseconds(result[0]["until"].as(int64_t{})));
     }
 
     return make_optional<banned_user>(result[0]["id"].as(uint64_t{}), ip, _user, until);
@@ -104,11 +104,10 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
     uint64_t usr_id;
     string ip_ret;
     optional<system_clock::time_point> until;
-    auto now = fmt::format("to_timestamp({})", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
-    int64_t until_int;
+    auto now = system_clock::now().time_since_epoch().count();
 
     if(username && ip) {
-        auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, extract(epoch from bu.until)::bigint as until FROM banned_users bu "
+        auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, until FROM banned_users bu "
                                            "LEFT JOIN users u ON bu.user_id = u.id AND u.username = '{}' "
                                            "WHERE bu.until >= {} AND (u.id IS NOT NULL OR bu.ip = '{}')",
                                            transaction->escape(username.value()), now, transaction->escape(ip.value())));
@@ -124,13 +123,12 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
         }
 
         if(!result[0]["until"].is_null()) {
-            until_int = result[0]["until"].as(int64_t{});
-            until = system_clock::time_point(seconds(until_int));
+            until = system_clock::time_point(nanoseconds(result[0]["until"].as(int64_t{})));
         }
 
         usr_id = result[0]["id"].as(uint64_t{});
     } else if(username) {
-        auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, extract(epoch from bu.until)::bigint as until FROM banned_users bu "
+        auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, until FROM banned_users bu "
                                            "LEFT JOIN users u ON bu.user_id = u.id AND u.username = '{}' "
                                            "WHERE bu.until >= {} AND u.id IS NOT NULL", transaction->escape(username.value()), now));
 
@@ -145,13 +143,12 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
         }
 
         if(!result[0]["until"].is_null()) {
-            until_int = result[0]["until"].as(int64_t{});
-            until = system_clock::time_point(seconds(until_int));
+            until = system_clock::time_point(nanoseconds(result[0]["until"].as(int64_t{})));
         }
 
         usr_id = result[0]["id"].as(uint64_t{});
     } else {
-        auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, extract(epoch from bu.until)::bigint as until FROM banned_users bu "
+        auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, until FROM banned_users bu "
                                            "WHERE bu.until >= {} AND bu.ip = '{}'", now, transaction->escape(ip.value())));
 
         spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
@@ -165,8 +162,7 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
         }
 
         if(!result[0]["until"].is_null()) {
-            until_int = result[0]["until"].as(int64_t{});
-            until = system_clock::time_point(seconds(until_int));
+            until = system_clock::time_point(nanoseconds(result[0]["until"].as(int64_t{})));
         }
 
         usr_id = result[0]["id"].as(uint64_t{});

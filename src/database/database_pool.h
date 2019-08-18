@@ -1,5 +1,5 @@
 /*
-    lotr_backend
+    Land of the Rair
     Copyright (C) 2019 Michael de Lang
 
     This program is free software: you can redistribute it and/or modify

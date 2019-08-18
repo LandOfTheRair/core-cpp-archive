@@ -10,7 +10,7 @@ IF(NOT CMAKE_BUILD_TYPE)
             FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET(CMAKE_CXX_COMPILER /usr/local/gcc-9.1/bin/g++-9.1)
+#SET(CMAKE_CXX_COMPILER /usr/local/gcc-9.1/bin/g++-9.1)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(TOP_DIR ${CMAKE_SOURCE_DIR})
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external/)
@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG -mavx -mavx2")
 file(GLOB_RECURSE PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB SPDLOG_SOURCE ${EXTERNAL_DIR}/spdlog/src/spdlog.cpp)
 file(GLOB_RECURSE USOCKETS_SOURCE ${EXTERNAL_DIR}/uWebSockets/uSockets/src/*.c)
-add_executable(lotr_backend ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES})
+add_executable(lotr_backend ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES} src/messages/user_access/login_response.cpp src/messages/user_access/login_response.h)
 
 file(GLOB_RECURSE PROJECT_SOURCES_WITHOUT_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM PROJECT_SOURCES_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/main.cpp")
@@ -36,9 +36,14 @@ add_executable(lotr_test ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES_W
 add_test(NAME MyTest COMMAND lotr_test)
 
 find_library(PQXX_LIBRARY pqxx HINTS ${EXTERNAL_DIR}/libpqxx/src/.libs)
+find_library(SODIUM_LIBRARY sodium HINTS ${EXTERNAL_DIR}/libsodium/src/libsodium/.libs)
 
 if(NOT PQXX_LIBRARY)
     message(FATAL_ERROR "libpqxx not found")
+endif()
+
+if(NOT SODIUM_LIBRARY)
+    message(FATAL_ERROR "libsodium not found")
 endif()
 
 find_package(ZLIB REQUIRED)
@@ -53,15 +58,18 @@ include_directories("${EXTERNAL_DIR}/libpqxx/include")
 include_directories("${EXTERNAL_DIR}/range-v3/include")
 include_directories("${EXTERNAL_DIR}/Catch2/single_include")
 include_directories("${ZLIB_INCLUDE_DIRS}")
+include_directories("${EXTERNAL_DIR}/libsodium/src/libsodium/include")
 
 
 
 target_link_libraries(lotr_backend PUBLIC ${PQXX_LIBRARY} -lpq)
-target_link_libraries(lotr_backend PUBLIC -lpthread)
+target_link_libraries(lotr_backend PUBLIC -lpthread -lstdc++fs)
 target_link_libraries(lotr_backend PUBLIC ${ZLIB_LIBRARIES} )
 target_link_libraries(lotr_backend PUBLIC ${OPENSSL_LIBRARIES})
+target_link_libraries(lotr_backend PUBLIC ${SODIUM_LIBRARY})
 
 target_link_libraries(lotr_test PUBLIC ${PQXX_LIBRARY} -lpq)
-target_link_libraries(lotr_test PUBLIC -lpthread)
+target_link_libraries(lotr_test PUBLIC -lpthread -lstdc++fs)
 target_link_libraries(lotr_test PUBLIC ${ZLIB_LIBRARIES} )
 target_link_libraries(lotr_test PUBLIC ${OPENSSL_LIBRARIES})
+target_link_libraries(lotr_test PUBLIC ${SODIUM_LIBRARY})

@@ -22,7 +22,7 @@ CREATE TABLE banned_users (
     id BIGSERIAL PRIMARY KEY,
     ip text NULL,
     user_id BIGINT NULL,
-    until TIMESTAMPTZ NULL
+    until BIGINT NULL
 );
 
 CREATE TABLE stats (

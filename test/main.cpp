@@ -1,6 +1,6 @@
 /*
-    Realm of Aesir
-    Copyright (C) 2016  Michael de Lang
+    Land of the Rair
+    Copyright (C) 2019  Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 #include <catch2/catch.hpp>
 #include <spdlog/spdlog.h>
+#include <filesystem>
 
 #include "../src/config.h"
 #include "../src/config_parsers.h"
@@ -29,6 +30,11 @@ using namespace std;
 using namespace lotr;
 
 int main(int argc, char **argv) {
+    {
+        auto cwd = filesystem::current_path();
+        spdlog::info("cwd {}", static_cast<string>(cwd));
+    }
+
     try {
         auto config_opt = parse_env_file();
         if(!config_opt) {

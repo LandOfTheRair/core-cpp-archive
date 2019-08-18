@@ -21,22 +21,30 @@
 
 #include <string>
 #include <optional>
+#include <vector>
 
 using namespace std;
 
 namespace lotr {
-    struct generic_error_response {
-        generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
+    struct message_player {
+        string name;
+        string map_name;
+        uint32_t x;
+        uint32_t y;
 
-        ~generic_error_response() noexcept = default;
+        message_player(string name, string map_name, uint32_t x, uint32_t y)
+            : name(move(name)), map_name(move(map_name)), x(x), y(y) {}
+    };
+
+    struct login_response {
+        explicit login_response(vector<message_player> players) noexcept;
+
+        ~login_response() noexcept = default;
 
         [[nodiscard]]
         string serialize() const;
-        static optional<generic_error_response> deserialize(string const &data);
+        static optional<login_response> deserialize(string const &data);
 
-        string error;
-        string pretty_error_name;
-        string pretty_error_description;
-        bool clear_login_data;
+        vector<message_player> players;
     };
 }

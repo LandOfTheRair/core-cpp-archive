@@ -49,7 +49,7 @@ void locations_repository<pool_T, transaction_T>::insert(location &loc, unique_p
 
 template<typename pool_T, typename transaction_T>
 void locations_repository<pool_T, transaction_T>::update(location const &loc, unique_ptr<transaction_T> const &transaction) const {
-    transaction->execute(fmt::format("UPDATE locations SET map_name = {}, x = {}, y = {} WHERE id = {}", loc.map_name, loc.x, loc.y, loc.id));
+    transaction->execute(fmt::format("UPDATE locations SET map_name = '{}', x = {}, y = {} WHERE id = {}", loc.map_name, loc.x, loc.y, loc.id));
 
     spdlog::debug("{} updated location {}", __FUNCTION__, loc.id);
 }
@@ -66,7 +66,7 @@ optional<location> locations_repository<pool_T, transaction_T>::get(uint64_t id,
     auto ret = make_optional<location>(result[0][0].as(uint64_t{}), result[0][1].as(string{}),
                                        result[0][2].as(uint32_t{}), result[0][3].as(uint32_t{}));
 
-    spdlog::error("{} found location by id {}", __FUNCTION__, id);
+    spdlog::trace("{} found location by id {}", __FUNCTION__, id);
 
     return ret;
 }

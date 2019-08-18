@@ -1,5 +1,5 @@
 /*
-    lotr_backend
+    Land of the Rair
     Copyright (C) 2019 Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ using namespace std;
 
 namespace lotr {
     struct register_request {
-        register_request(string username, string password) noexcept;
+        register_request(string username, string password, string email) noexcept;
 
         ~register_request() noexcept = default;
 
@@ -36,5 +36,6 @@ namespace lotr {
 
         string username;
         string password;
+        string email;
     };
 }
