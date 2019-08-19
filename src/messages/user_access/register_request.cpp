@@ -19,7 +19,6 @@
 #include "register_request.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
-#include <rapidjson/document.h>
 
 using namespace lotr;
 using namespace rapidjson;
@@ -48,16 +47,8 @@ string register_request::serialize() const {
     return sb.GetString();
 }
 
-optional<register_request> register_request::deserialize(string const &data) {
-    if(data.empty() || data.length() < 4) {
-        spdlog::warn("[register_request] deserialize encountered empty buffer");
-        return nullopt;
-    }
-
-    Document d;
-    d.Parse(data.c_str());
-
-    if (d.HasParseError() || !d.IsObject() || !d.HasMember("username") || ! d.HasMember("password") || ! d.HasMember("email")) {
+optional<register_request> register_request::deserialize(rapidjson::Document const &d) {
+    if (!d.HasMember("username") || ! d.HasMember("password") || ! d.HasMember("email")) {
         spdlog::warn("[register_request] deserialize failed");
         return nullopt;
     }

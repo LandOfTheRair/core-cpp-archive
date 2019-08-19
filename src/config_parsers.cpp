@@ -17,6 +17,7 @@
 */
 
 #include "config_parsers.h"
+#include "working_directory_manipulation.h"
 
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -26,47 +27,39 @@ using namespace lotr;
 using namespace rapidjson;
 
 optional<config> lotr::parse_env_file() {
-    string env_contents;
-    ifstream env("config.json");
-
-    if(!env) {
-        spdlog::error("[main] no config.json file found. Please make one.");
+    auto env_contents = read_whole_file("config.json");
+    if(!env_contents) {
+        spdlog::error("{} no config.json file found. Please make one.", __FUNCTION__);
         return {};
     }
 
-    env.seekg(0, ios::end);
-    env_contents.resize(env.tellg());
-    env.seekg(0, ios::beg);
-    env.read(&env_contents[0], env_contents.size());
-    env.close();
-
-    spdlog::trace(R"([main] config.json file contents: {})", env_contents);
+    spdlog::trace(R"({} config.json file contents: {})", __FUNCTION__, env_contents.value());
 
     Document d;
-    d.Parse(env_contents.c_str());
+    d.Parse(env_contents->c_str(), env_contents->size());
 
     if (d.HasParseError() || !d.IsObject()) {
-        spdlog::error("[main] deserialize config.json failed");
+        spdlog::error("{} deserialize config.json failed", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("DEBUG_LEVEL")) {
-        spdlog::error("[main] deserialize config.json missing DEBUG_LEVEL");
+        spdlog::error("{} deserialize config.json missing DEBUG_LEVEL", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("ADDRESS")) {
-        spdlog::error("[main] deserialize config.json missing ADDRESS");
+        spdlog::error("{} deserialize config.json missing ADDRESS", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("PORT")) {
-        spdlog::error("[main] deserialize config.json missing PORT");
+        spdlog::error("{} deserialize config.json missing PORT", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("CONNECTION_STRING")) {
-        spdlog::error("[main] deserialize config.json missing CONNECTION_STRING");
+        spdlog::error("{} deserialize config.json missing CONNECTION_STRING", __FUNCTION__);
         return {};
     }
 

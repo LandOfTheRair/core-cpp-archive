@@ -19,7 +19,6 @@
 #include "generic_error_response.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
-#include <rapidjson/document.h>
 
 using namespace lotr;
 using namespace rapidjson;
@@ -51,17 +50,8 @@ string generic_error_response::serialize() const {
     return sb.GetString();
 }
 
-optional<generic_error_response> generic_error_response::deserialize(string const &data) {
-    if(data.empty() || data.length() < 4) {
-        spdlog::warn("[generic_error_response] deserialize encountered empty buffer");
-        return nullopt;
-    }
-
-    Document d;
-    d.Parse(data.c_str());
-
-    if (d.HasParseError() || !d.IsObject() ||
-        !d.HasMember("error") ||
+optional<generic_error_response> generic_error_response::deserialize(rapidjson::Document const &d) {
+    if (!d.HasMember("error") ||
         !d.HasMember("prettyErrorName") ||
         !d.HasMember("prettyErrorDesc") ||
         !d.HasMember("clearLoginData")) {

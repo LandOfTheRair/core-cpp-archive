@@ -16,28 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <string>
-#include <optional>
+#include <App.h>
 #include <rapidjson/document.h>
+#include <database/database_pool.h>
+#include <per_socket_data.h>
 
 using namespace std;
 
 namespace lotr {
-    struct generic_error_response {
-        generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
-
-        ~generic_error_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<generic_error_response> deserialize(rapidjson::Document const &d);
-
-        string error;
-        string pretty_error_name;
-        string pretty_error_description;
-        bool clear_login_data;
-    };
+    void handle_login(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data *user_data);
 }

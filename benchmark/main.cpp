@@ -16,15 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_RUNNER
-
-#include <catch2/catch.hpp>
 #include <spdlog/spdlog.h>
-#include <working_directory_manipulation.h>
+#include <filesystem>
+#include <climits>
 
 #include "../src/config.h"
 #include "../src/config_parsers.h"
-#include "test_helpers/startup_helper.h"
+#include "benchmark_helpers/startup_helper.h"
+#include "../src/working_directory_manipulation.h"
 
 using namespace std;
 using namespace lotr;
@@ -42,15 +41,8 @@ int main(int argc, char **argv) {
         spdlog::error("[main] config.json file is malformed json.");
         return 1;
     }
-
-    spdlog::set_level(spdlog::level::trace);
-
     db_pool = make_shared<database_pool>();
     db_pool->create_connections(config.connection_string, 2);
 
-    int result = Catch::Session().run( argc, argv );
 
-    // global clean-up...
-
-    return ( result < 0xff ? result : 0xff );
 }

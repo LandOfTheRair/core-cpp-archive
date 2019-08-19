@@ -22,6 +22,7 @@
 #include <string>
 #include <optional>
 #include <vector>
+#include <rapidjson/document.h>
 
 using namespace std;
 
@@ -43,7 +44,7 @@ namespace lotr {
 
         [[nodiscard]]
         string serialize() const;
-        static optional<login_response> deserialize(string const &data);
+        static optional<login_response> deserialize(rapidjson::Document const &d);
 
         vector<message_player> players;
     };

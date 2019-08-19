@@ -21,6 +21,7 @@
 
 #include <string>
 #include <optional>
+#include <rapidjson/document.h>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ namespace lotr {
 
         [[nodiscard]]
         string serialize() const;
-        static optional<register_request> deserialize(string const &data);
+        static optional<register_request> deserialize(rapidjson::Document const &d);
 
         string username;
         string password;

@@ -27,13 +27,18 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG -mavx -mavx2")
 file(GLOB_RECURSE PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB SPDLOG_SOURCE ${EXTERNAL_DIR}/spdlog/src/spdlog.cpp)
 file(GLOB_RECURSE USOCKETS_SOURCE ${EXTERNAL_DIR}/uWebSockets/uSockets/src/*.c)
-add_executable(lotr_backend ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES} src/messages/user_access/login_response.cpp src/messages/user_access/login_response.h)
+add_executable(lotr_backend ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES})
 
 file(GLOB_RECURSE PROJECT_SOURCES_WITHOUT_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM PROJECT_SOURCES_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/main.cpp")
 file(GLOB PROJECT_TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/*.cpp ${PROJECT_SOURCE_DIR}/test/test_helpers/*.cpp)
 add_executable(lotr_test ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES_WITHOUT_MAIN} ${PROJECT_TEST_SOURCES})
 add_test(NAME MyTest COMMAND lotr_test)
+
+file(GLOB_RECURSE PROJECT_SOURCES_WITHOUT_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM PROJECT_SOURCES_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/main.cpp")
+file(GLOB PROJECT_BENCHMARK_SOURCES ${PROJECT_SOURCE_DIR}/benchmark/*.cpp ${PROJECT_SOURCE_DIR}/benchmark/benchmark_helpers/*.cpp)
+add_executable(lotr_benchmark ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES_WITHOUT_MAIN} ${PROJECT_BENCHMARK_SOURCES})
 
 find_library(PQXX_LIBRARY pqxx HINTS ${EXTERNAL_DIR}/libpqxx/src/.libs)
 find_library(SODIUM_LIBRARY sodium HINTS ${EXTERNAL_DIR}/libsodium/src/libsodium/.libs)
@@ -73,3 +78,16 @@ target_link_libraries(lotr_test PUBLIC -lpthread -lstdc++fs)
 target_link_libraries(lotr_test PUBLIC ${ZLIB_LIBRARIES} )
 target_link_libraries(lotr_test PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_test PUBLIC ${SODIUM_LIBRARY})
+
+target_link_libraries(lotr_benchmark PUBLIC ${PQXX_LIBRARY} -lpq)
+target_link_libraries(lotr_benchmark PUBLIC -lpthread -lstdc++fs)
+target_link_libraries(lotr_benchmark PUBLIC ${ZLIB_LIBRARIES} )
+target_link_libraries(lotr_benchmark PUBLIC ${OPENSSL_LIBRARIES})
+target_link_libraries(lotr_benchmark PUBLIC ${SODIUM_LIBRARY})
+
+
+add_custom_command(
+        TARGET lotr_backend POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets/
+        ${CMAKE_BINARY_DIR}/assets)

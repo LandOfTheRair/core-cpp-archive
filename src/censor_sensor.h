@@ -20,24 +20,29 @@
 #pragma once
 
 #include <string>
-#include <optional>
-#include <rapidjson/document.h>
+#include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
 namespace lotr {
-    struct generic_error_response {
-        generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
+    enum class profanity_type : uint32_t {
+        SLURS,
+        COMMON_PROFANITY,
+        SEXUAL_TERMS,
+        POSSIBLY_OFFENSIVE,
+        USER_ADDED
+    };
 
-        ~generic_error_response() noexcept = default;
+    class censor_sensor {
+    public:
+        explicit censor_sensor(string const &profanity_dictionary_path);
+        bool is_profane(string const &phrase);
+        void enable_tier(uint32_t tier);
+        void disable_tier(uint32_t tier);
 
-        [[nodiscard]]
-        string serialize() const;
-        static optional<generic_error_response> deserialize(rapidjson::Document const &d);
-
-        string error;
-        string pretty_error_name;
-        string pretty_error_description;
-        bool clear_login_data;
+    private:
+        unordered_map<string, int> _word_tiers;
+        unordered_set<int> _enabled_tiers;
     };
 }

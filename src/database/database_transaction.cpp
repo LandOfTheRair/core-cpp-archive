@@ -33,7 +33,7 @@ database_transaction::~database_transaction() {
 }
 
 pqxx::result database_transaction::execute(string const &query) {
-    spdlog::debug("[database_transaction] executing query {}", query);
+    spdlog::trace("[database_transaction] executing query {}", query);
     return _transaction.exec(query);
 }
 

@@ -1,6 +1,6 @@
 /*
     Land of the Rair
-    Copyright (C) 2019 Michael de Lang
+    Copyright (C) 2019  Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,28 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <string>
-#include <optional>
-#include <rapidjson/document.h>
-
-using namespace std;
+#include "../../src/config.h"
+#include "../../src/database/database_pool.h"
 
 namespace lotr {
-    struct generic_error_response {
-        generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
-
-        ~generic_error_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<generic_error_response> deserialize(rapidjson::Document const &d);
-
-        string error;
-        string pretty_error_name;
-        string pretty_error_description;
-        bool clear_login_data;
-    };
+    extern config config;
+    extern std::shared_ptr<database_pool> db_pool;
 }

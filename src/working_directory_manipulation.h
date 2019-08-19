@@ -21,23 +21,11 @@
 
 #include <string>
 #include <optional>
-#include <rapidjson/document.h>
 
 using namespace std;
 
 namespace lotr {
-    struct generic_error_response {
-        generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
-
-        ~generic_error_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<generic_error_response> deserialize(rapidjson::Document const &d);
-
-        string error;
-        string pretty_error_name;
-        string pretty_error_description;
-        bool clear_login_data;
-    };
+    string get_selfpath();
+    void set_cwd(string const &path);
+    optional<string> read_whole_file(string const &path);
 }

@@ -19,7 +19,6 @@
 #include "login_response.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
-#include <rapidjson/document.h>
 
 using namespace lotr;
 using namespace rapidjson;
@@ -58,16 +57,8 @@ string login_response::serialize() const {
     return sb.GetString();
 }
 
-optional<login_response> login_response::deserialize(string const &data) {
-    if(data.empty() || data.length() < 4) {
-        spdlog::warn("[login_response] deserialize encountered empty buffer");
-        return nullopt;
-    }
-
-    Document d;
-    d.Parse(data.c_str());
-
-    if (d.HasParseError() || !d.IsObject() || !d.HasMember("players")) {
+optional<login_response> login_response::deserialize(rapidjson::Document const &d) {
+    if (!d.HasMember("players")) {
         spdlog::warn("[login_response] deserialize failed");
         return nullopt;
     }

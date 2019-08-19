@@ -16,28 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <string>
-#include <optional>
-#include <rapidjson/document.h>
-
-using namespace std;
-
 namespace lotr {
-    struct generic_error_response {
-        generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
+    struct per_socket_data {
+        uint32_t connection_id;
+        uint32_t user_id;
 
-        ~generic_error_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<generic_error_response> deserialize(rapidjson::Document const &d);
-
-        string error;
-        string pretty_error_name;
-        string pretty_error_description;
-        bool clear_login_data;
+        per_socket_data() : connection_id(0), user_id(0) {}
     };
 }

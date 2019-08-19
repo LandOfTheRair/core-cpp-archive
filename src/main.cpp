@@ -23,6 +23,10 @@
 #include <App.h>
 #include <atomic>
 #include <sodium.h>
+#include <filesystem>
+#include <rapidjson/document.h>
+#include <message_handlers/login_handler.h>
+#include <message_handlers/register_handler.h>
 
 #include "config.h"
 #include "logger_init.h"
@@ -35,22 +39,20 @@
 #include "repositories/users_repository.h"
 #include "repositories/banned_users_repository.h"
 #include "repositories/players_repository.h"
+#include "working_directory_manipulation.h"
+#include "per_socket_data.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc99-extensions"
+
 using namespace std;
 using namespace lotr;
-
-struct PerSocketData {
-    uint32_t connection_id;
-    uint32_t user_id;
-
-    PerSocketData() : connection_id(0), user_id(0) {}
-};
 
 atomic<uint64_t> connection_id_counter;
 
 int main() {
+    set_cwd(get_selfpath());
+
     config config;
     try {
         auto config_opt = parse_env_file();
@@ -63,6 +65,13 @@ int main() {
         return 1;
     }
 
+    if(!filesystem::exists("logs")) {
+        if(!filesystem::create_directory("logs")) {
+            spdlog::error("Fatal error creating logs directory");
+            return -1;
+        }
+    }
+
     reconfigure_logger(config);
 
     auto pool = make_shared<database_pool>();
@@ -72,196 +81,63 @@ int main() {
     banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
     players_repository<database_pool, database_transaction> player_repo(pool);
 
-    uWS::TemplatedApp<false, PerSocketData>()
+    uWS::TemplatedApp<false>()
 
-    .ws("/login", {
+    .ws<per_socket_data>("/*", {
         .compression = uWS::SHARED_COMPRESSOR,
         .maxPayloadLength = 16 * 1024,
         .idleTimeout = 10,
-        .open = [](auto *ws, auto *req) {},
-        .message = [&](auto *ws, std::string_view message, uWS::OpCode opCode) {
-            auto msg = register_request::deserialize(string(message));
-
-            if(!msg) {
-                ws->send("Stop messing around", opCode, true);
-                ws->end(0);
-                return;
-            }
-
-            auto transaction = user_repo.create_transaction();
-            auto banned_usr = banned_user_repo.is_username_or_ip_banned(msg->username, {}, transaction);
-
-            if(banned_usr) {
-                ws->send("You are banned", opCode, true);
-                ws->end(0);
-                return;
-            }
-
-            auto usr = user_repo.get(msg->username, transaction);
-
-            if(!usr) {
-                if(!ws->send("User does not exist", opCode, true)) {
-                    ws->end(0);
-                }
-                return;
-            }
-
-            {
-                sodium_mlock(reinterpret_cast<unsigned char *>(msg->password[0]), msg->password.size());
-                auto scope_guard = on_leaving_scope([&] {
-                    sodium_munlock(reinterpret_cast<unsigned char *>(msg->password[0]), msg->password.size());
-                });
-
-                if(crypto_pwhash_str_verify(usr->password.c_str(), msg->password.c_str(), msg->password.length()) != 0) {
-                    if(!ws->send("Password incorrect", opCode, true)) {
-                        ws->end(0);
-                    }
-                    return;
-                }
-
-                vector<message_player> message_players;
-                auto players = player_repo.get_by_user_id(usr->id, included_tables::location, transaction);
-
-                for(auto &player : players) {
-                    message_players.emplace_back(player.name, player.loc->map_name, player.loc->x, player.loc->y);
-                }
-
-                login_response response(message_players);
-                auto response_msg = response.serialize();
-                ws->send(response_msg);
-
-                PerSocketData *user_data = ws->getUserData();
-                user_data->user_id = usr->id;
-            }
-        },
-        .drain = [](auto *ws) {
-            /* Check getBufferedAmount here */
-            spdlog::trace("Something about draining {}", ws->getBufferedAmount());
-        },
-        .ping = [](auto *ws) {},
-        .pong = [](auto *ws) {},
-        .close = [](auto *ws, int code, std::string_view message) {}
-    })
-
-    .ws("/register", {
-        .compression = uWS::SHARED_COMPRESSOR,
-        .maxPayloadLength = 16 * 1024,
-        .idleTimeout = 10,
-        .open = [](auto *ws, auto *req) {},
-        .message = [&](auto *ws, std::string_view message, uWS::OpCode opCode) {
-            auto msg = register_request::deserialize(string(message)); // TODO figure out how to not make a copy every time
-
-            if(!msg) {
-                ws->send("Stop messing around", opCode, true);
-                ws->end(0);
-                return;
-            }
-
-            auto transaction = user_repo.create_transaction();
-            // TODO modify uwebsockets to include ip address
-            auto banned_usr = banned_user_repo.is_username_or_ip_banned(msg->username, {}, transaction);
-
-            if(banned_usr) {
-                ws->send("You are banned", opCode, true);
-                ws->end(0);
-                return;
-            }
-
-            auto usr = user_repo.get(msg->username, transaction);
-
-            if(usr) {
-                if(!ws->send("User already exists", opCode, true)) {
-                    ws->end(0);
-                } // TODO figure out how to not have to do this shit every time I want to send stuff
-                return;
-            }
-
-            {
-                sodium_mlock(reinterpret_cast<unsigned char *>(msg->password[0]), msg->password.size());
-                auto scope_guard = on_leaving_scope([&] {
-                    sodium_munlock(reinterpret_cast<unsigned char *>(msg->password[0]), msg->password.size());
-                });
-
-                char hashed_password[crypto_pwhash_STRBYTES];
-
-                // TODO benchmark this, having increased the no. of passes to the recommended 10 or higher,
-                //  this might result in taking a huge amount of time
-                if(crypto_pwhash_str(hashed_password,
-                                     msg->password.c_str(),
-                                     msg->password.length(),
-                                     10,
-                                     crypto_pwhash_argon2id_MEMLIMIT_INTERACTIVE) != 0) {
-                    spdlog::error("Registering user, but out of memory?");
-                    if(!ws->send("Server error", opCode, true)) {
-                        ws->end(0);
-                    }
-                    return;
-                }
-
-                user new_usr{0, msg->username, string(hashed_password), msg->email, 0, "", 0, 0};
-                auto inserted = user_repo.insert_if_not_exists(new_usr, transaction);
-
-                if(!inserted) {
-                    if(!ws->send("Server error", opCode, true)) {
-                        ws->end(0);
-                    }
-                    return;
-                }
-
-                login_response response({});
-                auto response_msg = response.serialize();
-                if(!ws->send(response_msg, opCode, true)) {
-                    ws->end(0);
-                }
-                PerSocketData *user_data = ws->getUserData();
-                user_data->user_id = new_usr.id;
-            }
-        },
-        .drain = [](auto *ws) {
-            /* Check getBufferedAmount here */
-            spdlog::trace("Something about draining {}", ws->getBufferedAmount());
-        },
-        .ping = [](auto *ws) {},
-        .pong = [](auto *ws) {},
-        .close = [](auto *ws, int code, std::string_view message) {}
-    })
-
-    .ws("/*", {
-        .compression = uWS::SHARED_COMPRESSOR,
-        .maxPayloadLength = 16 * 1024,
-        .idleTimeout = 10,
-        .open = [](auto *ws, auto *req) {
+        .open = [](uWS::WebSocket<false, true> *ws, uWS::HttpRequest *req) {
+            spdlog::trace("[uws] open connection {}", req->getUrl());
             //only called on connect
-            PerSocketData *user_data = ws->getUserData();
+            auto *user_data = (per_socket_data*)ws->getUserData();
             user_data->connection_id = connection_id_counter++;
         },
-        .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-            ws->send(message, opCode, true);
+        .message = [pool](auto *ws, std::string_view message, uWS::OpCode op_code) {
+            spdlog::trace("[uws] message {} {}", message, op_code);
+
+            if(message.empty() || message.length() < 4) {
+                spdlog::warn("[uws] deserialize encountered empty buffer");
+                return;
+            }
+
+            rapidjson::Document d;
+            d.Parse(string(message).c_str()); // TODO see if we can prevent copying the string every time
+
+            if (d.HasParseError() || !d.IsObject() || !d.HasMember("type") || !d["type"].IsString()) {
+                spdlog::warn("[uws] deserialize failed");
+                ws->end(0);
+                return;
+            }
+
+            string type = d["type"].GetString();
+            auto user_data = (per_socket_data*)ws->getUserData();
+
+            if(type == "login") {
+                handle_login(ws, op_code, d, pool, user_data);
+            } else if (type == "register") {
+                handle_register(ws, op_code, d, pool, user_data);
+            }
         },
         .drain = [](auto *ws) {
             /* Check getBufferedAmount here */
-            spdlog::trace("Something about draining {}", ws->getBufferedAmount());
+            spdlog::trace("[uws] Something about draining {}", ws->getBufferedAmount());
         },
         .ping = [](auto *ws) {
-
+            auto user_data = (per_socket_data*)ws->getUserData();
+            spdlog::trace("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
         },
         .pong = [](auto *ws) {
-
+            auto user_data = (per_socket_data*)ws->getUserData();
+            spdlog::trace("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
         },
         .close = [](auto *ws, int code, std::string_view message) {
             //only called on close
+            spdlog::trace("[uws] close connection {} {}", code, message);
         }
     })
 
-    .post("/register", [](uWS::HttpResponse<false> *res, uWS::HttpRequest *req) {
-
-        //auto msg = register_request::deserialize(req->getParameter())
-
-        res->writeStatus(uWS::HTTP_200_OK);
-        res->end("Hello world!");
-    })
-
-    .listen(3000, [&](auto *token) {
+    .listen(config.port, [&](auto *token) {
         if (token) {
             spdlog::info("[main] listening on \"{}:{}\"", config.address, config.port);
         }
