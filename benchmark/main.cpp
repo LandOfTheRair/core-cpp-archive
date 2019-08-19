@@ -18,7 +18,8 @@
 
 #include <spdlog/spdlog.h>
 #include <filesystem>
-#include <climits>
+#include <chrono>
+#include <censor_sensor.h>
 
 #include "../src/config.h"
 #include "../src/config_parsers.h"
@@ -45,4 +46,15 @@ int main(int argc, char **argv) {
     db_pool->create_connections(config.connection_string, 2);
 
 
+    censor_sensor s("assets/profanity_locales/en.json");
+
+    auto start = chrono::system_clock::now();
+
+    for(int i = 0; i < 10'000'000; i++) {
+        s.is_profane("this is bollocks");
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("is_profine {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
 }

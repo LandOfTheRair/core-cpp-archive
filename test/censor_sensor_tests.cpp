@@ -28,9 +28,18 @@ TEST_CASE("censor sensor tests") {
         censor_sensor s("assets/profanity_locales/en.json");
 
         REQUIRE(s.is_profane("bollocks"));
+        REQUIRE(s.is_profane("BoLloCKs"));
         REQUIRE(s.is_profane("anal"));
         REQUIRE(s.is_profane("arsehole"));
         REQUIRE(s.is_profane("beaners"));
+        REQUIRE(!s.is_profane("hello"));
+        REQUIRE(s.is_profane("this is bollocks"));
+        REQUIRE(s.is_profane("this is BoLloCKs"));
+
+        REQUIRE(s.is_profane_ish("this is bollocks"));
+        REQUIRE(s.is_profane_ish("this is BoLloCKs"));
+        REQUIRE(s.is_profane_ish("hello"));
+        REQUIRE(s.is_profane_ish("HELLO"));
     }
 
     SECTION( "marks words as profane only when tier is enabled" ) {
@@ -42,10 +51,20 @@ TEST_CASE("censor sensor tests") {
         REQUIRE(s.is_profane("arsehole"));
         REQUIRE(s.is_profane("beaners"));
 
+        REQUIRE(!s.is_profane_ish("this is bollocks"));
+
         s.enable_tier(4);
         REQUIRE(s.is_profane("bollocks"));
         REQUIRE(s.is_profane("anal"));
         REQUIRE(s.is_profane("arsehole"));
         REQUIRE(s.is_profane("beaners"));
+
+        REQUIRE(s.is_profane_ish("this is bollocks"));
+    }
+
+    SECTION( "clean profanity" ) {
+        censor_sensor s("assets/profanity_locales/en.json");
+
+        REQUIRE(s.clean_profanity("this is bollocks") == "this is ********");
     }
 }

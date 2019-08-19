@@ -37,7 +37,10 @@ namespace lotr {
     class censor_sensor {
     public:
         explicit censor_sensor(string const &profanity_dictionary_path);
-        bool is_profane(string const &phrase);
+        bool is_profane(string phrase);
+        bool is_profane_ish(string phrase);
+        string clean_profanity(string phrase);
+        string clean_profanity_ish(string phrase);
         void enable_tier(uint32_t tier);
         void disable_tier(uint32_t tier);
 

@@ -18,9 +18,15 @@
 
 #include <spdlog/spdlog.h>
 #include <rapidjson/document.h>
+#include <algorithm>
 
 #include "censor_sensor.h"
 #include "working_directory_manipulation.h"
+
+void string_tolower(string &str) {
+    transform(str.begin(), str.end(), str.begin(),
+              [](unsigned char c){ return tolower(c); });
+}
 
 lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _word_tiers() {
     auto dict_contents = read_whole_file(profanity_dictionary_path);
@@ -38,31 +44,145 @@ lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _w
 
     for (auto iter = d.MemberBegin(); iter != d.MemberEnd(); ++iter){
         string word = iter->name.GetString();
+        string_tolower(word);
+
         int tier = iter->value.GetInt();
         _word_tiers[word] = tier;
         _enabled_tiers.insert(tier);
-
-        spdlog::trace("{} added profanity {}:{}", __FUNCTION__, word, tier);
     }
 }
 
-bool lotr::censor_sensor::is_profane(string const &phrase) {
-    auto word_iter = _word_tiers.find(phrase);
+bool lotr::censor_sensor::is_profane(string phrase) {
+    string_tolower(phrase);
 
-    if(word_iter == _word_tiers.end()) {
-        spdlog::trace("{} phrase {} not in dictionary", __FUNCTION__, phrase);
-        return false;
+    string::size_type last = 0;
+    string::size_type next = 0;
+    bool contains_profanity = false;
+    while ((next = phrase.find(' ', last)) != std::string::npos && !contains_profanity) {
+        string word = phrase.substr(last, next-last);
+        last = next + 1;
+        spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
+        auto word_iter = _word_tiers.find(word);
+
+        if (word_iter == _word_tiers.end()) {
+            continue;
+        }
+
+        auto tier_iter = _enabled_tiers.find(word_iter->second);
+
+        if (tier_iter == _enabled_tiers.end()) {
+            continue;
+        }
+
+        contains_profanity = true;
     }
 
-    auto tier_iter = _enabled_tiers.find(word_iter->second);
+    if(!contains_profanity) {
+        string word = phrase.substr(last);
+        spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
+        auto word_iter = _word_tiers.find(word);
 
-    if(tier_iter == _enabled_tiers.end()) {
-        spdlog::trace("{} phrase {} tier {} not enabled", __FUNCTION__, phrase, word_iter->second);
-        return false;
+        if (word_iter == _word_tiers.end()) {
+            goto end;
+        }
+
+        auto tier_iter = _enabled_tiers.find(word_iter->second);
+
+        if (tier_iter == _enabled_tiers.end()) {
+            goto end;
+        }
+
+        contains_profanity = true;
     }
 
-    spdlog::trace("{} phrase {} profane", __FUNCTION__, phrase);
-    return true;
+    end:
+    spdlog::trace("{} phrase {} profane: {}", __FUNCTION__, phrase, contains_profanity);
+    return contains_profanity;
+}
+
+bool lotr::censor_sensor::is_profane_ish(string phrase) {
+    string_tolower(phrase);
+    for(auto& [word, tier] : _word_tiers) {
+        if(phrase.find(word) != string::npos) {
+            auto tier_iter = _enabled_tiers.find(tier);
+
+            if(tier_iter != _enabled_tiers.end()) {
+                spdlog::trace("{} phrase {} profane ish", __FUNCTION__, phrase);
+                return true;
+            }
+        }
+    }
+
+    spdlog::trace("{} phrase {} not profane ish", __FUNCTION__, phrase);
+    return false;
+}
+
+string lotr::censor_sensor::clean_profanity(string phrase) {
+    string_tolower(phrase);
+
+    string::size_type last = 0;
+    string::size_type next = 0;
+    while ((next = phrase.find(' ', last)) != std::string::npos) {
+        string word = phrase.substr(last, next-last);
+        last = next + 1;
+        auto word_iter = _word_tiers.find(word);
+
+        if (word_iter == _word_tiers.end()) {
+            continue;
+        }
+
+        auto tier_iter = _enabled_tiers.find(word_iter->second);
+
+        if (tier_iter == _enabled_tiers.end()) {
+            continue;
+        }
+
+        string to_insert;
+        for(string::size_type i = 0; i < word_iter->first.size(); i++) {
+            to_insert.insert(0, "*");
+        }
+        phrase.replace(phrase.begin() + last, phrase.begin() + last - next, to_insert);
+    }
+
+    string word = phrase.substr(last);
+    spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
+    auto word_iter = _word_tiers.find(word);
+
+    if (word_iter != _word_tiers.end()) {
+        auto tier_iter = _enabled_tiers.find(word_iter->second);
+
+        if (tier_iter != _enabled_tiers.end()) {
+            string to_insert;
+            for(string::size_type i = 0; i < word_iter->first.size(); i++) {
+                to_insert.insert(0, "*");
+            }
+            phrase.replace(phrase.begin() + last, phrase.end(), to_insert);
+        }
+    }
+
+    spdlog::trace("{} phrase {}", __FUNCTION__, phrase);
+    return phrase;
+}
+
+string lotr::censor_sensor::clean_profanity_ish(string phrase) {
+    string_tolower(phrase);
+    for(auto& [word, tier] : _word_tiers) {
+        auto pos = phrase.find(word);
+        if(pos != string::npos) {
+            auto tier_iter = _enabled_tiers.find(tier);
+
+            if(tier_iter != _enabled_tiers.end()) {
+                string to_insert;
+                for(string::size_type i = 0; i < word.size(); i++) {
+                    to_insert.insert(0, "*");
+                }
+                phrase.replace(phrase.begin() + pos, phrase.begin() + pos + word.size(), to_insert);
+            }
+        }
+    }
+
+    spdlog::trace("{} phrase {}", __FUNCTION__, phrase);
+    return phrase;
 }
 
 void lotr::censor_sensor::enable_tier(uint32_t tier) {
