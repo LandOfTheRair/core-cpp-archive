@@ -22,52 +22,12 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <xxhash.h>
-#include <robin_hood.h>
+#include <lotr_flat_map.h>
 
 using namespace std;
 
 namespace lotr {
-    template<class Key>
-    class xxhash_function;
 
-    template<>
-    class xxhash_function<string>
-    {
-    public:
-        size_t operator()(string const &key) const
-        {
-            return XXH3_64bits(key.c_str(), key.size());
-        }
-
-        size_t operator()(string_view const &key) const
-        {
-            return XXH3_64bits(&key[0], key.size());
-        }
-    };
-
-    template<class Key>
-    class custom_equalto;
-
-    template<>
-    class custom_equalto<string>
-    {
-    public:
-        bool operator()(string const &lhs, string const &rhs) const
-        {
-            return lhs == rhs;
-        }
-
-        bool operator()(string const &lhs, string_view const &rhs) const
-        {
-            return lhs == rhs;
-        }
-
-        bool operator()(string_view const &lhs, string const &rhs) const
-        {
-            return lhs == rhs;
-        }
-    };
 
     enum class profanity_type : uint32_t {
         SLURS,
@@ -88,7 +48,7 @@ namespace lotr {
         void disable_tier(uint32_t tier);
 
     private:
-        robin_hood::unordered_flat_map<string, int, xxhash_function<string>, custom_equalto<string>> _word_tiers;
+        lotr_flat_map<string, int> _word_tiers;
         unordered_set<int> _enabled_tiers;
     };
 }

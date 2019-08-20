@@ -28,6 +28,7 @@
 #include <repositories/players_repository.h>
 #include <on_leaving_scope.h>
 #include <messages/user_access/login_response.h>
+#include <censor_sensor.h>
 
 
 using namespace std;
@@ -35,6 +36,7 @@ namespace lotr {
     void handle_register(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                          shared_ptr<database_pool> pool, per_socket_data *user_data) {
         auto msg = register_request::deserialize(d);
+        static censor_sensor s("assets/profanity_locales/en.json");
 
         if (!msg) {
             ws->send("Stop messing around", op_code, true);
@@ -45,6 +47,11 @@ namespace lotr {
         users_repository<database_pool, database_transaction> user_repo(pool);
         banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
         players_repository<database_pool, database_transaction> player_repo(pool);
+
+        if(s.is_profane_ish(msg->username)) {
+            ws->send("Usernames cannot contain profanities", op_code, true);
+            return;
+        }
 
         auto transaction = user_repo.create_transaction();
         // TODO modify uwebsockets to include ip address

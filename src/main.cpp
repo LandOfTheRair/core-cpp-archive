@@ -17,30 +17,28 @@
 */
 
 
-#include <iostream>
 #include <spdlog/spdlog.h>
-#include <optional>
 #include <App.h>
 #include <atomic>
-#include <sodium.h>
 #include <filesystem>
 #include <rapidjson/document.h>
+#include <functional>
+#include <csignal>
+
 #include <message_handlers/login_handler.h>
 #include <message_handlers/register_handler.h>
 
 #include "config.h"
 #include "logger_init.h"
 #include "config_parsers.h"
-#include "on_leaving_scope.h"
 
-#include "messages/user_access/register_request.h"
-#include "messages/user_access/login_response.h"
 
 #include "repositories/users_repository.h"
 #include "repositories/banned_users_repository.h"
 #include "repositories/players_repository.h"
 #include "working_directory_manipulation.h"
 #include "per_socket_data.h"
+#include "lotr_flat_map.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc99-extensions"
@@ -49,9 +47,20 @@ using namespace std;
 using namespace lotr;
 
 atomic<uint64_t> connection_id_counter;
+atomic<bool> quit{false};
+
+void on_sigint(int sig) {
+    quit = true;
+}
+
+struct uws_is_shit_struct {
+    us_listen_socket_t *socket;
+    uWS::Loop *loop;
+};
 
 int main() {
     set_cwd(get_selfpath());
+    ::signal(SIGINT, on_sigint);
 
     config config;
     try {
@@ -81,67 +90,105 @@ int main() {
     banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
     players_repository<database_pool, database_transaction> player_repo(pool);
 
-    uWS::TemplatedApp<false>()
+    lotr_flat_map<string, function<void(uWS::WebSocket<false, true> *, uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data*)>> message_router;
+    message_router.emplace("Auth:login", handle_login);
+    message_router.emplace("Auth:register", handle_register);
+    uws_is_shit_struct shit_uws{}; // The documentation in uWS is appalling and the attitude the guy has is impossible to deal with. Had to search the issues of the github to find a method to close/stop uWS.
 
-    .ws<per_socket_data>("/*", {
-        .compression = uWS::SHARED_COMPRESSOR,
-        .maxPayloadLength = 16 * 1024,
-        .idleTimeout = 10,
-        .open = [](uWS::WebSocket<false, true> *ws, uWS::HttpRequest *req) {
-            spdlog::trace("[uws] open connection {}", req->getUrl());
-            //only called on connect
-            auto *user_data = (per_socket_data*)ws->getUserData();
-            user_data->connection_id = connection_id_counter++;
-        },
-        .message = [pool](auto *ws, std::string_view message, uWS::OpCode op_code) {
-            spdlog::trace("[uws] message {} {}", message, op_code);
+    auto uws_thread = thread([&config, pool, &message_router, &shit_uws] {
+        shit_uws.loop = uWS::Loop::get();
+        uWS::TemplatedApp<false>().
+            ws<per_socket_data>("/*", {
+                .compression = uWS::SHARED_COMPRESSOR,
+                .maxPayloadLength = 16 * 1024,
+                .idleTimeout = 10,
+                .open = [](uWS::WebSocket<false, true> *ws, uWS::HttpRequest *req) {
+                    if(quit) {
+                        spdlog::debug("[uws] new connection in closing state");
+                        ws->end(0);
+                        return;
+                    }
 
-            if(message.empty() || message.length() < 4) {
-                spdlog::warn("[uws] deserialize encountered empty buffer");
-                return;
+                    //only called on connect
+                    auto *user_data = (per_socket_data *) ws->getUserData();
+                    user_data->connection_id = connection_id_counter++;
+                    user_data->user_id = 0;
+                    spdlog::trace("[uws] open connection {} {}", req->getUrl(), user_data->connection_id);
+                },
+                .message = [pool, &message_router](auto *ws, std::string_view message, uWS::OpCode op_code) {
+                    spdlog::trace("[uws] message {} {}", message, op_code);
+
+                    if (message.empty() || message.length() < 4) {
+                        spdlog::warn("[uws] deserialize encountered empty buffer");
+                        return;
+                    }
+
+                    rapidjson::Document d;
+                    d.Parse(&message[0], message.size());
+
+                    if (d.HasParseError() || !d.IsObject() || !d.HasMember("type") || !d["type"].IsString()) {
+                        spdlog::warn("[uws] deserialize failed");
+                        ws->end(0);
+                        return;
+                    }
+
+                    string type = d["type"].GetString();
+                    auto user_data = (per_socket_data *) ws->getUserData();
+
+                    auto handler = message_router.find(type);
+                    if (handler != message_router.end()) {
+                        handler->second(ws, op_code, d, pool, user_data);
+                    } else {
+                        spdlog::trace("[uws] no handler for type {}", type);
+                    }
+                },
+                .drain = [](auto *ws) {
+                    /* Check getBufferedAmount here */
+                    spdlog::trace("[uws] Something about draining {}", ws->getBufferedAmount());
+                },
+                .ping = [](auto *ws) {
+                    auto user_data = (per_socket_data *) ws->getUserData();
+                    spdlog::trace("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
+                },
+                .pong = [](auto *ws) {
+                    auto user_data = (per_socket_data *) ws->getUserData();
+                    spdlog::trace("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
+                },
+                .close = [](auto *ws, int code, std::string_view message) {
+                    //only called on close
+                    auto *user_data = (per_socket_data *) ws->getUserData();
+                    spdlog::trace("[uws] close connection {} {} {} {}", code, message, user_data->connection_id, user_data->user_id);
+                }
+        })
+
+        .listen(config.port, [&](us_listen_socket_t *token) {
+            if (token) {
+                spdlog::info("[main] listening on \"{}:{}\"", config.address, config.port);
+                shit_uws.socket = token;
             }
+        }).run();
 
-            rapidjson::Document d;
-            d.Parse(&message[0], message.size());
+        spdlog::warn("[uws] done");
+    });
 
-            if (d.HasParseError() || !d.IsObject() || !d.HasMember("type") || !d["type"].IsString()) {
-                spdlog::warn("[uws] deserialize failed");
-                ws->end(0);
-                return;
-            }
-
-            string type = d["type"].GetString();
-            auto user_data = (per_socket_data*)ws->getUserData();
-
-            if(type == "login") {
-                handle_login(ws, op_code, d, pool, user_data);
-            } else if (type == "register") {
-                handle_register(ws, op_code, d, pool, user_data);
-            }
-        },
-        .drain = [](auto *ws) {
-            /* Check getBufferedAmount here */
-            spdlog::trace("[uws] Something about draining {}", ws->getBufferedAmount());
-        },
-        .ping = [](auto *ws) {
-            auto user_data = (per_socket_data*)ws->getUserData();
-            spdlog::trace("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
-        },
-        .pong = [](auto *ws) {
-            auto user_data = (per_socket_data*)ws->getUserData();
-            spdlog::trace("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
-        },
-        .close = [](auto *ws, int code, std::string_view message) {
-            //only called on close
-            spdlog::trace("[uws] close connection {} {}", code, message);
+    //world w;
+    //w.load_from_database(db_pool, config, player_event_queue, producer);
+    auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);
+    while (!quit) {
+        auto now = chrono::system_clock::now();
+        if(now < next_tick) {
+            this_thread::sleep_until(next_tick);
         }
-    })
+        //w.do_tick(config.tick_length);
+        next_tick += chrono::milliseconds(config.tick_length);
+    }
 
-    .listen(config.port, [&](auto *token) {
-        if (token) {
-            spdlog::info("[main] listening on \"{}:{}\"", config.address, config.port);
-        }
-    }).run();
+    spdlog::warn("quitting program");
+    shit_uws.loop->defer([&shit_uws] {
+        us_listen_socket_close(0, shit_uws.socket);
+    });
+    uws_thread.join();
+    spdlog::warn("uws thread stopped");
 
     return 0;
 }

@@ -28,5 +28,6 @@ namespace lotr {
         uint16_t port;
         string debug_level;
         string connection_string;
+        uint32_t tick_length;
     };
 }

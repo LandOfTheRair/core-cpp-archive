@@ -71,6 +71,7 @@ include_directories("${ZLIB_INCLUDE_DIRS}")
 include_directories("${EXTERNAL_DIR}/libsodium/src/libsodium/include")
 include_directories("${EXTERNAL_DIR}/xxHash")
 include_directories("${EXTERNAL_DIR}/robin-hood-hashing/src/include")
+include_directories("${EXTERNAL_DIR}/entt/src")
 
 
 target_link_libraries(lotr_backend PUBLIC ${PQXX_LIBRARY} -lpq)

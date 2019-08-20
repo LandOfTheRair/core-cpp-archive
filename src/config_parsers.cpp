@@ -63,11 +63,17 @@ optional<config> lotr::parse_env_file() {
         return {};
     }
 
+    if(!d.HasMember("TICK_LENGTH")) {
+        spdlog::error("{} deserialize config.json missing TICK_LENGTH", __FUNCTION__);
+        return {};
+    }
+
     config config;
     config.debug_level = d["DEBUG_LEVEL"].GetString();
     config.address = d["ADDRESS"].GetString();
-    config.port = d["PORT"].GetInt();
+    config.port = d["PORT"].GetUint();
     config.connection_string = d["CONNECTION_STRING"].GetString();
+    config.tick_length = d["TICK_LENGTH"].GetUint();
 
     return config;
 }
