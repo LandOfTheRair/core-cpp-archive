@@ -41,7 +41,7 @@ lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _w
     d.Parse(dict_contents->c_str(), dict_contents->size());
 
     if (d.HasParseError() || !d.IsObject()) {
-        spdlog::warn("{} deserialize failed", __FUNCTION__);
+        spdlog::warn("{} deserialize failed: {}", __FUNCTION__, d.GetParseError());
         throw runtime_error("deserialize failed");
     }
 

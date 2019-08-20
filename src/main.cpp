@@ -102,7 +102,7 @@ int main() {
             }
 
             rapidjson::Document d;
-            d.Parse(string(message).c_str()); // TODO see if we can prevent copying the string every time
+            d.Parse(&message[0], message.size());
 
             if (d.HasParseError() || !d.IsObject() || !d.HasMember("type") || !d["type"].IsString()) {
                 spdlog::warn("[uws] deserialize failed");
