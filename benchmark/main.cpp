@@ -56,5 +56,5 @@ int main(int argc, char **argv) {
 
     auto end = chrono::system_clock::now();
 
-    spdlog::info("is_profine {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
+    spdlog::info("is_profane {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
 }

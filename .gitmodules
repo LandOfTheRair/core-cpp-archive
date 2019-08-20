@@ -19,3 +19,9 @@
 [submodule "external/libsodium"]
 	path = external/libsodium
 	url = https://github.com/jedisct1/libsodium.git
+[submodule "external/xxHash"]
+	path = external/xxHash
+	url = https://github.com/Cyan4973/xxHash.git
+[submodule "external/robin-hood-hashing"]
+	path = external/robin-hood-hashing
+	url = https://github.com/martinus/robin-hood-hashing.git

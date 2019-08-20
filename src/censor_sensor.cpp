@@ -28,6 +28,9 @@ void string_tolower(string &str) {
               [](unsigned char c){ return tolower(c); });
 }
 
+
+
+
 lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _word_tiers() {
     auto dict_contents = read_whole_file(profanity_dictionary_path);
     if(!dict_contents) {
@@ -55,11 +58,12 @@ lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _w
 bool lotr::censor_sensor::is_profane(string phrase) {
     string_tolower(phrase);
 
+    auto phrase_view = string_view(phrase);
     string::size_type last = 0;
     string::size_type next = 0;
     bool contains_profanity = false;
     while ((next = phrase.find(' ', last)) != std::string::npos && !contains_profanity) {
-        string word = phrase.substr(last, next-last);
+        auto word = phrase_view.substr(last, next-last);
         last = next + 1;
         spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
         auto word_iter = _word_tiers.find(word);
@@ -78,7 +82,7 @@ bool lotr::censor_sensor::is_profane(string phrase) {
     }
 
     if(!contains_profanity) {
-        string word = phrase.substr(last);
+        auto word = phrase_view.substr(last);
         spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
         auto word_iter = _word_tiers.find(word);
 
@@ -120,10 +124,11 @@ bool lotr::censor_sensor::is_profane_ish(string phrase) {
 string lotr::censor_sensor::clean_profanity(string phrase) {
     string_tolower(phrase);
 
+    auto phrase_view = string_view(phrase);
     string::size_type last = 0;
     string::size_type next = 0;
     while ((next = phrase.find(' ', last)) != std::string::npos) {
-        string word = phrase.substr(last, next-last);
+        auto word = phrase_view.substr(last, next-last);
         last = next + 1;
         auto word_iter = _word_tiers.find(word);
 
@@ -144,7 +149,7 @@ string lotr::censor_sensor::clean_profanity(string phrase) {
         phrase.replace(phrase.begin() + last, phrase.begin() + last - next, to_insert);
     }
 
-    string word = phrase.substr(last);
+    auto word = phrase_view.substr(last);
     spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
     auto word_iter = _word_tiers.find(word);
 
