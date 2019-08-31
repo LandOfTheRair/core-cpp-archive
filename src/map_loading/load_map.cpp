@@ -51,8 +51,9 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
     auto& json_layers = d["layers"];
 
     for(SizeType i = 0; i < json_layers.Size(); i++) {
-        spdlog::trace("{} layer {}", __FUNCTION__, i);
         auto& current_layer = json_layers[i];
+        spdlog::trace("{} layer {}: {}", __FUNCTION__, i, current_layer["name"].GetString());
+
 
         if (!current_layer.IsObject()) {
             spdlog::warn("{} deserialize failed", __FUNCTION__);
@@ -65,7 +66,7 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
                 data.push_back(current_layer["data"][j].GetUint());
             }
             map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), current_layer["width"].GetInt(),
-                                    current_layer["height"].GetInt(), current_layer["type"].GetString(), vector<map_object>{}, data);
+                                    current_layer["height"].GetInt(), current_layer["name"].GetString(), current_layer["type"].GetString(), vector<map_object>{}, data);
         }
 
         if(current_layer["type"].GetString() == "objectgroup"s) {
@@ -73,26 +74,35 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
             for (SizeType j = 0; j < current_layer["objects"].Size(); j++) {
 
                 auto& current_object = current_layer["objects"][j];
+                //spdlog::trace("{} object {}", __FUNCTION__, current_object["id"].GetUint());
                 // object properties
-                auto& json_object_properties = current_object["properties"];
-                vector<map_property> object_properties;
-                for(auto it = json_object_properties.MemberBegin(); it != json_object_properties.MemberEnd(); it++) {
-                    string name = it->name.GetString();
-                    if(it->value.GetType() == Type::kStringType) {
-                        object_properties.emplace_back(name, string(it->value.GetString()));
-                    }
 
-                    if(it->value.GetType() == Type::kNumberType) {
-                        object_properties.emplace_back(name, it->value.GetUint());
+                vector<map_property> object_properties;
+                if(current_object.HasMember("properties")) {
+                    auto &json_object_properties = current_object["properties"];
+                    for (auto it = json_object_properties.MemberBegin(); it != json_object_properties.MemberEnd(); it++) {
+                        string name = it->name.GetString();
+                        if (it->value.GetType() == Type::kStringType) {
+                            object_properties.emplace_back(name, string(it->value.GetString()));
+                        }
+
+                        if (it->value.GetType() == Type::kNumberType) {
+                            object_properties.emplace_back(name, it->value.GetDouble());
+                        }
                     }
                 }
 
                 // object itself
-                objects.emplace_back(current_object["gid"].GetUint(), current_object["id"].GetUint(),
+
+                uint32_t gid = 0;
+                if(current_object.HasMember("gid")) {
+                    gid = current_object["gid"].GetUint();
+                }
+                objects.emplace_back(gid, current_object["id"].GetUint(),
                         current_object["x"].GetUint(), current_object["y"].GetUint(), current_object["width"].GetUint(),
                         current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties);
             }
-            map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["type"].GetString(),
+            map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["name"].GetString(), current_layer["type"].GetString(),
                                     objects, vector<uint32_t>{});
         }
     }
@@ -107,7 +117,7 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
         }
 
         if(it->value.GetType() == Type::kNumberType) {
-            map_properties.emplace_back(name, it->value.GetUint());
+            map_properties.emplace_back(name, it->value.GetDouble());
         }
     }
 

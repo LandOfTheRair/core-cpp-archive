@@ -28,9 +28,12 @@
 #include <message_handlers/login_handler.h>
 #include <message_handlers/register_handler.h>
 
+#include <entt/entt.hpp>
+
 #include "config.h"
 #include "logger_init.h"
 #include "config_parsers.h"
+#include "map_loading/load_map.h"
 
 
 #include "repositories/users_repository.h"
@@ -171,6 +174,22 @@ int main() {
         spdlog::warn("[uws] done");
     });
 
+    entt::registry registry;
+
+    for(auto& p: filesystem::recursive_directory_iterator("assets/maps")) {
+        if(!p.is_regular_file()) {
+            continue;
+        }
+
+        auto map = load_map_from_file(p.path().string());
+
+        if(!map) {
+            continue;
+        }
+
+        auto new_entity = registry.create();
+        registry.assign<map_component>(new_entity, map.value());
+    }
     //world w;
     //w.load_from_database(db_pool, config, player_event_queue, producer);
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);

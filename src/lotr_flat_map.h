@@ -68,5 +68,5 @@ namespace lotr {
     };
 
     template <typename Key, typename T>
-    using lotr_flat_map = robin_hood::unordered_flat_map<Key, T, xxhash_function<string>, custom_equalto<string>>;
+    using lotr_flat_map = robin_hood::unordered_flat_map<Key, T, xxhash_function<Key>, custom_equalto<Key>>;
 }

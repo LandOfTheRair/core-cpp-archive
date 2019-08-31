@@ -88,6 +88,7 @@ TEST_CASE("map_loading tests") {
     REQUIRE(map->layers[0].height == 48);
     REQUIRE(map->layers[0].x == 0);
     REQUIRE(map->layers[0].y == 0);
+    REQUIRE(map->layers[0].name == "Terrain"s);
     REQUIRE(map->layers[0].type == "tilelayer"s);
     REQUIRE(map->layers[0].objects.size() == 0);
 
@@ -103,6 +104,7 @@ TEST_CASE("map_loading tests") {
     REQUIRE(map->layers[1].height == 0);
     REQUIRE(map->layers[1].x == 0);
     REQUIRE(map->layers[1].y == 0);
+    REQUIRE(map->layers[1].name == "NPCs"s);
     REQUIRE(map->layers[1].type == "objectgroup"s);
     REQUIRE(map->layers[1].objects.size() == 1);
     REQUIRE(map->layers[1].data.size() == 0);

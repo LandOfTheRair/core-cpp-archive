@@ -82,9 +82,9 @@ namespace lotr {
 
     struct map_property {
         string name;
-        variant<int, string> value;
+        variant<double, string> value;
 
-        map_property(string name, int value) : name(move(name)), value(value) {}
+        map_property(string name, double value) : name(move(name)), value(value) {}
         map_property(string name, string value) : name(move(name)), value(value) {}
     };
 
@@ -108,13 +108,14 @@ namespace lotr {
         uint32_t y;
         uint32_t width;
         uint32_t height;
+        string name;
         string type;
 
         vector<map_object> objects;
         vector<uint32_t> data;
 
-        map_layer(uint32_t x, uint32_t y, uint32_t width, uint32_t height, string type, vector<map_object> objects, vector<uint32_t> data)
-            : x(x), y(y), width(width), height(height), type(move(type)), objects(move(objects)), data(move(data)) {}
+        map_layer(uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_object> objects, vector<uint32_t> data)
+            : x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), objects(move(objects)), data(move(data)) {}
     };
 
     struct map_component {
