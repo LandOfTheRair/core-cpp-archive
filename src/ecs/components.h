@@ -19,6 +19,7 @@
 #pragma once
 
 #include <string>
+#include <variant>
 
 using namespace std;
 
@@ -75,5 +76,55 @@ namespace lotr {
         string discord_tag;
         bool discord_online;
         vector<character_component> characters;
+    };
+
+    // maps
+
+    struct map_property {
+        string name;
+        variant<int, string> value;
+
+        map_property(string name, int value) : name(move(name)), value(value) {}
+        map_property(string name, string value) : name(move(name)), value(value) {}
+    };
+
+    struct map_object {
+        uint32_t gid;
+        uint32_t id;
+        uint32_t x;
+        uint32_t y;
+        uint32_t width;
+        uint32_t height;
+        string name;
+        string type;
+        vector<map_property> properties;
+
+        map_object(uint32_t gid, uint32_t id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_property> properties)
+            : gid(gid), id(id), x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), properties(move(properties)) {}
+    };
+
+    struct map_layer {
+        uint32_t x;
+        uint32_t y;
+        uint32_t width;
+        uint32_t height;
+        string type;
+
+        vector<map_object> objects;
+        vector<uint32_t> data;
+
+        map_layer(uint32_t x, uint32_t y, uint32_t width, uint32_t height, string type, vector<map_object> objects, vector<uint32_t> data)
+            : x(x), y(y), width(width), height(height), type(move(type)), objects(move(objects)), data(move(data)) {}
+    };
+
+    struct map_component {
+        uint32_t width;
+        uint32_t height;
+        string name;
+        vector<map_property> properties;
+        vector<map_layer> layers;
+
+        map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, vector<map_layer> layers)
+            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)) {}
     };
 }

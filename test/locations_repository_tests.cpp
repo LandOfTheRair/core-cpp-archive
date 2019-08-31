@@ -31,7 +31,7 @@ TEST_CASE("locations repository tests") {
 
     SECTION( "location inserted correctly" ) {
         auto transaction = loc_repo.create_transaction();
-        location loc{0, "map name", 10, 10};
+        location loc{0, "load_map name", 10, 10};
         loc_repo.insert(loc, transaction);
         REQUIRE(loc.id != 0);
 
@@ -44,7 +44,7 @@ TEST_CASE("locations repository tests") {
 
     SECTION( "update location" ) {
         auto transaction = loc_repo.create_transaction();
-        location loc{0, "map name", 10, 10};
+        location loc{0, "load_map name", 10, 10};
         loc_repo.insert(loc, transaction);
         REQUIRE(loc.id != 0);
 

@@ -19,7 +19,6 @@
 #include "config_parsers.h"
 #include "working_directory_manipulation.h"
 
-#include <fstream>
 #include <spdlog/spdlog.h>
 #include <rapidjson/document.h>
 
