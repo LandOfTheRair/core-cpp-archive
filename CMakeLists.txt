@@ -43,6 +43,7 @@ add_executable(lotr_benchmark ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOUR
 find_library(PQXX_LIBRARY pqxx HINTS ${EXTERNAL_DIR}/libpqxx/src/.libs)
 find_library(SODIUM_LIBRARY sodium HINTS ${EXTERNAL_DIR}/libsodium/src/libsodium/.libs)
 find_library(XXHASH_LIBRARY xxhash HINTS ${EXTERNAL_DIR}/xxHash)
+find_library(YAML_LIBRARY yaml-cpp HINTS ${EXTERNAL_DIR}/yaml-cpp)
 
 if(NOT PQXX_LIBRARY)
     message(FATAL_ERROR "libpqxx not found")
@@ -54,6 +55,10 @@ endif()
 
 if(NOT XXHASH_LIBRARY)
     message(FATAL_ERROR "libxxhash not found")
+endif()
+
+if(NOT YAML_LIBRARY)
+    message(FATAL_ERROR "yaml-cpp not found")
 endif()
 
 find_package(ZLIB REQUIRED)
@@ -72,6 +77,7 @@ include_directories("${EXTERNAL_DIR}/libsodium/src/libsodium/include")
 include_directories("${EXTERNAL_DIR}/xxHash")
 include_directories("${EXTERNAL_DIR}/robin-hood-hashing/src/include")
 include_directories("${EXTERNAL_DIR}/entt/src")
+include_directories("${EXTERNAL_DIR}/yaml-cpp/include")
 
 
 target_link_libraries(lotr_backend PUBLIC ${PQXX_LIBRARY} -lpq)
@@ -80,6 +86,7 @@ target_link_libraries(lotr_backend PUBLIC ${ZLIB_LIBRARIES} )
 target_link_libraries(lotr_backend PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_backend PUBLIC ${SODIUM_LIBRARY})
 target_link_libraries(lotr_backend PUBLIC ${XXHASH_LIBRARY})
+target_link_libraries(lotr_backend PUBLIC ${YAML_LIBRARY})
 
 target_link_libraries(lotr_test PUBLIC ${PQXX_LIBRARY} -lpq)
 target_link_libraries(lotr_test PUBLIC -lpthread -lstdc++fs)
@@ -87,6 +94,7 @@ target_link_libraries(lotr_test PUBLIC ${ZLIB_LIBRARIES} )
 target_link_libraries(lotr_test PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_test PUBLIC ${SODIUM_LIBRARY})
 target_link_libraries(lotr_test PUBLIC ${XXHASH_LIBRARY})
+target_link_libraries(lotr_test PUBLIC ${YAML_LIBRARY})
 
 target_link_libraries(lotr_benchmark PUBLIC ${PQXX_LIBRARY} -lpq)
 target_link_libraries(lotr_benchmark PUBLIC -lpthread -lstdc++fs)
@@ -94,6 +102,7 @@ target_link_libraries(lotr_benchmark PUBLIC ${ZLIB_LIBRARIES} )
 target_link_libraries(lotr_benchmark PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_benchmark PUBLIC ${SODIUM_LIBRARY})
 target_link_libraries(lotr_benchmark PUBLIC ${XXHASH_LIBRARY})
+target_link_libraries(lotr_benchmark PUBLIC ${YAML_LIBRARY})
 
 
 add_custom_command(
