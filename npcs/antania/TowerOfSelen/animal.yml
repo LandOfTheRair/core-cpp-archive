@@ -1,0 +1,88 @@
+
+
+- npcId: Tower Warg
+  name: warg
+  hostility: Always
+  monsterClass: Beast
+  sprite: 405
+  alignment: Evil
+  stats: 10
+  skillLevels: 2
+  level: 10
+
+  skillOnKill:  20
+
+  otherStats:
+    con: 15
+    perception: 200
+
+  gold:
+    min: 150
+    max: 300
+
+  hp:
+    min: 3950
+    max: 4350
+
+  giveXp:
+    min: 2000
+    max: 3000
+
+  gear:
+    Armor: Tower Warg Leather
+    Hands: Medium Claws
+
+  baseEffects:
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  usableSkills:
+    - PoisonBiteMedium
+
+  tansFor: Tower Warg Leather
+
+- npcId: Tower Warspider
+  name: warspider
+  hostility: Always
+  monsterClass: Beast
+  sprite: 800
+  alignment: Evil
+  stats: 9
+  skillLevels: 2
+  level: 10
+
+  skillOnKill:  20
+
+  otherStats:
+    con: 15
+    perception: 200
+
+  gold:
+    min: 250
+    max: 400
+
+  hp:
+    min: 4250
+    max: 4550
+
+  giveXp:
+    min: 2300
+    max: 3300
+
+  gear:
+    Hands: Medium Claws
+
+  baseEffects:
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  drops:
+    - result: Tower Spider Egg
+      chance: 20
+
+  usableSkills:
+    - ChillBiteMedium

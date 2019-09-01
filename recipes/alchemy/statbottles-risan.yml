@@ -1,0 +1,121 @@
+
+
+- item: Risan Strength Potion
+  skillGained: 1000
+  maxSkillForGains: 17
+  requiredSkill: 8
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Antanian Bottle of Water
+    - Bradley Constitution Potion
+    - Catacombs Raw Garnet
+    - Frostlands Gourd
+    - Frostlands Gourd
+    - Catacombs Frostflower
+    - Catacombs Frostflower
+
+- item: Risan Dexterity Potion
+  skillGained: 1000
+  maxSkillForGains: 17
+  requiredSkill: 8
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Antanian Bottle of Water
+    - Bradley Constitution Potion
+    - Catacombs Raw Amber
+    - Frostlands Gourd
+    - Frostlands Gourd
+    - Catacombs Frostflower
+    - Catacombs Frostflower
+
+- item: Risan Intelligence Potion
+  skillGained: 1000
+  maxSkillForGains: 17
+  requiredSkill: 8
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Antanian Bottle of Water
+    - Bradley Constitution Potion
+    - Catacombs Raw Topaz
+    - Frostlands Gourd
+    - Frostlands Gourd
+    - Catacombs Frostflower
+    - Catacombs Frostflower
+
+- item: Risan Wisdom Potion
+  skillGained: 1000
+  maxSkillForGains: 17
+  requiredSkill: 8
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Antanian Bottle of Water
+    - Bradley Constitution Potion
+    - Catacombs Raw Turquoise
+    - Frostlands Gourd
+    - Frostlands Gourd
+    - Catacombs Frostflower
+    - Catacombs Frostflower
+
+- item: Risan Agility Potion
+  skillGained: 1000
+  maxSkillForGains: 17
+  requiredSkill: 8
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Antanian Bottle of Water
+    - Bradley Constitution Potion
+    - Catacombs Raw Tourmaline
+    - Frostlands Gourd
+    - Frostlands Gourd
+    - Catacombs Frostflower
+    - Catacombs Frostflower
+
+- item: Risan Willpower Potion
+  skillGained: 1000
+  maxSkillForGains: 20
+  requiredSkill: 10
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Silver Scale (Refined)
+    - Risan Intelligence Potion
+    - Risan Intelligence Potion
+    - Risan Wisdom Potion
+    - Risan Wisdom Potion
+    - Risan Constitution Potion
+    - Risan Constitution Potion
+
+- item: Risan Charisma Potion
+  skillGained: 1000
+  maxSkillForGains: 20
+  requiredSkill: 10
+  xpGained: 15000
+  ingredients:
+    - Silver Scale (Refined)
+    - Silver Scale (Refined)
+    - Risan Strength Potion
+    - Risan Strength Potion
+    - Risan Dexterity Potion
+    - Risan Dexterity Potion
+    - Risan Agility Potion
+    - Risan Agility Potion
+
+- item: Risan Luck Potion
+  skillGained: 1000
+  maxSkillForGains: 25
+  requiredSkill: 12
+  xpGained: 15000
+  ingredients:
+    - Risan Strength Potion
+    - Risan Dexterity Potion
+    - Risan Agility Potion
+    - Risan Intelligence Potion
+    - Risan Wisdom Potion
+    - Risan Willpower Potion
+    - Risan Charisma Potion
+    - Risan Constitution Potion

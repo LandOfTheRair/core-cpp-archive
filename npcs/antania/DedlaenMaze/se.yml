@@ -1,0 +1,269 @@
+
+- npcId: Dedlaen Crypt Thing
+  name: crypt thing
+  monsterClass: Undead
+  hostility: Always
+  sprite: 225
+  alignment: Evil
+  stats: 20
+  skillLevels: 4
+  level: 20
+
+  skillOnKill: 1000
+
+  otherStats:
+    con: 25
+    wil: 29
+    accuracy: 5
+    offense: 5
+    perception: 300
+
+  gold:
+    min: 23050
+    max: 23700
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'magical'
+        potency: 0
+
+  gear:
+    Hands: Maze Skeleton Claws
+    Waist: Dedlaen Crypt Thing Sash
+
+  copyDrops:
+    - drop: 'gear.Waist'
+      chance: -1
+
+  drops:
+    - result: Dedlaen CryptThing Heart
+      chance: -1
+    - result: Dedlaen Maze Key
+      chance: 1
+      maxChance: 5
+
+  usableSkills:
+    - result: DiseaseBiteMedium
+      chance: 10
+    - result: PoisonBiteMedium
+      chance: 10
+    - result: DoubleAttack
+      chance: 15
+    - result: Push
+      chance: 5
+    - result: TrueSight
+      chance: 20
+    - result: DarkVision
+      chance: 20
+    - result: DedlaenCryptThingPunch
+      chance: 1
+
+  hp:
+    min: 337950
+    max: 341350
+
+  mp:
+    min: 10000
+    max: 10000
+
+  giveXp:
+    min: 269000
+    max: 275000
+
+- npcId: Dedlaen Water Naga
+  name: water naga
+  hostility: OnHit
+  baseClass: Mage
+  sprite: 430
+  stats: 20
+  skillLevels: 7
+  level: 20
+
+  skillOnKill: 30
+
+  otherStats:
+    waterResist: 5000
+    con: 25
+    perception: 225
+    mpregen: 10
+
+  gold:
+    min: 1550
+    max: 1700
+
+  hp:
+    min: 30950
+    max: 35350
+
+  mp:
+    min: 900
+    max: 1000
+
+  giveXp:
+    min: 40000
+    max: 45000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 0.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'ice'
+        potency: 1.75
+
+  usableSkills:
+    - IceMist
+    - BarFrost
+    - DarkVision
+    - Absorption
+    - ChillBiteMedium
+    - Disease
+
+  drops:
+    - result: Dedlaen Naga Key
+      chance: 1
+      maxChance: 100
+
+- npcId: Dedlaen Spider
+  name: spider
+  hostility: Always
+  monsterClass: Beast
+  sprite: 800
+  alignment: Evil
+  stats: 15
+  skillLevels: 2
+  level: 20
+
+  skillOnKill: 25
+
+  otherStats:
+    con: 25
+    perception: 200
+
+  gold:
+    min: 150
+    max: 250
+
+  hp:
+    min: 14000
+    max: 15000
+
+  giveXp:
+    min: 23000
+    max: 25000
+
+  gear:
+    Hands: Medium Claws
+
+  usableSkills:
+    - PoisonBiteStrong
+    - DedlaenSpiderImmobilize
+
+- npcId: Dedlaen Leech
+  name: leech
+  hostility: Always
+  baseClass: Mage
+  monsterClass: Beast
+  sprite: 785
+  alignment: Evil
+  stats: 15
+  skillLevels: 2
+  level: 18
+
+  skillOnKill: 25
+
+  otherStats:
+    con: 25
+    perception: 200
+
+  gold:
+    min: 150
+    max: 250
+
+  hp:
+    min: 15000
+    max: 16000
+
+  mp:
+    min: 500
+    max: 500
+
+  giveXp:
+    min: 23000
+    max: 27000
+
+  gear:
+    Hands: Medium Claws
+
+  usableSkills:
+    - Drain
+
+- npcId: Dedlaen Dragon Turtle
+  name: turtle dragon
+  hostility: Always
+  sprite: 455
+  baseClass: Mage
+  alignment: Evil
+  stats: 20
+  skillLevels: 8
+  level: 20
+
+  skillOnKill: 1500
+  aquaticOnly: true
+
+  otherStats:
+    waterResist: 500000
+    con: 35
+    wil: 29
+    armorClass: 30
+    accuracy: 10
+    defense: 10
+    offense: 10
+    perception: 330
+    mpregen: 20
+
+  gold:
+    min: 27050
+    max: 27700
+
+  gear:
+    Hands: Maze Skeleton Claws
+
+  baseEffects:
+    - name: TrueSight
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  usableSkills:
+    - ShredTwentyPercent
+    - PoisonBiteMedium
+    - DoubleAttack
+    - DedlaenDragonTurtleFire
+    - PullOne
+
+  drops:
+    - result: Dedlaen Dragon Turtle Egg
+      chance: -1
+
+  hp:
+    min: 737950
+    max: 741350
+
+  mp:
+    min: 10000
+    max: 10000
+
+  giveXp:
+    min: 369000
+    max: 375000
+
+  spawnMessage: "the splashing and crunching of a giant sea creature"
+  leashMessage: "the splashing and crunching of a giant sea creature"
+  sfx: "dragon"
+  sfxMaxChance: 1
+

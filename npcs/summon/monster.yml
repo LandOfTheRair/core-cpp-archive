@@ -1,0 +1,40 @@
+
+- npcId: Summoned Vampire Bat
+  name: bat
+  hostility: Always
+  sprite: 805
+  alignment: Evil
+  stats: 18
+  skillLevels: 4
+  level: 18
+
+  noCorpseDrop: true
+
+  skillOnKill: 15
+
+  otherStats:
+    con: 15
+    wil: 5
+    str: 20
+    dex: 25
+    agi: 30
+    defense: 10
+    perception: 245
+
+  gold:
+    min: 0
+    max: 0
+
+  hp:
+    min: 13950
+    max: 16350
+
+  giveXp:
+    min: 29000
+    max: 35000
+
+  usableSkills:
+    - PoisonBiteMedium
+
+  gear:
+    Hands: Maze Skeleton Claws

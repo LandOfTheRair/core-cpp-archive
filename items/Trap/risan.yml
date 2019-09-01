@@ -1,0 +1,154 @@
+- name: Risan FireMist Thief Trap
+  sprite: 1024
+  desc: "a trap imbued with the spell Fire Mist"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: FireMist
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 3500
+
+- name: Risan IceMist Thief Trap
+  sprite: 1027
+  desc: "a trap imbued with the spell Ice Mist"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: IceMist
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 3500
+
+- name: Risan Poison Thief Trap
+  sprite: 1028
+  desc: "a trap imbued with the spell Poison"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: Poison
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 3000
+
+- name: Risan HolyFire Thief Trap
+  sprite: 1025
+  desc: "a trap imbued with the spell Holy Fire"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: HolyFire
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 3000
+
+- name: Risan MagicBolt Thief Trap
+  sprite: 1025
+  desc: "a trap imbued with the spell Magic Bolt"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: MagicBolt
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 3000
+
+- name: Risan Distraction Thief Trap
+  sprite: 334
+  desc: "a trap imbued with the spell Distraction"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: Distraction
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 3500
+
+- name: Risan Darkness Thief Trap
+  sprite: 1025
+  desc: "a trap imbued with the spell Darkness"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: Darkness
+    potency: 35
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 4000
+
+- name: Risan Snare Thief Trap
+  sprite: 1028
+  desc: "a trap imbued with the spell Snare"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: Snare
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 4000
+
+- name: Risan Stun Thief Trap
+  sprite: 1028
+  desc: "a trap imbued with the spell Stun"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: Stun
+    potency: 35
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 4000
+
+- name: Risan Blind Thief Trap
+  sprite: 1028
+  desc: "a trap imbued with the spell Blind"
+  trapUses: 10
+  effect:
+    uses: 3
+    name: Blind
+    potency: 35
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 4000
+
+- name: Risan Cure Thief Trap
+  sprite: 1026
+  desc: "a trap imbued with the spell Cure"
+  trapUses: 10
+  effect:
+    uses: 5
+    name: Cure
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 1000
+
+- name: Risan Dispel Thief Trap
+  sprite: 1028
+  desc: "a trap imbued with the spell Dispel"
+  trapUses: 5
+  effect:
+    uses: 5
+    name: Dispel
+    potency: 30
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 4000
+
+- name: Risan Haste Thief Trap
+  sprite: 1026
+  desc: "a trap imbued with the spell Haste"
+  trapUses: 5
+  effect:
+    name: Haste
+    potency: 20
+    levelRequirement: 15
+    skillRequirement: 15
+  value: 10000

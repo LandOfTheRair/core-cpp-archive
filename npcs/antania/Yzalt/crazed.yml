@@ -1,0 +1,1234 @@
+
+- npcId: Crazed Heniz Mage
+  name: crazed mage
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 545
+  alignment: Evil
+  baseClass: Mage
+  stats: 7
+  otherStats:
+    con: 13
+    int: 15
+    perception: 130
+    damageFactor: 0.7
+  skillLevels: 2
+
+  level: 8
+
+  allegianceReputation:
+    Royalty: -101
+
+  skillOnKill: 11
+
+  gold:
+    min: 400
+    max: 600
+
+  hp:
+    min: 1900
+    max: 2200
+
+  mp:
+    min: 3000
+    max: 3000
+
+  usableSkills:
+    - MagicMissile
+    - EnergyBlast
+    - DarkVision
+
+  giveXp:
+    min: 2350
+    max: 2650
+
+  repMod:
+    - allegiance: Royalty
+      delta: 1
+    - allegiance: Pirates
+      delta: -1
+
+  rightHand:
+    - result: Antanian Staff
+      chance: 30
+    - result: Yzalt Heniz Staff
+      chance: 1
+    - result: Heniz FireMist Wand
+      chance: 1
+    - result: Heniz IceMist Wand
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Antanian Tunic
+        chance: 1
+      - result: Antanian Studded Tunic
+        chance: 2
+    Robe1: FireIce Prot Robe 100
+    Robe2: Antanian Cloak
+    Ring1:
+      - result: none
+        chance: 500
+      - result: Heniz Intelligence Ring
+        chance: 1
+    Hands:
+      - result: none
+        chance: 500
+      - result: Heniz Battlemage Gloves
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+
+- npcId: Crazed Heniz Thief
+  name: crazed thief
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 585
+  alignment: Evil
+  baseClass: Thief
+  stats: 7
+  otherStats:
+    con: 13
+    perception: 130
+    damageFactor: 0.7
+  skillLevels: 2
+
+  level: 8
+
+  allegianceReputation:
+    Royalty: -101
+
+  skillOnKill: 11
+
+  gold:
+    min: 500
+    max: 900
+
+  hp:
+    min: 3900
+    max: 4300
+
+  giveXp:
+    min: 2350
+    max: 2550
+
+  repMod:
+    - allegiance: Royalty
+      delta: 1
+    - allegiance: Pirates
+      delta: -1
+
+  rightHand:
+    - result: Antanian Dagger
+      chance: 30
+    - result: Antanian Returning Dagger
+      chance: 10
+    - result: Antanian Dualwielding Dagger
+      chance: 1
+    - result: Heniz Poison Shortbow
+      chance: 1
+  leftHand:
+    - result: none
+      chance: 30
+    - result: Antanian Dualwielding Dagger
+      chance: 1
+    - result: Antanian Arrows
+      chance: 10
+    - result: Antanian Poisoned Arrows
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Antanian Tunic
+        chance: 1
+      - result: Antanian Studded Tunic
+        chance: 2
+    Robe1:
+      - result: none
+        chance: 2
+      - result: Antanian Cloak
+        chance: 4
+    Wrists:
+      - result: none
+        chance: 500
+      - result: Heniz Dexterity Bracers
+        chance: 1
+    Waist:
+      - result: none
+        chance: 500
+      - result: Heniz Agility Sash
+        chance: 1
+
+  usableSkills:
+    - Identify
+    - Transmute
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Wrists'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+- npcId: Crazed Steffen Warrior
+  name: crazed warrior
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 590
+  alignment: Good
+  baseClass: Warrior
+  stats: 7
+  otherStats:
+    con: 15
+    perception: 130
+    damageFactor: 0.7
+  skillLevels:
+    Mace: 2
+    Onehanded: 2
+    Twohanded: 1
+
+  level: 7
+
+  allegianceReputation:
+    Pirates: -101
+
+  skillOnKill: 11
+
+  gold:
+    min: 200
+    max: 400
+
+  hp:
+    min: 2500
+    max: 2800
+
+  giveXp:
+    min: 1950
+    max: 2250
+
+  usableSkills:
+    - Boost
+    - Charge
+
+  repMod:
+    - allegiance: Pirates
+      delta: 1
+    - allegiance: Royalty
+      delta: -1
+
+  rightHand:
+    - result: Antanian Greatmace
+      chance: 30
+    - result: Antanian Greataxe
+      chance: 30
+    - result: Antanian Steffen Flail
+      chance: 1
+    - result: Antanian Steffen Katana
+      chance: 1
+    - result: Antanian Steffen Nodachi
+      chance: 1
+
+  gear:
+    Armor: Antanian Breastplate
+    Robe1:
+      - result: none
+        chance: 2
+      - result: Antanian Cloak
+        chance: 4
+    Ring1:
+      - result: none
+        chance: 500
+      - result: Steffen Mana Ring
+        chance: 1
+    Ring2:
+      - result: none
+        chance: 500
+      - result: Steffen Mana Ring
+        chance: 1
+    Neck:
+      - result: none
+        chance: 500
+      - result: Steffen Wisdom Amulet
+        chance: 1
+    Hands:
+      - result: none
+        chance: 500
+      - result: Steffen Strength Gloves
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Ring2'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+
+- npcId: Crazed Steffen Healer
+  name: crazed healer
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 550
+  alignment: Good
+  baseClass: Healer
+  stats: 7
+  otherStats:
+    con: 13
+    wis: 15
+    perception: 130
+    damageFactor: 0.7
+  skillLevels: 2
+
+  level: 8
+
+  allegianceReputation:
+    Pirates: -101
+
+  skillOnKill: 11
+
+  gold:
+    min: 100
+    max: 300
+
+  hp:
+    min: 1500
+    max: 1600
+
+  mp:
+    min: 1300
+    max: 1400
+
+  giveXp:
+    min: 2150
+    max: 2450
+
+  repMod:
+    - allegiance: Pirates
+      delta: 1
+    - allegiance: Royalty
+      delta: -1
+
+  rightHand:
+    - result: Antanian Mace
+      chance: 30
+    - result: Antanian Steffen Flail
+      chance: 1
+
+  usableSkills:
+    - Afflict
+    - Plague
+    - Disease
+    - Antidote
+    - Vision
+    - BarNecro
+    - Cure
+
+  gear:
+    Armor: Antanian Breastplate
+    Robe1: FireIce Prot Robe 100
+    Robe2: Antanian Cloak
+    Ring1:
+      - result: none
+        chance: 500
+      - result: Steffen DamageResist Ring
+        chance: 1
+    Ring2:
+      - result: none
+        chance: 500
+      - result: Steffen DamageResist Ring
+        chance: 1
+    Waist:
+      - result: none
+        chance: 500
+      - result: Steffen Offensive Sash
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Ring2'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+- npcId: Crazed Mummy
+  name: crazed mummy
+  hostility: Always
+  monsterClass: Undead
+  sprite: 155
+  stats: 6
+  otherStats:
+    con: 11
+    perception: 110
+    damageFactor: 0.7
+  skillLevels: 2
+
+  level: 7
+
+  allegianceReputation:
+    Pirates: -101
+    Royalty: -101
+
+  skillOnKill: 9
+
+  gold:
+    min: 100
+    max: 200
+
+  hp:
+    min: 1500
+    max: 1800
+
+  giveXp:
+    min: 1950
+    max: 2250
+
+  repMod:
+    - allegiance: Pirates
+      delta: 1
+    - allegiance: Royalty
+      delta: 1
+
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.5
+
+  rightHand:
+    - result: Antanian Greatmace
+      chance: 30
+    - result: Antanian Greataxe
+      chance: 30
+    - result: Antanian Dagger
+      chance: 30
+    - result: Antanian Staff
+      chance: 30
+    - result: Antanian Returning Dagger
+      chance: 10
+    - result: Antanian Steffen Flail
+      chance: 1
+    - result: Antanian Steffen Katana
+      chance: 1
+    - result: Antanian Steffen Nodachi
+      chance: 1
+    - result: Yzalt Heniz Staff
+      chance: 1
+    - result: Heniz FireMist Wand
+      chance: 1
+    - result: Heniz IceMist Wand
+      chance: 1
+    - result: Antanian Dualwielding Dagger
+      chance: 1
+    - result: Heniz Poison Shortbow
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Yzalt Fungus Ringmail Tunic
+        chance: 1
+      - result: none
+        chance: 100
+    Robe1:
+      - result: Yzalt Fungus Cloak
+        chance: 1
+      - result: Yzalt Mummy Cloak
+        chance: 20
+      - result: Antanian Cloak
+        chance: 100
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+
+- npcId: Insane Heniz Mage
+  name: insane mage
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 545
+  baseClass: Mage
+  stats: 10
+  otherStats:
+    con: 15
+    int: 11
+    perception: 170
+    damageFactor: 0.7
+  skillLevels: 3
+
+  level: 8
+
+  skillOnKill: 15
+
+  gold:
+    min: 500
+    max: 700
+
+  hp:
+    min: 2900
+    max: 3200
+
+  mp:
+    min: 3000
+    max: 3000
+
+  usableSkills:
+    - MagicMissile
+    - EnergyBlast
+    - Hail
+    - Combust
+    - BarFire
+    - BarFrost
+    - DarkVision
+
+  giveXp:
+    min: 3950
+    max: 4150
+
+  rightHand:
+    - result: Antanian Staff
+      chance: 30
+    - result: Yzalt Heniz Staff
+      chance: 1
+    - result: Heniz FireMist Wand
+      chance: 1
+    - result: Heniz IceMist Wand
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Yzalt Fungus Ringmail Tunic
+        chance: 1
+      - result: Antanian Tunic
+        chance: 20
+      - result: Antanian Studded Tunic
+        chance: 30
+    Robe1: FireIce Prot Robe 100
+    Robe2:
+      - result: Yzalt Fungus Cloak
+        chance: 1
+      - result: Antanian Cloak
+        chance: 40
+    Ring1:
+      - result: none
+        chance: 200
+      - result: Heniz Intelligence Ring
+        chance: 1
+    Ring2:
+      - result: none
+        chance: 200
+      - result: Yzalt Armor Ring
+        chance: 1
+    Head:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Helm
+        chance: 1
+      - result: Yzalt Mana Helm
+        chance: 1
+      - result: Yzalt Health Helm
+        chance: 1
+    Neck:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Amulet
+        chance: 1
+    Feet:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Boots
+        chance: 1
+    Hands:
+      - result: none
+        chance: 200
+      - result: Yzalt Defensive Claws
+        chance: 1
+      - result: Heniz Battlemage Gloves
+        chance: 1
+    Wrists:
+      - result: none
+        chance: 200
+      - result: Yzalt MagicResist Bracers
+        chance: 1
+      - result: Heniz Dexterity Bracers
+        chance: 1
+    Waist:
+      - result: none
+        chance: 500
+      - result: Yzalt Basic Sash
+        chance: 20
+      - result: Heniz Agility Sash
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Ring2'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Wrists'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+- npcId: Insane Heniz Thief
+  name: insane thief
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 585
+  alignment: Evil
+  baseClass: Thief
+  stats: 10
+  skillLevels: 3
+
+  otherStats:
+    stealth: 25
+    con: 15
+    perception: 170
+    damageFactor: 0.5
+
+  level: 8
+
+  usableSkills:
+    - SetTrap
+    - Steal
+    - DarkVision
+    - EagleEye
+    - Identify
+    - Transmute
+
+  skillOnKill: 15
+
+  gold:
+    min: 700
+    max: 900
+
+  hp:
+    min: 4300
+    max: 4800
+
+  giveXp:
+    min: 3950
+    max: 4150
+
+  repMod:
+    - allegiance: Royalty
+      delta: 1
+
+  rightHand:
+    - result: Antanian Dagger
+      chance: 30
+    - result: Antanian Returning Dagger
+      chance: 10
+    - result: Antanian Dualwielding Dagger
+      chance: 1
+    - result: Heniz Poison Shortbow
+      chance: 1
+  leftHand:
+    - result: none
+      chance: 30
+    - result: Antanian Dualwielding Dagger
+      chance: 1
+    - result: Antanian Arrows
+      chance: 10
+    - result: Antanian Poisoned Arrows
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Yzalt Fungus Ringmail Tunic
+        chance: 1
+      - result: Antanian Tunic
+        chance: 20
+      - result: Antanian Studded Tunic
+        chance: 30
+    Robe1:
+      - result: Yzalt Fungus Cloak
+        chance: 1
+      - result: none
+        chance: 20
+      - result: Antanian Cloak
+        chance: 40
+    Ring1:
+      - result: none
+        chance: 200
+      - result: Yzalt Armor Ring
+        chance: 1
+    Ring2:
+      - result: none
+        chance: 200
+      - result: Yzalt Armor Ring
+        chance: 1
+    Head:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Helm
+        chance: 1
+      - result: Yzalt Mana Helm
+        chance: 1
+      - result: Yzalt Health Helm
+        chance: 1
+    Neck:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Amulet
+        chance: 1
+    Feet:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Boots
+        chance: 1
+    Hands:
+      - result: none
+        chance: 200
+      - result: Yzalt Defensive Claws
+        chance: 1
+    Wrists:
+      - result: none
+        chance: 200
+      - result: Yzalt MagicResist Bracers
+        chance: 1
+      - result: Heniz Dexterity Bracers
+        chance: 1
+    Waist:
+      - result: none
+        chance: 500
+      - result: Yzalt Basic Sash
+        chance: 20
+      - result: Heniz Agility Sash
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Ring2'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Wrists'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+  sack:
+    - result: Enemy Weak FireMist Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak IceMist Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak Poison Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak MagicMissile Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak Afflict Thief Trap
+      chance: 10
+      maxChance: 100
+
+- npcId: Insane Steffen Warrior
+  name: insane warrior
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 590
+  baseClass: Warrior
+  stats: 7
+  otherStats:
+    con: 15
+    perception: 170
+    damageFactor: 0.5
+  skillLevels:
+    Mace: 2
+    Onehanded: 2
+    Twohanded: 1
+
+  level: 8
+
+  skillOnKill: 15
+
+  gold:
+    min: 400
+    max: 600
+
+  hp:
+    min: 3500
+    max: 3800
+
+  giveXp:
+    min: 3950
+    max: 4150
+
+  usableSkills:
+    - Boost
+    - Charge
+
+  rightHand:
+    - result: Antanian Greatmace
+      chance: 30
+    - result: Antanian Greataxe
+      chance: 30
+    - result: Antanian Steffen Flail
+      chance: 1
+    - result: Antanian Steffen Katana
+      chance: 1
+    - result: Antanian Steffen Nodachi
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Yzalt Fungus Ringmail Tunic
+        chance: 1
+      - result: Antanian Breastplate
+        chance: 20
+    Robe1:
+      - result: Yzalt Fungus Cloak
+        chance: 1
+      - result: none
+        chance: 20
+      - result: Antanian Cloak
+        chance: 40
+    Ring1:
+      - result: none
+        chance: 200
+      - result: Steffen Mana Ring
+        chance: 1
+    Ring2:
+      - result: none
+        chance: 200
+      - result: Yzalt Armor Ring
+        chance: 1
+    Head:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Helm
+        chance: 1
+      - result: Yzalt Mana Helm
+        chance: 1
+      - result: Yzalt Health Helm
+        chance: 1
+    Neck:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Amulet
+        chance: 1
+      - result: Steffen Wisdom Amulet
+        chance: 1
+    Feet:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Boots
+        chance: 1
+    Hands:
+      - result: none
+        chance: 200
+      - result: Steffen Strength Gloves
+        chance: 1
+      - result: Yzalt Defensive Claws
+        chance: 1
+    Wrists:
+      - result: none
+        chance: 200
+      - result: Yzalt MagicResist Bracers
+        chance: 1
+    Waist:
+      - result: none
+        chance: 500
+      - result: Yzalt Basic Sash
+        chance: 20
+      - result: Steffen Offensive Sash
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Ring2'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Wrists'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+- npcId: Insane Steffen Healer
+  name: insane healer
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: 550
+  stats: 10
+  otherStats:
+    con: 15
+    wis: 17
+    perception: 170
+    damageFactor: 0.7
+  skillLevels: 3
+
+  level: 8
+
+  skillOnKill: 15
+
+  gold:
+    min: 150
+    max: 350
+
+  hp:
+    min: 2500
+    max: 2600
+
+  mp:
+    min: 2300
+    max: 2400
+
+  giveXp:
+    min: 3950
+    max: 4150
+
+  rightHand:
+    - result: Antanian Mace
+      chance: 30
+    - result: Antanian Steffen Flail
+      chance: 1
+
+  usableSkills:
+    - Afflict
+    - Plague
+    - Disease
+    - Antidote
+    - Vision
+    - BarNecro
+    - Cure
+
+  gear:
+    Armor:
+      - result: Yzalt Fungus Ringmail Tunic
+        chance: 1
+      - result: Antanian Breastplate
+        chance: 20
+    Robe1: FireIce Prot Robe 100
+    Robe2:
+      - result: Yzalt Fungus Cloak
+        chance: 1
+      - result: Antanian Cloak
+        chance: 40
+    Ring1:
+      - result: none
+        chance: 200
+      - result: Steffen DamageResist Ring
+        chance: 1
+    Ring2:
+      - result: none
+        chance: 200
+      - result: Yzalt Armor Ring
+        chance: 1
+    Head:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Helm
+        chance: 1
+      - result: Yzalt Mana Helm
+        chance: 1
+      - result: Yzalt Health Helm
+        chance: 1
+    Neck:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Amulet
+        chance: 1
+    Feet:
+      - result: none
+        chance: 200
+      - result: Yzalt Combat Boots
+        chance: 1
+    Hands:
+      - result: none
+        chance: 200
+      - result: Yzalt Defensive Claws
+        chance: 1
+    Wrists:
+      - result: none
+        chance: 200
+      - result: Yzalt MagicResist Bracers
+        chance: 1
+    Waist:
+      - result: none
+        chance: 500
+      - result: Yzalt Basic Sash
+        chance: 20
+      - result: Steffen Offensive Sash
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Ring2'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Wrists'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+- npcId: Ranata
+  name: Ranata
+  monsterClass: Humanoid
+  hostility: Always
+  affiliation: Crazed
+  sprite: 480
+  stats: 10
+  otherStats:
+    con: 25
+    perception: 250
+  skillLevels: 7
+
+  level: 10
+
+  skillOnKill: 25
+
+  gold:
+    min: 2500
+    max: 3000
+
+  hp:
+    min: 200000
+    max: 250000
+
+  mp:
+    min: 1000
+    max: 1000
+
+  giveXp:
+    min: 50000
+    max: 55000
+
+  rightHand: Ranata Longbow
+
+  leftHand:
+    - none
+    - Antanian Darkness Arrows
+
+  usableSkills:
+    - Afflict
+    - Plague
+    - Disease
+    - Charge
+    - Blind
+    - Antidote
+    - Vision
+    - BarNecro
+    - Cure
+
+  gear:
+    Armor: Yzalt Fungus Ringmail Tunic
+    Robe1: Ranata Robe
+
+  drops:
+    - result: Ranata Totem
+      chance: -1
+    - result: Antanian Earring
+      chance: -1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+
+  baseEffects:
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  combatMessages:
+    - "WHO INTRUDES UPON MY HOME?"
+    - "RAWWWWWWWRGH!"
+    - "WHERE... SEDGWICK?"
+
+
+- npcId: Crazed Sedgwick
+  name: Sedgwick
+  monsterClass: Humanoid
+  hostility: Always
+  affiliation: Crazed
+  sprite: 480
+  stats: 10
+  otherStats:
+    con: 30
+    perception: 200
+  skillLevels: 3
+
+  level: 15
+
+  skillOnKill: 25
+
+  gold:
+    min: 5500
+    max: 6000
+
+  hp:
+    min: 500000
+    max: 500000
+
+  mp:
+    min: 1000
+    max: 1000
+
+  giveXp:
+    min: 70000
+    max: 75000
+
+  rightHand: Sedgwick's Greataxe
+
+  usableSkills:
+    - result: Charge
+      chance: 200
+    - result: Leash
+      chance: 10
+
+  gear:
+    Armor: Yzalt Fungus Ringmail Tunic
+    Robe1: Ranata Robe
+
+  dropPool:
+    choose:
+      min: 2
+      max: 2
+    items:
+      - Rune Scroll - Forceful Strike I
+      - Rune Scroll - Offhand Finesse I
+      - Rune Scroll - Riposte I
+      - Rune Scroll - Swashbuckler I
+      - Rune Scroll - Healing Focus I
+      - Rune Scroll - Necrotic Focus I
+      - Rune Scroll - Totem Specialty I
+      - Rune Scroll - Irresistible Stuns I
+      - Rune Scroll - Magic Focus I
+      - Rune Scroll - Forged Fire I
+      - Rune Scroll - Wand Specialty I
+      - Rune Scroll - Frosted Touch I
+      - Rune Scroll - Shadow Ranger I
+      - Rune Scroll - Shadow Swap I
+      - Rune Scroll - Darker Shadows I
+      - Rune Scroll - Shadow Daggers I
+
+  baseEffects:
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+
+  combatMessages:
+    - "WHY YOU HERE"
+    - "WHY I HERE"
+    - "WHERE HOME?"
+    - "KILLLLLLLLLLLLL"
+    - "FOR THE KING!"

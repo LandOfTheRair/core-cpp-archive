@@ -1,0 +1,48 @@
+
+- item: Antanian Fungus Bread
+  skillGained: 5
+  maxSkillForGains: 3
+  xpGained: 100
+  ingredients:
+    - Antanian Bottle of Water
+    - Antanian Slice of Bread
+
+- item: Antanian Fungus Loaf
+  skillGained: 5
+  maxSkillForGains: 3
+  xpGained: 150
+  ingredients:
+    - Antanian Pint of Water
+    - Antanian Loaf of Bread
+
+- item: Bear Meat Antidote (10oz)
+  skillGained: 10
+  maxSkillForGains: 4
+  requiredSkill: 1
+  xpGained: 300
+  ingredients:
+    - Bear Meat Antidote
+    - Antanian Bear Meat
+    - Rylt Blueflower
+    - Antanian Pint of Water
+
+- item: Minotaur Horn Flask
+  skillGained: 50
+  maxSkillForGains: 7
+  requiredSkill: 4
+  xpGained: 15000
+  ingredients:
+    - Antanian Bottle of Water
+    - Antanian Slice of Bread
+    - Dedlaen Minotaur Horn
+
+- item: Holy Bile Water
+  skillGained: 50
+  maxSkillForGains: 9
+  requiredSkill: 4
+  xpGained: 25000
+  ingredients:
+    - Holy Water
+    - Yeti Bile (Small)
+
+

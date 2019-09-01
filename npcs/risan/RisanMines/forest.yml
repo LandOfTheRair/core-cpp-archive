@@ -1,0 +1,574 @@
+
+- npcId: Risan Crazed Deer
+  name: crazed deer
+  sprite: 205
+  allegiance: Enemy
+  alignment: Evil
+  hostility: Always
+  monsterClass: Beast
+  stats: 13
+  skillLevels:
+    Martial: 6
+  level: 16
+
+  otherStats:
+    perception: 100
+    damageFactor: 0.3
+    accuracy: 7
+
+  gear:
+    Armor: Crazed Deer Robe
+    Robe1: Crazed Deer Robe
+    Robe2: Crazed Deer Robe
+    Hands: Mines Animal Claws
+
+  skillOnKill: 35
+
+  usableSkills:
+    - PoisonBiteMedium
+
+  allegianceReputation:
+    NaturalResource: -101
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.25
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+  gold:
+    min: 150
+    max: 300
+
+  hp:
+    min: 12950
+    max: 14350
+
+  giveXp:
+    min: 15000
+    max: 18000
+
+  drops:
+    - result: Risan Twig
+      chance: 1
+      maxChance: 25
+    - result: Risan Branch
+      chance: 1
+      maxChance: 25
+
+  tansFor: Crazed Deer Robe
+  tanSkillRequired: 12
+
+- npcId: Risan Crazed Wolf
+  name: crazed wolf
+  sprite: 215
+  allegiance: Enemy
+  alignment: Evil
+  hostility: Always
+  monsterClass: Beast
+  stats: 17
+  skillLevels:
+    Martial: 8
+  level: 19
+
+  otherStats:
+    perception: 100
+    damageFactor: 0.3
+    accuracy: 7
+
+  gear:
+    Armor: Crazed Beast Fur
+    Hands: Mines Animal Claws
+
+  skillOnKill: 45
+
+  usableSkills:
+    - PoisonBiteStrong
+
+  allegianceReputation:
+    NaturalResource: -101
+
+  drops:
+    - result: Risan Twig
+      chance: 1
+      maxChance: 25
+    - result: Risan Branch
+      chance: 1
+      maxChance: 25
+    - result: Crazed Wolf Flank
+      chance: 1
+      maxChance: 50
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+  gold:
+    min: 350
+    max: 500
+
+  hp:
+    min: 16950
+    max: 19350
+
+  giveXp:
+    min: 22000
+    max: 25000
+
+  tansFor: Crazed Beast Fur
+  tanSkillRequired: 12
+
+  spawnMessage: "the howling of a wolf"
+  sfx: "wolf"
+  sfxMaxChance: 20
+
+- npcId: Risan Crazed Bear
+  name: crazed bear
+  sprite: 210
+  allegiance: Enemy
+  alignment: Evil
+  hostility: Always
+  monsterClass: Beast
+  stats: 15
+  skillLevels:
+    Martial: 7
+  level: 19
+
+  otherStats:
+    armorClass: 10
+    perception: 100
+    damageFactor: 0.3
+    accuracy: 7
+
+  gear:
+    Armor: Crazed Bear Fur
+    Hands: Mines Animal Claws
+
+  skillOnKill: 45
+
+  usableSkills:
+    - PoisonBiteMedium
+
+  allegianceReputation:
+    NaturalResource: -101
+
+  drops:
+    - result: Risan Twig
+      chance: 1
+      maxChance: 25
+    - result: Risan Branch
+      chance: 1
+      maxChance: 25
+    - result: Crazed Bear Meat
+      chance: 1
+      maxChance: 50
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+  gold:
+    min: 450
+    max: 500
+
+  hp:
+    min: 24950
+    max: 26350
+
+  giveXp:
+    min: 29000
+    max: 31000
+
+  tansFor: Crazed Bear Fur
+  tanSkillRequired: 12
+
+  spawnMessage: "a deep roar"
+  sfx: "bear"
+  sfxMaxChance: 20
+
+- npcId: Mines Griffon
+  name: griffon
+  sprite: 435
+  allegiance: Enemy
+  alignment: Evil
+  hostility: Always
+  monsterClass: Beast
+  stats: 25
+  skillLevels:
+    Martial: 13
+  level: 23
+
+  otherStats:
+    armorClass: 25
+    perception: 300
+
+  gear:
+    Armor: Mines Griffon Fur
+    Hands: Mines Animal Claws
+
+  skillOnKill: 300
+
+  usableSkills:
+    - PoisonBiteStrong
+
+  drops:
+    - result: Mines Griffon Tongue
+      chance: -1
+    - result: Griffon Spring Boots
+      chance: -1
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'magical'
+        potency: 0.75
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+  traitLevels:
+    StunningFist: 7
+    ForcefulStrike: 3
+
+  gold:
+    min: 31450
+    max: 32500
+
+  hp:
+    min: 804950
+    max: 816350
+
+  giveXp:
+    min: 399000
+    max: 409000
+
+  tansFor: Mines Griffon Fur
+  tanSkillRequired: 14
+
+  spawnMessage: "the screeching of a crazed griffon"
+  leashMessage: "the screeching of a crazed griffon"
+  sfx: "bird"
+  sfxMaxChance: 1
+
+- npcId: Risan Dryad
+  name: dryad
+  sprite: 465
+  allegiance: Wilderness
+  hostility: Faction
+  alignment: Good
+  baseClass: Thief
+  stats: 16
+  skillLevels: 7
+  level: 18
+
+  otherStats:
+    dex: 8
+    perception: 150
+    damageFactor: 0.8
+
+  rightHand:
+    - result: Risan Mines Trash Spirit Shortsword
+      chance: 5000
+    - result: Risan Mines Rare Spirit Shortsword
+      chance: 1
+  leftHand:
+    - result: none
+      chance: 3000
+    - result: Risan Mines Trash Spirit Shortsword
+      chance: 100
+    - result: Risan Mines Rare Spirit Shortsword
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+    Robe1:
+      - result: none
+        chance: 5000
+      - result: Forest Spirit Mage Cloak
+        chance: 1
+      - result: Forest Spirit Thief Cloak
+        chance: 1
+      - result: Forest Spirit Healer Cloak
+        chance: 1
+      - result: Forest Spirit Warrior Cloak
+        chance: 1
+      - result: Forest Spirit Undecided Cloak
+        chance: 1
+
+    Hands: Mines Animal Claws
+
+  skillOnKill: 35
+
+  traitLevels:
+    OffhandFinesse: 5
+    ForcefulStrike: 5
+    HolyProtection: 5
+    Riposte: 3
+    ShadowSheath: 2
+    ShadowSwap: 2
+    DarkerShadows: 10
+    ShadowDaggers: 2
+
+  usableSkills:
+    - Charge
+    - Backstab
+    - Cure
+    - Snare
+    - Poison
+    - Steal
+    - Hide
+    - Identify
+    - Transmute
+
+  gold:
+    min: 350
+    max: 500
+
+  hp:
+    min: 19950
+    max: 20350
+
+  mp:
+    min: 500
+    max: 1000
+
+  giveXp:
+    min: 25000
+    max: 28000
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  drops:
+    - result: Risan Dryad Succor Blob
+      chance: 1
+      maxChance: 10
+    - result: Weak EagleEye Potion
+      chance: 1
+      maxChance: 100
+
+- npcId: Risan Crazed Dryad
+  name: crazed dryad
+  sprite: 465
+  hostility: Always
+  alignment: Evil
+  baseClass: Thief
+  stats: 16
+  skillLevels: 7
+  level: 16
+
+  otherStats:
+    dex: 8
+    accuracy: 5
+    perception: 150
+    damageFactor: 0.7
+
+  rightHand:
+    - result: Risan Mines Trash Spirit Shortsword
+      chance: 5000
+    - result: Risan Mines Rare Spirit Shortsword
+      chance: 1
+  leftHand:
+    - result: none
+      chance: 3000
+    - result: Risan Mines Trash Spirit Shortsword
+      chance: 100
+    - result: Risan Mines Rare Spirit Shortsword
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+    Robe1:
+      - result: none
+        chance: 500
+      - result: Forest Spirit Mage Cloak
+        chance: 1
+      - result: Forest Spirit Thief Cloak
+        chance: 1
+      - result: Forest Spirit Healer Cloak
+        chance: 1
+      - result: Forest Spirit Warrior Cloak
+        chance: 1
+
+    Hands: Mines Animal Claws
+
+  skillOnKill: 65
+
+  drops:
+    - result: Weak EagleEye Potion
+      chance: 1
+      maxChance: 100
+
+  traitLevels:
+    OffhandFinesse: 3
+    ForcefulStrike: 1
+    HolyProtection: 3
+    Riposte: 1
+    ShadowSheath: 1
+    ShadowSwap: 1
+    DarkerShadows: 7
+    ShadowDaggers: 1
+
+  usableSkills:
+    - Charge
+    - Backstab
+    - Cure
+    - Snare
+    - Poison
+    - Disease
+    - DarkVision
+    - Hide
+    - Identify
+    - Transmute
+
+  gold:
+    min: 1350
+    max: 1500
+
+  hp:
+    min: 21950
+    max: 22350
+
+  mp:
+    min: 500
+    max: 1000
+
+  giveXp:
+    min: 45000
+    max: 58000
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+
+- npcId: Dryad Queen Cyrena
+  name: Cyrena
+  sprite: 465
+  hostility: Always
+  affiliation: Dryad Queen
+  alignment: Evil
+  baseClass: Thief
+  stats: 19
+  skillLevels: 9
+  level: 23
+
+  otherStats:
+    wil: 30
+    con: 30
+    perception: 150
+
+  rightHand: Risan Mines Trash Spirit Shortsword
+  leftHand:
+    - result: Risan Mines Trash Spirit Shortsword
+      chance: 4000
+    - result: Risan Mines Rare Spirit Shortsword
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+    Robe1:
+      - Forest Spirit Mage Cloak
+      - Forest Spirit Thief Cloak
+      - Forest Spirit Healer Cloak
+      - Forest Spirit Warrior Cloak
+
+    Hands: Mines Animal Claws
+
+  skillOnKill: 300
+
+  traitLevels:
+    OffhandFinesse: 5
+    ForcefulStrike: 3
+    HolyProtection: 5
+    Riposte: 5
+    ShadowSheath: 5
+    ShadowSwap: 5
+    DarkerShadows: 10
+    ShadowDaggers: 1
+    DarknessWiden: 1
+
+  usableSkills:
+    - Charge
+    - Backstab
+    - Cure
+    - Snare
+    - Poison
+    - Venom
+    - Hide
+    - DarkVision
+    - Darkness
+    - ShadowMeld
+    - TrueSight
+
+  gold:
+    min: 1350
+    max: 1500
+
+  gold:
+    min: 43850
+    max: 44000
+
+  hp:
+    min: 804950
+    max: 816350
+
+  mp:
+    min: 10050
+    max: 10150
+
+  giveXp:
+    min: 469000
+    max: 509000
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  drops:
+    - result: Cyrena's Heart
+      chance: -1

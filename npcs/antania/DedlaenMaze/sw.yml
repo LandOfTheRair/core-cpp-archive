@@ -1,0 +1,347 @@
+
+- npcId: Dedlaen Mummy
+  name: mummy
+  hostility: Always
+  monsterClass: Undead
+  sprite: 155
+  alignment: Evil
+  stats: 12
+  skillLevels: 3
+  level: 13
+
+  skillOnKill: 10
+
+  otherStats:
+    con: 15
+    accuracy: 4
+    offense: 4
+    perception: 245
+    damageFactor: 0.5
+
+  gold:
+    min: 550
+    max: 700
+
+  hp:
+    min: 8350
+    max: 8470
+
+  giveXp:
+    min: 10000
+    max: 15000
+
+  gear:
+    Hands: Maze Mummy Claws
+    Robe1: Yzalt Mummy Cloak
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.5
+
+  copyDrops:
+    - drop: 'gear.Robe1'
+      chance: -1
+
+  drops:
+    - result: Rotting Mummy Grub
+      chance: 1
+      maxChance: 10
+
+- npcId: Dedlaen Ghoul
+  name: ghoul
+  hostility: Always
+  monsterClass: Undead
+  sprite: 305
+  alignment: Evil
+  stats: 14
+  skillLevels: 3
+  level: 15
+
+  skillOnKill: 15
+
+  otherStats:
+    con: 15
+    accuracy: 2
+    offense: 2
+    perception: 265
+    damageFactor: 0.5
+
+  usableSkills:
+    - DoubleAttack
+
+  gold:
+    min: 1050
+    max: 1350
+
+  hp:
+    min: 11950
+    max: 12350
+
+  giveXp:
+    min: 19000
+    max: 22000
+
+  gear:
+    Hands: Maze Ghoul Claws
+
+- npcId: Dedlaen Spectre
+  name: spectre
+  hostility: Always
+  monsterClass: Undead
+  sprite: 970
+  baseClass: Mage
+  alignment: Evil
+  stats: 14
+  skillLevels: 3
+  level: 15
+
+  skillOnKill: 10
+
+  otherStats:
+    con: 15
+    accuracy: 2
+    offense: 2
+    perception: 265
+    mpregen: 0
+
+  usableSkills:
+    - DarkVision
+    - MagicMissile
+    - Invisibility
+    - Asper
+
+  gold:
+    min: 0
+    max: 0
+
+  hp:
+    min: 6950
+    max: 7350
+
+  mp:
+    min: 1000
+    max: 1000
+
+  giveXp:
+    min: 11000
+    max: 15000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0
+
+  gear:
+    Hands: Maze Mummy Claws
+
+- npcId: Dedlaen Ghost
+  name: ghost
+  hostility: Always
+  monsterClass: Undead
+  sprite: 300
+  baseClass: Mage
+  alignment: Evil
+  stats: 14
+  skillLevels: 4
+  level: 18
+
+  skillOnKill: 750
+
+  otherStats:
+    con: 18
+    wil: 29
+    accuracy: 10
+    offense: 7
+    defense: 3
+    mpregen: 50
+    perception: 300
+
+  usableSkills:
+    - Push
+    - TrueSight
+    - DarkVision
+    - MagicBolt
+    - Asper
+    - GhostWail
+
+  gold:
+    min: 13560
+    max: 14570
+
+  hp:
+    min: 227950
+    max: 229350
+
+  mp:
+    min: 10000
+    max: 10000
+
+  giveXp:
+    min: 141000
+    max: 145000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0
+
+    - name: Attribute
+      effectData:
+        damageType: 'magical'
+        potency: 0
+
+  tansFor: Dedlaen Ghost Cloak
+
+  gear:
+    Hands: Maze Ghoul Claws
+    Robe1: Dedlaen Ghost Cloak
+
+  drops:
+    - result: Dedlaen Transmute Pearl
+      chance: -1
+
+  baseEffects:
+    - name: TrueSight
+      effectData:
+        effectInfo:
+          isPermanent: true
+    - name: Invisible
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  spawnMessage: "the cry of a spectral horror"
+  leashMessage: "the cry of a spectral horror"
+  sfx: "ghost"
+  sfxMaxChance: 1
+
+- npcId: Dedlaen Ghast
+  name: ghast
+  hostility: Always
+  monsterClass: Undead
+  sprite: 305
+  alignment: Evil
+  stats: 14
+  skillLevels: 3
+  level: 19
+
+  skillOnKill: 750
+
+  otherStats:
+    con: 18
+    wil: 29
+    accuracy: 10
+    offense: 10
+    defense: 3
+    mpregen: 50
+    perception: 300
+    damageFactor: 0.5
+
+  usableSkills:
+    - DoubleAttack
+
+  gold:
+    min: 12050
+    max: 14350
+
+  hp:
+    min: 257950
+    max: 259350
+
+  giveXp:
+    min: 199000
+    max: 202000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'necrotic'
+        potency: 0
+
+  gear:
+    Hands: Ghast Claws
+
+  drops:
+    - result: Dedlaen Ghast Heart
+      chance: -1
+
+  copyDrops:
+    - drop: 'gear.Hands'
+      chance: -1
+
+  baseEffects:
+    - name: TrueSight
+      effectData:
+        effectInfo:
+          isPermanent: true
+    - name: NecroticAura
+      effectData:
+        potency: 8
+        effectInfo:
+          isPermanent: true
+
+- npcId: Dedlaen Revenant
+  name: revenant
+  hostility: Always
+  sprite: 945
+  alignment: Evil
+  stats: 17
+  skillLevels: 8
+
+  level: 19
+
+  otherStats:
+    con: 22
+    wil: 25
+    accuracy: 10
+    offense: 7
+    defense: 3
+    mpregen: 50
+    perception: 350
+
+  skillOnKill: 100
+
+  gold:
+    min: 9500
+    max: 11700
+
+  hp:
+    min: 125000
+    max: 130000
+
+  giveXp:
+    min: 129000
+    max: 139000
+
+  usableSkills:
+    - Charge
+    - DoubleAttack
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+  rightHand:
+    - Maze Revenant Greatmace
+    - Maze Revenant Greatsword
+    - Maze Revenant Halberd
+
+  gear:
+    Armor: Maze Bone Tunic
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1

@@ -1,0 +1,138 @@
+
+
+- name: Antanian Strength Potion
+  desc: "a small bottle filled with brown fluid that smells faintly like a tree"
+  extendedDesc: "a potion of minor strength"
+  sprite: 151
+  effect:
+    name: PermanentSTR
+    tier: Minor
+    potency: 1
+  value: 1500
+
+- name: Antanian Agility Potion
+  desc: "a small bottle filled with dark-yellow fluid that smells faintly like feathers"
+  extendedDesc: "a potion of minor agility"
+  sprite: 157
+  effect:
+    name: PermanentAGI
+    tier: Minor
+    potency: 1
+  value: 1500
+
+- name: Antanian Dexterity Potion
+  desc: "a small bottle filled with yellow fluid that smells faintly like apples"
+  extendedDesc: "a potion of minor dexterity"
+  sprite: 150
+  effect:
+    name: PermanentDEX
+    tier: Minor
+    potency: 1
+  value: 1500
+
+- name: Antanian Intelligence Potion
+  desc: "a small bottle filled with puce liquid that smells faintly like a root"
+  extendedDesc: "a potion of minor intelligence"
+  sprite: 158
+  effect:
+    name: PermanentINT
+    tier: Minor
+    potency: 1
+  value: 1500
+
+- name: Antanian Wisdom Potion
+  desc: "a small bottle filled with teal that smells faintly like herbs"
+  extendedDesc: "a potion of minor wisdom"
+  sprite: 156
+  effect:
+    name: PermanentWIS
+    tier: Minor
+    potency: 1
+  value: 1500
+
+- name: Antanian Willpower Potion
+  desc: "a small bottle filled with orange fluid that smells faintly like mushrooms"
+  extendedDesc: "a potion of minor willpower"
+  sprite: 154
+  effect:
+    name: PermanentWIL
+    tier: Minor
+    potency: 1
+  value: 2000
+
+- name: Antanian Constitution Potion
+  desc: "a small bottle filled with crimson fluid that smells faintly like cherries"
+  extendedDesc: "a potion of minor constitution"
+  sprite: 153
+  effect:
+    name: PermanentCON
+    tier: Minor
+    potency: 1
+  value: 250
+
+- name: Antanian Luck Potion
+  desc: "a small bottle filled with green fluid that smells faintly like clovers"
+  extendedDesc: "a potion of minor luck"
+  sprite: 152
+  effect:
+    name: PermanentLUK
+    tier: Minor
+    potency: 1
+  value: 2000
+
+- name: Antanian Charisma Potion
+  desc: "a small bottle filled with purple fluid that smells faintly like flowers"
+  extendedDesc: "a potion of minor charisma"
+  sprite: 155
+  effect:
+    name: PermanentCHA
+    tier: Minor
+    potency: 1
+  value: 2000
+
+- name: Antanian Health Potion
+  desc: "a small bottle filled with clear, odorless fluid"
+  extendedDesc: "a potion of minor health"
+  sprite: 141
+  effect:
+    name: MinorHP
+    potency: 2
+  value: 50000
+
+- name: Antanian Magic Potion
+  desc: "a small bottle filled with clear, odorless fluid"
+  extendedDesc: "a potion of minor magic"
+  sprite: 142
+  effect:
+    name: MinorMP
+    potency: 5
+  value: 150000
+
+- name: Antanian Experience Potion
+  desc: "a small bottle filled with clear, odorless fluid"
+  extendedDesc: "a potion of minor experience"
+  sprite: 149
+  effect:
+    name: PermanentExperience
+    potency: 50000
+  value: 100000
+
+- name: Antanian Skill Potion
+  desc: "a small bottle filled with clear, odorless fluid"
+  extendedDesc: "a potion of minor skill"
+  sprite: 149
+  effect:
+    name: PermanentSkill
+    potency: 500
+  value: 100000
+
+- name: Bradley Constitution Potion
+  desc: "a small bottle filled with crimson fluid, etched with the number II that smells like cherries"
+  extendedDesc: "a potion of constitution"
+  sprite: 153
+  effect:
+    name: PermanentCON
+    tier: Bradley
+    potency: 1
+    ignoreHPBoost: true
+  value: 500

@@ -1,0 +1,643 @@
+
+
+- npcId: Rylt Renegade Prisoner
+  name: prisoner
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: [630, 635, 645, 650]
+  alignment: Evil
+  stats: 1
+  skillLevels: 1
+
+  level: 1
+  skillOnKill: 2
+
+  otherStats:
+    con: 7
+    perception: 80
+    damageFactor: 0.5
+    accuracy: -5
+
+  gold:
+    min: 30
+    max: 65
+
+  hp:
+    min: 30
+    max: 70
+
+  giveXp:
+    min: 75
+    max: 125
+
+  rightHand:
+    - Antanian Staff
+    - Antanian Dagger
+    - Antanian Longsword
+    - Antanian Mace
+    - Antanian Axe
+    - Antanian Shortsword
+  leftHand:
+    - result: none
+      chance: 4
+    - result: Antanian Wooden Shield
+      chance: 1
+
+  gear:
+    Ring1:
+      - result: none
+        chance: 9
+      - result: Leather Ring
+        chance: 2
+      - result: Antanian Ring
+        chance: 1
+      - result: Identify Ring
+        chance: 1
+    Armor:
+      - result: Antanian Tunic
+        chance: 9
+      - result: Antanian Studded Tunic
+        chance: 4
+    Robe1:
+      - result: none
+        chance: 2
+      - result: Antanian Cloak
+        chance: 4
+    Head:
+      - result: none
+        chance: 10
+      - result: Antanian Helm
+        chance: 2
+    Hands:
+      - result: none
+        chance: 8
+      - result: Antanian Leather Gloves
+        chance: 1
+    Feet:
+      - result: none
+        chance: 7
+      - result: Antanian Leather Boots
+        chance: 1
+    Neck:
+      - result: none
+        chance: 10
+      - result: Antanian Amulet
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Ring1'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: 1
+      maxChance: 300
+
+- npcId: Rylt Prison Guard
+  name: guard
+  monsterClass: Humanoid
+  allegiance: 'None'
+  stats: 5
+  level: 4
+  baseClass: Warrior
+
+  skillLevels: 3
+
+  otherStats:
+    con: 7
+    perception: 80
+    damageFactor: 0.5
+    accuracy: -5
+
+  skillOnKill: 20
+
+  sprite: 625
+
+  hp:
+    min: 2500
+    max: 3000
+
+  gold:
+    min: 500
+    max: 1000
+
+  giveXp:
+    min: 1000
+    max: 2000
+
+  rightHand:
+    - Antanian Halberd
+
+  gear:
+    Armor:
+      - Antanian Breastplate
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+
+  drops:
+    - result: Rylt Guard Key
+      chance: 1
+      maxChance: 7
+
+- npcId: Rylt Renegade Weak Rebel
+  name: rebel
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: [630, 635, 645, 650]
+  alignment: Evil
+  stats: 10
+  skillLevels: 2
+
+  level: 6
+  skillOnKill: 6
+
+  otherStats:
+    perception: 110
+    damageFactor: 0.5
+    accuracy: -10
+
+  gold:
+    min: 100
+    max: 150
+
+  hp:
+    min: 400
+    max: 600
+
+  giveXp:
+    min: 350
+    max: 500
+
+  rightHand:
+    - Rylt Renegade Longsword
+    - Rylt Renegade Axe
+    - Rylt Renegade Staff
+    - Rylt Renegade Shortsword
+    - Rylt Renegade Mace
+  leftHand:
+    - result: none
+      chance: 8
+    - result: Antanian Wooden Shield
+      chance: 4
+    - result: Rylt Renegade Iron Shield
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Antanian Tunic
+        chance: 9
+      - result: Antanian Studded Tunic
+        chance: 4
+      - result: Rylt Renegade Breastplate
+        chance: 1
+    Robe1:
+      - result: none
+        chance: 2
+      - result: Antanian Cloak
+        chance: 4
+    Head:
+      - result: none
+        chance: 10
+      - result: Antanian Helm
+        chance: 2
+    Hands:
+      - result: none
+        chance: 8
+      - result: Antanian Leather Gloves
+        chance: 1
+    Feet:
+      - result: none
+        chance: 7
+      - result: Antanian Leather Boots
+        chance: 1
+    Neck:
+      - result: none
+        chance: 10
+      - result: Antanian Amulet
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: 1
+      maxChance: 200
+
+- npcId: Rylt Renegade Rebel
+  name: rioter
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: [630, 635, 645, 650]
+  alignment: Evil
+  stats: 10
+  skillLevels: 2
+
+  level: 7
+  skillOnKill: 6
+
+  otherStats:
+    perception: 115
+    damageFactor: 0.5
+    accuracy: -10
+
+  gold:
+    min: 150
+    max: 250
+
+  hp:
+    min: 1000
+    max: 1200
+
+  giveXp:
+    min: 500
+    max: 700
+
+  rightHand:
+    - Rylt Renegade Longsword
+    - Rylt Renegade Axe
+    - Rylt Renegade Staff
+  leftHand:
+    - result: none
+      chance: 8
+    - result: Antanian Wooden Shield
+      chance: 4
+    - result: Rylt Renegade Iron Shield
+      chance: 1
+
+  gear:
+    Armor:
+      - result: Antanian Tunic
+        chance: 9
+      - result: Antanian Studded Tunic
+        chance: 4
+      - result: Rylt Renegade Breastplate
+        chance: 1
+    Robe1:
+      - result: none
+        chance: 2
+      - result: Antanian Cloak
+        chance: 4
+    Head:
+      - result: none
+        chance: 10
+      - result: Antanian Helm
+        chance: 2
+    Hands:
+      - result: none
+        chance: 8
+      - result: Antanian Leather Gloves
+        chance: 1
+    Feet:
+      - result: none
+        chance: 7
+      - result: Antanian Leather Boots
+        chance: 1
+    Neck:
+      - result: none
+        chance: 10
+      - result: Antanian Amulet
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: 1
+      maxChance: 200
+
+
+- npcId: Rylt Renegade Rebel Thief
+  name: rioter
+  monsterClass: Humanoid
+  hostility: Always
+  sprite: [630, 635, 645, 650]
+  alignment: Evil
+  stats: 7
+
+  baseClass: Thief
+
+  usableSkills:
+    - SetTrap
+    - Steal
+    - Identify
+    - Transmute
+
+  otherStats:
+    stealth: 30
+    perception: 120
+    damageFactor: 0.5
+    accuracy: -10
+
+  skillLevels: 2
+
+  level: 4
+  skillOnKill: 6
+
+  gold:
+    min: 250
+    max: 350
+
+  hp:
+    min: 800
+    max: 950
+
+  giveXp:
+    min: 600
+    max: 800
+
+  rightHand:
+    - Antanian Returning Dagger
+    - Rylt Renegade Shortbow
+
+  leftHand:
+    - none
+    - Antanian Arrows
+
+  gear:
+    Armor: Antanian Tunic
+    Robe1:
+      - result: none
+        chance: 2
+      - result: Antanian Cloak
+        chance: 4
+    Head:
+      - result: none
+        chance: 10
+      - result: Antanian Helm
+        chance: 2
+    Hands:
+      - result: none
+        chance: 8
+      - result: Antanian Leather Gloves
+        chance: 1
+    Feet:
+      - result: none
+        chance: 7
+      - result: Antanian Leather Boots
+        chance: 1
+    Neck:
+      - result: none
+        chance: 10
+      - result: Antanian Amulet
+        chance: 1
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+    - drop: 'gear.Head'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'gear.Feet'
+      chance: -1
+
+  sack:
+    - result: Enemy Weak FireMist Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak IceMist Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak Poison Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak MagicMissile Thief Trap
+      chance: 10
+      maxChance: 100
+    - result: Enemy Weak Afflict Thief Trap
+      chance: 10
+      maxChance: 100
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: 1
+      maxChance: 200
+
+- npcId: Rylt Renegade Mage Rebel
+  name: rioter
+  monsterClass: Humanoid
+  hostility: Always
+  baseClass: Mage
+  sprite: 545
+  alignment: Evil
+  stats: 7
+  skillLevels: 2
+
+  level: 4
+  skillOnKill: 7
+
+  otherStats:
+    perception: 120
+    damageFactor: 0.5
+    accuracy: -10
+
+  gold:
+    min: 150
+    max: 250
+
+  hp:
+    min: 700
+    max: 900
+
+  mp:
+    min: 500
+    max: 600
+
+  giveXp:
+    min: 600
+    max: 1100
+
+  rightHand: Rylt Renegade Shortsword
+
+  gear:
+    Armor: Antanian Tunic
+    Robe1: FireIce Prot Robe 100
+    Robe2: Antanian Cloak
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+
+  usableSkills:
+    - MagicMissile
+    - Hail
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: 1
+      maxChance: 200
+
+- npcId: Rylt Renegade Healer Rebel
+  name: rioter
+  monsterClass: Humanoid
+  baseClass: Healer
+  hostility: Always
+  sprite: 550
+  alignment: Evil
+  stats: 7
+  skillLevels:
+    Mace: 1
+    Restoration: 1
+
+  otherStats:
+    perception: 120
+    damageFactor: 0.5
+    accuracy: -10
+
+  level: 4
+  skillOnKill: 7
+
+  gold:
+    min: 150
+    max: 250
+
+  hp:
+    min: 1000
+    max: 1200
+
+  mp:
+    min: 500
+    max: 600
+
+  giveXp:
+    min: 600
+    max: 1100
+
+  rightHand: Rylt Renegade Mace
+
+  usableSkills:
+    - Afflict
+    - Plague
+
+  gear:
+    Armor: Antanian Tunic
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: 1
+      maxChance: 200
+
+- npcId: Tonwin
+  name: Tonwin
+  monsterClass: Humanoid
+  hostility: Always
+  affiliation: Corrupted
+  baseClass: Thief
+  sprite: 5
+  alignment: Evil
+  stats: 12
+  skillLevels: 2
+
+  otherStats:
+    con: 20
+    stealth: 20
+    perception: 250
+    damageFactor: 0.5
+    accuracy: -5
+
+  level: 13
+  skillOnKill: 100
+
+  gold:
+    min: 4000
+    max: 6000
+
+  hp:
+    min: 30000
+    max: 32000
+
+  giveXp:
+    min: 15000
+    max: 25000
+
+  combatMessages:
+    - "Did my filthy brothers put you up to this?"
+    - "Turn around now before it's too late!"
+    - "You will be slain for your insolence!"
+
+  rightHand: Tonwin Sword
+  leftHand: Rylt Renegade Iron Shield
+
+  gear:
+    Armor: Rylt Renegade Breastplate
+    Waist: Tonwin Sash
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Waist'
+      chance: -1
+
+  drops:
+    - result: Rylt Renegade Book
+      chance: -1

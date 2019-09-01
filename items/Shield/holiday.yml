@@ -1,0 +1,41 @@
+
+
+- name: Halloween Pumpkin Shield
+  enchantLevel: 5
+  stats:
+    armorClass: 30
+    defense: 5
+  desc: "a strangely resilient pumpkin filled with rock candy"
+  value: 2500
+  sprite: 545
+  binds: true
+
+  trait:
+    name: SweetTooth
+    level: 2
+
+  requirements:
+    level: 15
+
+- name: Christmas Button Shield
+  desc: "an oversized button, taken from the shirt of a cold giant"
+  value: 300
+  sprite: 574
+  binds: true
+
+- name: Christmas Button Shield (Improved)
+  enchantLevel: 5
+  stats:
+    armorClass: 30
+    defense: 5
+  desc: "an oversized button, taken from the shirt of a cold giant"
+  value: 500
+  sprite: 574
+  binds: true
+
+  trait:
+    name: WintersEmbrace
+    level: 2
+
+  requirements:
+    level: 15

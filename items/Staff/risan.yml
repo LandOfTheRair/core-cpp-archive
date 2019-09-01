@@ -1,0 +1,161 @@
+
+
+- name: Risan Staff
+  desc: "an wooden staff carved in the land of Risan"
+  tier: 5
+  type: Staff
+  value: 6000
+  sprite: 196
+
+  requirements:
+    level: 15
+
+- name: Risan Golden Staff
+  desc: "a wooden staff crafted from a local tree, tipped with gold"
+  stats:
+    int: 2
+    wis: 2
+    mp: 100
+  tier: 5
+  type: Staff
+  value: 5267
+  sprite: 326
+  binds: true
+
+  requirements:
+    level: 15
+
+- name: Overseer Jigan Staff
+  quality: 5
+  desc: "a finely-milled quarterstaff emanating a strong magical energy"
+  stats:
+    int: 3
+    wis: 3
+    defense: 4
+    mpregen: 10
+    conjurationBonus: 2
+    restorationBonus: 2
+  tier: 5
+  type: Staff
+  value: 9567
+  sprite: 268
+  binds: true
+  tellsBind: true
+
+  trait:
+    name: FamiliarStrength
+    level: 2
+
+  requirements:
+    level: 17
+
+- name: Frostlands Brigand Staff
+  stats:
+    offense: 3
+    accuracy: 3
+  desc: "a wooden staff engraved with PROPERTY OF BRIGANDS, PLEASE RETURN IF FOUND"
+  tier: 6
+  type: Staff
+  value: 20185
+  sprite: 196
+
+  requirements:
+    level: 21
+
+- name: Catacombs Staff 1F
+  stats:
+    defense: 4
+    weaponArmorClass: 4
+    armorClass: 4
+    mpregen: 4
+  desc: "a wooden staff carved from wood from the ancient Risan kingdom"
+  tier: 6
+  type: Staff
+  value: 15185
+  sprite: 196
+
+  requirements:
+    level: 25
+
+- name: Catacombs Staff 2F
+  stats:
+    defense: 5
+    weaponArmorClass: 6
+    armorClass: 6
+    mpregen: 8
+  desc: "a wooden staff carved from wood from the ancient Risan kingdom"
+  tier: 6
+  type: Staff
+  value: 25185
+  sprite: 196
+
+  requirements:
+    level: 30
+
+- name: Catacombs Staff 3F
+  stats:
+    defense: 6
+    weaponArmorClass: 8
+    armorClass: 8
+    mpregen: 12
+  desc: "a wooden staff carved from wood from the ancient Risan kingdom"
+  tier: 7
+  type: Staff
+  value: 35185
+  sprite: 196
+
+  requirements:
+    level: 35
+
+- name: Catacombs Staff 4F
+  stats:
+    defense: 7
+    weaponArmorClass: 10
+    armorClass: 10
+    mpregen: 16
+  desc: "a wooden staff carved from wood from the ancient Risan kingdom"
+  tier: 7
+  type: Staff
+  value: 45185
+  sprite: 196
+
+  requirements:
+    level: 40
+
+- name: Catacombs Staff 5F
+  stats:
+    defense: 8
+    weaponArmorClass: 12
+    armorClass: 12
+    mpregen: 20
+  desc: "a wooden staff carved from wood from the ancient Risan kingdom"
+  tier: 8
+  type: Staff
+  value: 55185
+  sprite: 196
+
+  requirements:
+    level: 45
+
+- name: Catacombs Rapidpunch Staff
+  stats:
+    defense: 4
+    armorClass: 10
+    int: 2
+    wis: 2
+    wil: 2
+    mpregen: 10
+  desc: "a strange staff with an almost-closed fist at the peak"
+  tier: 6
+  type: Staff
+  value: 13344
+  sprite: 459
+
+  trait:
+    name: FamiliarFists
+    level: 1
+
+  binds: true
+
+  requirements:
+    level: 30

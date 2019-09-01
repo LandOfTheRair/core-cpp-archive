@@ -1,0 +1,44 @@
+
+
+- item: Ether Scale (Refined)
+  skillGained: 500
+  maxSkillForGains: 12
+  requiredSkill: 3
+  xpGained: 2000
+  ingredients:
+    - Ether Scale
+    - Ether Scale
+    - Ether Scale
+    - Ether Scale
+    - Ether Scale
+
+- item: Yeti Bile (Large)
+  skillGained: 100
+  maxSkillForGains: 11
+  requiredSkill: 5
+  xpGained: 5000
+  ingredients:
+    - Yeti Bile (Small)
+    - Yeti Bile (Small)
+    - Yeti Bile (Small)
+
+- item: Risan Ether Larimar
+  skillGained: 300
+  maxSkillForGains: 15
+  requiredSkill: 11
+  xpGained: 12000
+  ingredients:
+    - Ether Scale (Refined)
+    - Risan Frost Larimar
+
+- item: Silver Scale (Refined)
+  skillGained: 500
+  maxSkillForGains: 15
+  requiredSkill: 7
+  xpGained: 10000
+  ingredients:
+    - Silver Scale
+    - Silver Scale
+    - Silver Scale
+    - Silver Scale
+    - Silver Scale

@@ -1,0 +1,224 @@
+
+- npcId: Rylt Flowerbush
+  name: flower bush
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 835
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Rylt Blueflower
+      chance: 1
+      maxChance: 4
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 4
+      requireHoliday: Thanksgiving
+
+- npcId: Yzalt Apple Tree
+  name: apple vine
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 840
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Yzalt Steffen Apple
+      chance: 1
+      maxChance: 4
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 4
+      requireHoliday: Thanksgiving
+
+- npcId: Yzalt Bogweed Bush
+  name: bogweeds
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 830
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Yzalt Bogweed
+      chance: 1
+      maxChance: 4
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 4
+      requireHoliday: Thanksgiving
+
+- npcId: Tower Goblood Plant
+  name: flora
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 850
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Tower Goblood
+      chance: 1
+      maxChance: 4
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 4
+      requireHoliday: Thanksgiving
+
+- npcId: Maze Corpseflower Weed
+  name: weed
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 830
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Maze Corpseflower
+      chance: 1
+      maxChance: 7
+
+- npcId: Mines Caveroot
+  name: tree root
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 830
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Mines Caveflower
+      chance: 1
+      maxChance: 10
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 4
+      requireHoliday: Thanksgiving
+
+- npcId: Frostlands Gourd
+  name: frost sprout
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 830
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Frostlands Gourd
+      chance: 1
+      maxChance: 15
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 4
+      requireHoliday: Thanksgiving
+
+- npcId: Thanksgiving Corn Stalk
+  name: corn stalk
+  hostility: OnHit
+  allegiance: NaturalResource
+  sprite: 840
+  alignment: Neutral
+  stats: 1
+  skillLevels: 1
+  level: 1
+
+  skillOnKill: 1
+
+  hp:
+    min: 1
+    max: 1
+
+  giveXp:
+    min: 50
+    max: 100
+
+  drops:
+    - result: Thanksgiving Corn
+      chance: 1
+      maxChance: 1

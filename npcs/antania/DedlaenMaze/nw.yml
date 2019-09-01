@@ -1,0 +1,307 @@
+
+- npcId: Dedlaen Skeleton
+  name: skeleton
+  monsterClass: Undead
+  hostility: Always
+  sprite: 1015
+  alignment: Evil
+  stats: 10
+  skillLevels: 3
+  level: 15
+
+  skillOnKill: 15
+
+  otherStats:
+    con: 15
+    offense: 4
+    defense: 5
+    perception: 75
+    accuracy: 1
+    damageFactor: 0.5
+
+  gold:
+    min: 2050
+    max: 2700
+
+  hp:
+    min: 12950
+    max: 13350
+
+  giveXp:
+    min: 14000
+    max: 17000
+
+  gear:
+    Armor: Maze Bone Tunic
+    Hands: Maze Skeleton Claws
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'sharp'
+        potency: 0.5
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+
+  drops:
+    - result: Perfect Maze Skull
+      chance: 1
+      maxChance: 50
+
+  spawnMessage: "the clattering of bones"
+  sfx: "skeleton"
+  sfxMaxChance: 20
+
+- npcId: Dedlaen Skeleton Knight
+  name: skeleton knight
+  monsterClass: Undead
+  hostility: Always
+  sprite: 285
+  alignment: Evil
+  stats: 17
+  skillLevels: 4
+  level: 17
+
+  skillOnKill: 25
+
+  otherStats:
+    con: 20
+    accuracy: 5
+    offense: 5
+    perception: 100
+    accuracy: 1
+    damageFactor: 0.5
+
+  gold:
+    min: 3050
+    max: 3700
+
+  hp:
+    min: 18950
+    max: 20350
+
+  giveXp:
+    min: 24000
+    max: 25000
+
+  rightHand: Maze Longsword
+
+  gear:
+    Armor: Maze Bone Tunic
+    Hands: Maze Skeleton Claws
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.5
+
+    - name: Attribute
+      effectData:
+        damageType: 'sharp'
+        potency: 0.5
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+
+  drops:
+    - result: Perfect Maze Skull
+      chance: 1
+      maxChance: 50
+
+  usableSkills:
+    - Charge
+
+  spawnMessage: "the clattering of bones"
+  sfx: "skeleton"
+  sfxMaxChance: 20
+
+- npcId: Dedlaen Death Knight
+  name: death knight
+  monsterClass: Undead
+  hostility: Always
+  baseClass: Mage
+  sprite: 285
+  alignment: Evil
+  stats: 17
+  skillLevels: 7
+  level: 19
+
+  skillOnKill: 1000
+
+  otherStats:
+    con: 25
+    accuracy: 5
+    offense: 5
+    perception: 300
+    mpregen: 50
+
+  gold:
+    min: 23050
+    max: 33700
+
+  hp:
+    min: 387950
+    max: 391350
+
+  mp:
+    min: 10000
+    max: 10000
+
+  giveXp:
+    min: 239000
+    max: 245000
+
+  rightHand: Dedlaen Death Knight Sword
+  leftHand: Dedlaen Death Knight Shield
+
+  gear:
+    Armor: Reinforced Maze Bone Tunic
+    Hands: Maze Skeleton Claws
+    Robe1: Dedlaen Death Knight Coat
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'magical'
+        potency: 0
+
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0
+
+  copyDrops:
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+    - drop: 'gear.Armor'
+      chance: -1
+    - drop: 'gear.Robe1'
+      chance: -1
+
+  drops:
+    - result: Perfect Maze Skull
+      chance: -1
+
+  usableSkills:
+    - Charge
+    - Haste
+    - ImbueEnergy
+    - Absorption
+    - MagicShield
+    - DarkVision
+
+  combatMessages:
+    - You will not take the throne from the dark lord!
+    - You will fall here!
+    - Your life is no longer your own!
+    - For the dark lord!
+
+- npcId: Dedlaen Vampire
+  name: vampire
+  monsterClass: Undead
+  hostility: Always
+  sprite: 495
+  alignment: Evil
+  stats: 21
+  skillLevels: 6
+  level: 21
+
+  skillOnKill: 1000
+
+  otherStats:
+    con: 25
+    wil: 29
+    accuracy: 10
+    offense: 5
+    perception: 300
+    stealth: 50
+    mpregen: 100
+
+  gear:
+    Hands: Maze Skeleton Claws
+
+  drops:
+    - result: Dedlaen Vampire Heart
+      chance: -1
+
+  gold:
+    min: 32050
+    max: 32700
+
+  hp:
+    min: 457950
+    max: 461350
+
+  mp:
+    min: 10000
+    max: 10000
+
+  giveXp:
+    min: 219000
+    max: 225000
+
+  usableSkills:
+    - VampireMistForm
+    - PoisonBiteMedium
+    - SkillSuckWeak
+    - DarkVision
+    - TrueSight
+
+  combatMessages:
+    - Gwahahaha! Very good!
+    - Soon, you'll become one of my pet skeletons!
+    - You cannot dethrone the dark lord!
+
+- npcId: Dedlaen Vampire Bat
+  name: bat
+  hostility: Always
+  affiliation: Vampire's Minion
+  sprite: 805
+  alignment: Evil
+  stats: 10
+  skillLevels: 3
+  level: 10
+
+  skillOnKill: 15
+
+  otherStats:
+    con: 15
+    wil: 5
+    agi: 30
+    defense: 10
+    perception: 245
+
+  gold:
+    min: 0
+    max: 0
+
+  hp:
+    min: 17950
+    max: 21350
+
+  giveXp:
+    min: 23000
+    max: 25000
+
+  usableSkills:
+    - PoisonBiteMedium
+
+  gear:
+    Hands: Maze Skeleton Claws

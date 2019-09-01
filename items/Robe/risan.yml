@@ -1,0 +1,188 @@
+
+
+- name: Crazed Deer Robe
+  stats:
+    energyResist: 20
+    fireResist: 20
+    iceResist: 20
+    necroticResist: 20
+    poisonResist: 20
+  desc: "a shimmering golden robe made from the hide of a crazed deer"
+  value: 2500
+  sprite: 385
+
+  requirements:
+    level: 11
+
+- name: Frostlands Sabretooth Robe
+  stats:
+    iceResist: 200
+    fireResist: 50
+    poisonResist: 50
+    diseaseResist: 25
+
+  randomStats:
+    offense:
+      min: 1
+      max: 3
+    defense:
+      min: 1
+      max: 3
+    armorClass:
+      min: 3
+      max: 7
+
+  desc: "the tanned hide of a sabretooth"
+  value: 3500
+  sprite: 286
+
+  requirements:
+    level: 25
+
+- name: Frostlands Frostfang Robe
+  quality: 5
+  stats:
+    offense: 3
+    defense: 3
+    armorClass: 10
+    iceResist: 300
+    fireResist: 100
+    poisonResist: 75
+    diseaseResist: 25
+
+  desc: "the tanned hide of a big sabretooth"
+  value: 3500
+  sprite: 286
+
+  requirements:
+    level: 27
+
+- name: Frostlands Noble Robe
+  stats:
+    offense: 5
+    defense: 5
+
+  desc: "a royal robe made of the finest threads that can be found in Risan"
+  value: 3500
+  sprite: 101
+
+- name: Frostlands Brigand Combat Robe
+  randomStats:
+    offense:
+      min: 0
+      max: 10
+    defense:
+      min: 0
+      max: 10
+  desc: "a yellow robe sewn with a black hem"
+  value: 17004
+  sprite: 380
+  binds: true
+
+  requirements:
+    level: 21
+
+- name: Catacombs Robe 1F
+  stats:
+    offense: 2
+    defense: 2
+    armorClass: 1
+    physicalResist: 50
+    perception: 30
+  desc: "a white and blue robe with splotches of bloody flowers scattered around it"
+  value: 13000
+  sprite: 400
+  binds: true
+
+  requirements:
+    level: 25
+
+- name: Catacombs Robe 2F
+  stats:
+    offense: 4
+    defense: 4
+    armorClass: 2
+    physicalResist: 100
+    perception: 60
+  desc: "a white and blue robe with splotches of bloody flowers scattered around it"
+  value: 26000
+  sprite: 400
+  binds: true
+
+  requirements:
+    level: 30
+
+- name: Catacombs Robe 3F
+  stats:
+    offense: 6
+    defense: 6
+    armorClass: 3
+    physicalResist: 150
+    perception: 90
+  desc: "a white and blue robe with splotches of bloody flowers scattered around it"
+  value: 39000
+  sprite: 400
+  binds: true
+
+  requirements:
+    level: 35
+
+- name: Catacombs Robe 4F
+  stats:
+    offense: 8
+    defense: 8
+    armorClass: 4
+    physicalResist: 200
+    perception: 120
+  desc: "a white and blue robe with splotches of bloody flowers scattered around it"
+  value: 13000
+  sprite: 400
+  binds: true
+
+  requirements:
+    level: 40
+
+- name: Catacombs Robe 5F
+  stats:
+    offense: 10
+    defense: 10
+    armorClass: 5
+    physicalResist: 250
+    perception: 150
+  desc: "a white and blue robe with splotches of bloody flowers scattered around it"
+  value: 13000
+  sprite: 400
+  binds: true
+
+  requirements:
+    level: 45
+
+- name: Catacombs Tomb Guardian Fur
+  quality: 5
+  stats:
+    offense: 5
+    defense: 5
+    armorClass: 15
+    iceResist: 400
+    fireResist: 400
+
+  desc: "a fluffy robe made of chilled sparkling feathers"
+  value: 5500
+  sprite: 290
+
+  requirements:
+    level: 30
+
+- name: Club Shirt
+  stats:
+    energyResist: 400
+    necroticResist: 400
+
+  desc: "a warm robe depicting the eruption of a volcano"
+  value: 2500
+  sprite: 401
+  binds: true
+
+  requirements:
+    level: 35
+

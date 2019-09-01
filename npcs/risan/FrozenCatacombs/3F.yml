@@ -1,0 +1,857 @@
+
+- npcId: Catacombs Skeleton 3F
+  name: skeleton knight
+  monsterClass: Undead
+  sprite: 1015
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Warrior
+  hostility: Always
+  stats: 24
+  skillLevels: 11
+  level: 35
+
+  otherStats:
+    perception: 250
+    offense: 30
+    accuracy: 30
+    armorClass: 7
+    defense: 7
+    agi: 9
+    damageFactor: 0.2
+
+  rightHand:
+    - result: Catacombs Longsword 3F
+      chance: 800
+    - result: Catacombs Shield 3F
+      chance: 100
+    - result: Risan Royal Spear
+      chance: 1
+    - result: Catacombs HolyFire Hammer
+      chance: 1
+
+  leftHand:
+    - result: none
+      chance: 2500
+    - result: Catacombs Longsword 3F
+      chance: 900
+    - result: Catacombs Dagger 3F
+      chance: 900
+    - result: Catacombs Shortsword 3F
+      chance: 900
+    - result: Catacombs Shield 3F
+      chance: 900
+    - result: Frostlands Royal Shield
+      chance: 1
+
+  gear:
+    Armor: Frostlands Trash Breastplate
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Robe2:
+      - result: none
+        chance: 300
+      - result: Catacombs Robe 3F
+        chance: 1
+
+    Hands: Frostlands Frostgolem Gloves
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  drops:
+    - result: Catacombs Raw Garnet
+      chance: 1
+      maxChance: 800
+
+  skillOnKill: 75
+
+  usableSkills:
+    - Charge
+    - Blindstrike
+    - Thruststrike
+    - Boost
+
+  traitLevels:
+    Shieldbearer: 1
+    ForcefulStrike: 3
+    SterlingArmor: 4
+    Swashbuckler: 3
+    OffhandFinesse: 2
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.25
+
+    - name: Attribute
+      effectData:
+        damageType: 'sharp'
+        potency: 0.75
+
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  spawnMessage: "the clattering of bones"
+  sfx: "skeleton"
+  sfxMaxChance: 20
+
+- npcId: Catacombs Mummy 3F
+  name: mummy knight
+  monsterClass: Undead
+  sprite: 155
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Warrior
+  hostility: Always
+  stats: 24
+  skillLevels: 11
+  level: 35
+
+  otherStats:
+    perception: 250
+    offense: 30
+    accuracy: 30
+    armorClass: 7
+    defense: 7
+    agi: 9
+    damageFactor: 0.2
+
+  rightHand:
+    - result: Catacombs Greatsword 3F
+      chance: 800
+    - result: Catacombs Greataxe 3F
+      chance: 800
+    - result: Catacombs Halberd 3F
+      chance: 800
+    - result: Catacombs Bat Greatsword
+      chance: 1
+    - result: Frostlands Thermidor Halberd
+      chance: 1
+
+  gear:
+    Armor: Frostlands Trash Breastplate
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Robe2:
+      - result: none
+        chance: 300
+      - result: Catacombs Robe 3F
+        chance: 1
+
+    Hands: Frostlands Frostgolem Gloves
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+
+  drops:
+    - result: Catacombs Raw Garnet
+      chance: 1
+      maxChance: 800
+
+  skillOnKill: 75
+
+  usableSkills:
+    - Charge
+    - Blindstrike
+    - Thruststrike
+
+  traitLevels:
+    Riposte: 3
+    HolyProtection: 8
+    Swashbuckler: 4
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.25
+
+    - name: Attribute
+      effectData:
+        damageType: 'blunt'
+        potency: 0.75
+
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+- npcId: Catacombs Ghost 3F
+  name: ghost cardinal
+  monsterClass: Undead
+  sprite: 300
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Healer
+  hostility: Always
+  stats: 24
+  skillLevels: 10
+  level: 35
+
+  otherStats:
+    perception: 250
+    offense: 30
+    accuracy: 30
+    armorClass: 7
+    defense: 7
+    agi: 9
+
+  rightHand:
+    - result: Catacombs Mace 3F
+      chance: 800
+    - result: Catacombs HolyFire Hammer
+      chance: 1
+    - result: Risan Royal Spear
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Hands: Frostlands Frostgolem Gloves
+
+    Neck:
+      - result: none
+        chance: 800
+      - result: Catacombs Amulet 3F
+        chance: 1
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Neck'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  drops:
+    - result: Catacombs Raw Turquoise
+      chance: 1
+      maxChance: 800
+
+  skillOnKill: 75
+
+  usableSkills:
+    - result: Charge
+      chance: 100
+    - result: Afflict
+      chance: 100
+    - result: Plague
+      chance: 10
+    - result: Cure
+      chance: 100
+    - result: Snare
+      chance: 100
+    - result: TrueSight
+      chance: 100
+    - result: DarkVision
+      chance: 100
+    - result: Aid
+      chance: 100
+    - result: BarNecro
+      chance: 100
+    - result: BarFire
+      chance: 100
+    - result: BarFrost
+      chance: 100
+    - result: VitalEssence
+      chance: 100
+    - result: FleetOfFoot
+      chance: 100
+
+  traitLevels:
+    NecroticFocus: 2
+    CripplingPlague: 1
+    StrongerSnare: 1
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  mp:
+    min: 10000
+    max: 10000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+    - name: Attribute
+      effectData:
+        damageType: 'magical'
+        potency: 0.75
+
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  spawnMessage: "the screeching of an ancient banshee"
+  sfx: "ghost"
+  sfxMaxChance: 20
+
+- npcId: Catacombs Wight 3F
+  name: wight sorcerer
+  monsterClass: Undead
+  sprite: 980
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Mage
+  hostility: Always
+  stats: 24
+  skillLevels: 11
+  level: 35
+
+  otherStats:
+    perception: 250
+    offense: 30
+    accuracy: 30
+    armorClass: 7
+    defense: 7
+    agi: 9
+
+  rightHand:
+    - result: Catacombs Staff 3F
+      chance: 800
+    - result: Catacombs Rapidpunch Staff
+      chance: 1
+    - result: Risan Royal Spear
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Hands: Frostlands Frostgolem Gloves
+
+    Waist:
+      - result: none
+        chance: 800
+      - result: Catacombs Sash 3F
+        chance: 1
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Waist'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  drops:
+    - result: Catacombs Raw Topaz
+      chance: 1
+      maxChance: 800
+
+  skillOnKill: 75
+
+  usableSkills:
+    - result: Charge
+      chance: 100
+    - result: MagicBolt
+      chance: 100
+    - result: Asper
+      chance: 10
+    - result: TrueSight
+      chance: 100
+    - result: MagicShield
+      chance: 100
+    - result: Absorption
+      chance: 100
+    - result: DarkVision
+      chance: 100
+    - result: FindFamiliar
+      chance: 100
+
+  traitLevels:
+    FindFamiliarWolf: 1
+    FindFamiliarBear: 1
+    MagicFocus: 2
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  mp:
+    min: 10000
+    max: 10000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'energy'
+        potency: 0.75
+
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+- npcId: Catacombs Nightwalker 3F
+  name: nightwalker bluebelt
+  monsterClass: Undead
+  sprite: 975
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Warrior
+  hostility: Always
+  stats: 24
+  skillLevels: 11
+  level: 35
+
+  otherStats:
+    perception: 250
+    offense: 30
+    accuracy: 30
+    armorClass: 13
+    defense: 13
+    agi: 9
+    damageFactor: 0.4
+
+  leftHand:
+    - result: none
+      chance: 2500
+    - result: Catacombs Shield 3F
+      chance: 500
+    - result: Frostlands Royal Shield
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Robe2:
+      - result: none
+        chance: 300
+      - result: Catacombs Robe 3F
+        chance: 1
+
+    Hands:
+      - result: Mines Animal Claws
+        chance: 800
+      - result: Catacombs Claws 3F
+        chance: 1
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Robe2'
+      chance: -1
+    - drop: 'gear.Hands'
+      chance: -1
+    - drop: 'gear.leftHand'
+      chance: -1
+
+  drops:
+    - result: Catacombs Raw Amber
+      chance: 1
+      maxChance: 800
+
+  skillOnKill: 75
+
+  usableSkills:
+    - Jumpkick
+    - Shield
+
+  traitLevels:
+    StunningFist: 2
+    BrassKnuckles: 2
+    Punchkick: 1
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'fire'
+        potency: 1.25
+
+    - name: Attribute
+      effectData:
+        damageType: 'blunt'
+        potency: 0.75
+
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+- npcId: Catacombs Qell 3F
+  name: qell trapper
+  monsterClass: Undead
+  sprite: 945
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Thief
+  hostility: Always
+  stats: 24
+  skillLevels: 11
+  level: 35
+
+  otherStats:
+    stealth: 100
+    perception: 200
+    offense: 30
+    accuracy: 30
+    armorClass: 7
+    defense: 7
+    agi: 9
+    damageFactor: 0.2
+
+  rightHand:
+    - result: Catacombs Dagger 3F
+      chance: 800
+    - result: Catacombs Shortsword 3F
+      chance: 800
+    - result: Catacombs HolyFire Hammer
+      chance: 1
+    - result: Catacombs Bat Greatsword
+      chance: 1
+    - result: Frost Chakram
+      chance: 1
+
+  leftHand:
+    - result: none
+      chance: 8000
+    - result: Catacombs Dagger 2F
+      chance: 800
+    - result: Catacombs Shortsword 2F
+      chance: 800
+    - result: Catacombs HolyFire Hammer
+      chance: 1
+    - result: Frost Chakram
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Feet:
+      - result: none
+        chance: 800
+      - result: Catacombs Boots 3F
+        chance: 1
+
+    Hands: Frostlands Frostgolem Gloves
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Feet'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  skillOnKill: 75
+
+  usableSkills:
+    - SetTrap
+    - Steal
+    - Hide
+    - Darkness
+    - DarkVision
+    - Poison
+    - EagleEye
+    - Backstab
+
+  traitLevels:
+    OffhandFinesse: 3
+    ShadowDaggers: 3
+    ShadowSwap: 3
+    DarknessWiden: 1
+
+  sack:
+    - result: Enemy Medium FireMist Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium IceMist Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium Poison Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium MagicBolt Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium HolyFire Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium Snare Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium Stun Thief Trap
+      chance: 5
+      maxChance: 100
+    - result: Enemy Medium Blind Thief Trap
+      chance: 5
+      maxChance: 100
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  mp:
+    min: 1000
+    max: 1000
+
+  drops:
+    - result: Catacombs Raw Tourmaline
+      chance: 1
+      maxChance: 800
+
+  baseEffects:
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+- npcId: Catacombs Spectre 3F
+  name: spectre archer
+  monsterClass: Undead
+  sprite: 305
+  allegiance: Enemy
+  alignment: Evil
+  baseClass: Thief
+  hostility: Always
+  stats: 24
+  skillLevels: 11
+  level: 35
+
+  otherStats:
+    stealth: 100
+    perception: 175
+    offense: 30
+    accuracy: 30
+    armorClass: 7
+    defense: 7
+    agi: 9
+    damageFactor: 0.2
+
+  rightHand:
+    - result: Catacombs Longbow 3F
+      chance: 800
+    - result: Frost Chakram
+      chance: 1
+
+  leftHand:
+    - result: none
+      chance: 2500
+    - result: Catacombs Arrows
+      chance: 400
+    - result: Frost Chakram
+      chance: 1
+
+  gear:
+    Armor: Risan Trash Tunic
+
+    Robe1:
+      - result: none
+        chance: 30
+      - result: Risan Trash Cloak
+        chance: 1
+
+    Wrists:
+      - result: none
+        chance: 800
+      - result: Catacombs Bracers 3F
+        chance: 1
+
+    Hands: Frostlands Frostgolem Gloves
+
+  copyDrops:
+    - drop: 'gear.Armor'
+      chance: 1
+      maxChance: 100
+    - drop: 'gear.Robe1'
+      chance: 1
+      maxChance: 10
+    - drop: 'gear.Wrists'
+      chance: -1
+    - drop: 'rightHand'
+      chance: -1
+    - drop: 'leftHand'
+      chance: -1
+
+  skillOnKill: 75
+
+  usableSkills:
+    - Hide
+    - Darkness
+    - DarkVision
+    - EagleEye
+    - MultiShot
+    - Venom
+
+  traitLevels:
+    ShadowRanger: 2
+    ShadowSwap: 2
+    DarkerShadows: 2
+
+
+  gold:
+    min: 4550
+    max: 4900
+
+  hp:
+    min: 96950
+    max: 99350
+
+  giveXp:
+    min: 87000
+    max: 89000
+
+  mp:
+    min: 1000
+    max: 1000
+
+  baseEffects:
+    - name: Attribute
+      effectData:
+        damageType: 'physical'
+        potency: 0.75
+
+    - name: DarkVision
+      effectData:
+        effectInfo:
+          isPermanent: true
+
+  drops:
+    - result: Catacombs Raw Tourmaline
+      chance: 1
+      maxChance: 800
