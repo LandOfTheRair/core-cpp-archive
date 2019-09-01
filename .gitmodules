@@ -31,3 +31,6 @@
 [submodule "external/yaml-cpp"]
 	path = external/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "assets"]
+	path = assets
+	url = git@github.com:LandOfTheRair/core2.git
