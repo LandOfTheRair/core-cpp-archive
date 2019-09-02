@@ -34,3 +34,6 @@
 [submodule "external/rapidyaml"]
 	path = external/rapidyaml
 	url = https://github.com/biojppm/rapidyaml.git
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

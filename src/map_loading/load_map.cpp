@@ -18,14 +18,76 @@
 
 #include "load_map.h"
 
+#define RYML_DBG
+
 #include <filesystem>
 #include <rapidjson/document.h>
+#include <ryml.hpp>
 #include <working_directory_manipulation.h>
 #include "spdlog/spdlog.h"
 
 using namespace std;
 using namespace rapidjson;
 using namespace lotr;
+
+optional<spawner_script> get_spawner_script(string const &script_file) {
+    string actual_script_file = "assets/scripts/spawners/" + script_file + ".yml";
+    spawner_script script;
+
+    spdlog::trace("{} loading script {}", __FUNCTION__, actual_script_file);
+
+    auto env_contents = read_whole_file(actual_script_file);
+
+    if(!env_contents) {
+        return {};
+    }
+
+    auto substr = c4::to_csubstr(env_contents->c_str());
+    ryml::Tree tree = ryml::parse(substr);
+
+    spdlog::trace("{} loading script3 {}", __FUNCTION__, actual_script_file);
+
+    tree["respawnRate"] >> script.respawn_rate;
+    tree["initialSpawn"] >> script.initial_spawn ;
+    tree["maxCreatures"] >> script.max_creatures;
+    tree["spawnRadius"] >> script.spawn_radius;
+    tree["randomWalkRadius"] >> script.random_walk_radius;
+    tree["leashRadius"] >> script.leash_radius;
+
+    if(tree.has_key())
+    for(const auto &kv : tree["npcIds"]) {
+        string npc_name(kv["name"].val().data(), kv["name"].val().size());
+        uint32_t chance;
+        kv["chance"] >> chance;
+        spdlog::trace("{} npc id {} {}", __FUNCTION__, npc_name, chance);
+        script.npc_ids.emplace_back(chance, npc_name);
+    }
+
+    for(const auto &kv : tree["paths"]) {
+        string npc_path(kv.val().data(), kv.val().size());
+        spdlog::trace("{} path {} {}", __FUNCTION__, npc_path);
+        script.paths.emplace_back(npc_path);
+    }
+
+    return script;
+}
+
+vector<map_property> get_properties(Value const &properties) {
+    vector<map_property> object_properties;
+
+    for (auto it = properties.MemberBegin(); it != properties.MemberEnd(); it++) {
+        string name = it->name.GetString();
+        if (it->value.GetType() == Type::kStringType) {
+            object_properties.emplace_back(name, string(it->value.GetString()));
+        }
+
+        if (it->value.GetType() == Type::kNumberType) {
+            object_properties.emplace_back(name, it->value.GetDouble());
+        }
+    }
+
+    return object_properties;
+}
 
 optional<map_component> lotr::load_map_from_file(const string &file) {
     spdlog::debug("{} Loading load_map {}", __FUNCTION__, file);
@@ -69,57 +131,40 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
                                     current_layer["height"].GetInt(), current_layer["name"].GetString(), current_layer["type"].GetString(), vector<map_object>{}, data);
         }
 
+        string current_layer_name = current_layer["name"].GetString();
         if(current_layer["type"].GetString() == "objectgroup"s) {
             vector<map_object> objects;
             for (SizeType j = 0; j < current_layer["objects"].Size(); j++) {
 
                 auto& current_object = current_layer["objects"][j];
                 //spdlog::trace("{} object {}", __FUNCTION__, current_object["id"].GetUint());
-                // object properties
 
                 vector<map_property> object_properties;
                 if(current_object.HasMember("properties")) {
-                    auto &json_object_properties = current_object["properties"];
-                    for (auto it = json_object_properties.MemberBegin(); it != json_object_properties.MemberEnd(); it++) {
-                        string name = it->name.GetString();
-                        if (it->value.GetType() == Type::kStringType) {
-                            object_properties.emplace_back(name, string(it->value.GetString()));
-                        }
-
-                        if (it->value.GetType() == Type::kNumberType) {
-                            object_properties.emplace_back(name, it->value.GetDouble());
-                        }
-                    }
+                    object_properties = get_properties(current_object["properties"]);
                 }
-
-                // object itself
 
                 uint32_t gid = 0;
                 if(current_object.HasMember("gid")) {
                     gid = current_object["gid"].GetUint();
                 }
+
+                optional<spawner_script> spawn_script;
+                auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop){return prop.name == "script"s;});
+                if(current_layer_name == "Spawners"s && object_script_property != end(object_properties)) {
+                    spawn_script = get_spawner_script(get<string>(object_script_property->value));
+                }
+
                 objects.emplace_back(gid, current_object["id"].GetUint(),
                         current_object["x"].GetUint(), current_object["y"].GetUint(), current_object["width"].GetUint(),
-                        current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties);
+                        current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script);
             }
             map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["name"].GetString(), current_layer["type"].GetString(),
                                     objects, vector<uint32_t>{});
         }
     }
 
-    vector<map_property> map_properties;
-    auto& json_properties = d["properties"];
-
-    for(auto it = json_properties.MemberBegin(); it != json_properties.MemberEnd(); it++) {
-        string name = it->name.GetString();
-        if(it->value.GetType() == Type::kStringType) {
-            map_properties.emplace_back(name, string(it->value.GetString()));
-        }
-
-        if(it->value.GetType() == Type::kNumberType) {
-            map_properties.emplace_back(name, it->value.GetDouble());
-        }
-    }
+    vector<map_property> map_properties = get_properties(d["properties"]);
 
     spdlog::trace("{} map {} {} {}", __FUNCTION__, width, height, map_name);
     return make_optional<map_component>(width, height, map_name, map_properties, map_layers);
