@@ -1,0 +1,9 @@
+npcIds:
+  - 'Frostlands Thermidor':
+    chance: 0
+respawnRate: 15
+initialSpawn: 1
+maxCreatures: 2
+spawnRadius: 1
+randomWalkRadius: 25
+leashRadius: 30

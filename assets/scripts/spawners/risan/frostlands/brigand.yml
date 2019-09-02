@@ -1,0 +1,19 @@
+npcIds:
+  - name: Frostlands Brigand Fighter
+    chance: 10
+  - name: Frostlands Brigand Mage
+    chance: 10
+  - name: Frostlands Brigand Healer
+    chance: 10
+  - name: Frostlands Brigand Thief
+    chance: 3
+  - name: Frostlands Brigand Shieldbearer
+    chance: 1
+  - name: Frostlands Brigand Monk
+    chance: 1
+respawnRate: 7
+initialSpawn: 2
+maxCreatures: 6
+spawnRadius: 6
+randomWalkRadius: 7
+leashRadius: 12

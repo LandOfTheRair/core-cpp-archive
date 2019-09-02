@@ -1,0 +1,9 @@
+npcIds:
+  - name: Tutorial Yeti
+    chance: 0
+respawnRate: 30
+initialSpawn: 1
+maxCreatures: 1
+spawnRadius: 1
+randomWalkRadius: 5
+leashRadius: 10
