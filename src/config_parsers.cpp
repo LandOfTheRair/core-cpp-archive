@@ -28,42 +28,42 @@ using namespace rapidjson;
 optional<config> lotr::parse_env_file() {
     auto env_contents = read_whole_file("config.json");
     if(!env_contents) {
-        spdlog::error("{} no config.json file found. Please make one.", __FUNCTION__);
+        spdlog::error("[{}] no config.json file found. Please make one.", __FUNCTION__);
         return {};
     }
 
-    spdlog::trace(R"({} config.json file contents: {})", __FUNCTION__, env_contents.value());
+    spdlog::trace(R"([{}] config.json file contents: {})", __FUNCTION__, env_contents.value());
 
     Document d;
     d.Parse(env_contents->c_str(), env_contents->size());
 
     if (d.HasParseError() || !d.IsObject()) {
-        spdlog::error("{} deserialize config.json failed", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json failed", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("DEBUG_LEVEL")) {
-        spdlog::error("{} deserialize config.json missing DEBUG_LEVEL", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json missing DEBUG_LEVEL", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("ADDRESS")) {
-        spdlog::error("{} deserialize config.json missing ADDRESS", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json missing ADDRESS", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("PORT")) {
-        spdlog::error("{} deserialize config.json missing PORT", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json missing PORT", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("CONNECTION_STRING")) {
-        spdlog::error("{} deserialize config.json missing CONNECTION_STRING", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json missing CONNECTION_STRING", __FUNCTION__);
         return {};
     }
 
     if(!d.HasMember("TICK_LENGTH")) {
-        spdlog::error("{} deserialize config.json missing TICK_LENGTH", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json missing TICK_LENGTH", __FUNCTION__);
         return {};
     }
 

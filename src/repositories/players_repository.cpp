@@ -42,18 +42,18 @@ bool players_repository<pool_T, transaction_T>::insert_or_update_player(player &
             plyr.user_id, plyr.location_id, transaction->escape(plyr.name), plyr.user_id, plyr.location_id));
 
     if(result.empty()) {
-        spdlog::error("{} contains {} entries", __FUNCTION__, result.size());
+        spdlog::error("[{}] contains {} entries", __FUNCTION__, result.size());
         return false;
     }
 
     plyr.id = result[0][1].as(uint64_t{});
 
     if(result[0][0].as(uint64_t{}) == 0) {
-        spdlog::debug("{} inserted player {}", __FUNCTION__, plyr.id);
+        spdlog::debug("[{}] inserted player {}", __FUNCTION__, plyr.id);
         return true;
     }
 
-    spdlog::debug("{} updated player {}", __FUNCTION__, plyr.id);
+    spdlog::debug("[{}] updated player {}", __FUNCTION__, plyr.id);
     return false;
 }
 
@@ -61,7 +61,7 @@ template<typename pool_T, typename transaction_T>
 void players_repository<pool_T, transaction_T>::update_player(player const &plyr, unique_ptr<transaction_T> const &transaction) const {
     transaction->execute(fmt::format("UPDATE players SET user_id = {}, location_id = {} WHERE id = {}", plyr.user_id, plyr.location_id, plyr.id));
 
-    spdlog::debug("{} updated player {}", __FUNCTION__, plyr.id);
+    spdlog::debug("[{}] updated player {}", __FUNCTION__, plyr.id);
 }
 
 template<typename pool_T, typename transaction_T>
@@ -76,12 +76,12 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(string co
                                               "INNER JOIN locations l ON l.id = p.location_id "
                                               "WHERE p.player_name = '{}'", transaction->escape(name)));
     } else {
-        spdlog::debug("{} included_tables value {} not implemented", __FUNCTION__, static_cast<int>(includes));
+        spdlog::debug("[{}] included_tables value {} not implemented", __FUNCTION__, static_cast<int>(includes));
         return {};
     }
 
     if(result.empty()) {
-        spdlog::debug("{} found no player by name {}", __FUNCTION__, name);
+        spdlog::debug("[{}] found no player by name {}", __FUNCTION__, name);
         return {};
     }
 
@@ -93,7 +93,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(string co
         ret->loc.emplace(result[0][4].as(uint64_t{}), result[0][5].as(string{}), result[0][6].as(uint32_t{}), result[0][7].as(uint32_t{}));
     }
 
-    spdlog::debug("{} found player by name {} with id {}", __FUNCTION__, name, ret->id);
+    spdlog::debug("[{}] found player by name {} with id {}", __FUNCTION__, name, ret->id);
 
     return ret;
 }
@@ -104,7 +104,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(uint64_t 
     auto result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.player_name FROM players p WHERE id = {}", id));
 
     if(result.empty()) {
-        spdlog::debug("{} found no player by id {}", __FUNCTION__, id);
+        spdlog::debug("[{}] found no player by id {}", __FUNCTION__, id);
         return {};
     }
 
@@ -112,7 +112,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(uint64_t 
                                      result[0][2].as(uint64_t{}), result[0][3].as(string{}),
                                      optional<location>{}, vector<player_stat>{}, vector<player_item>{});
 
-    spdlog::debug("{} found player by id {}", __FUNCTION__, id);
+    spdlog::debug("[{}] found player by id {}", __FUNCTION__, id);
 
     return ret;
 }
@@ -128,11 +128,11 @@ vector<player> players_repository<pool_T, transaction_T>::get_by_user_id(uint64_
                                       "INNER JOIN locations l ON l.id = p.location_id "
                                       "WHERE p.user_id = {}", user_id));
     } else {
-        spdlog::debug("{} included_tables value {} not implemented", __FUNCTION__, static_cast<int>(includes));
+        spdlog::debug("[{}] included_tables value {} not implemented", __FUNCTION__, static_cast<int>(includes));
         return {};
     }
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
     vector<player> players;
     players.reserve(result.size());

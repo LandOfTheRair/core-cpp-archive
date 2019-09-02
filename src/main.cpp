@@ -24,6 +24,7 @@
 #include <rapidjson/document.h>
 #include <functional>
 #include <csignal>
+#include <chrono>
 
 #include <message_handlers/login_handler.h>
 #include <message_handlers/register_handler.h>
@@ -177,6 +178,7 @@ int main() {
 
     entt::registry registry;
 
+    auto maps_loading_start = chrono::system_clock::now();
     for(auto& p: filesystem::recursive_directory_iterator("assets/maps")) {
         if(!p.is_regular_file()) {
             continue;
@@ -192,6 +194,7 @@ int main() {
         registry.assign<map_component>(new_entity, map.value());
     }
 
+    auto items_loading_start = chrono::system_clock::now();
     for(auto& p: filesystem::recursive_directory_iterator("assets/items")) {
         if(!p.is_regular_file()) {
             continue;
@@ -204,6 +207,10 @@ int main() {
             registry.assign<global_item_component>(new_entity, item);
         }
     }
+    auto loading_end = chrono::system_clock::now();
+    spdlog::info("[{}] maps loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(items_loading_start - maps_loading_start).count());
+    spdlog::info("[{}] items loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - items_loading_start).count());
+    spdlog::info("[{}] everything loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - maps_loading_start).count());
     //world w;
     //w.load_from_database(db_pool, config, player_event_queue, producer);
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);

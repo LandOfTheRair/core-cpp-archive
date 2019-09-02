@@ -39,7 +39,7 @@ bool users_repository<pool_T, transaction_T>::insert_if_not_exists(user &usr, un
             "INSERT INTO users (username, password, email, login_attempts, verification_code, admin, no_of_players) VALUES ('{}', '{}', '{}', {}, '{}', {}, {}) ON CONFLICT DO NOTHING RETURNING id",
                     transaction->escape(usr.username), transaction->escape(usr.password), transaction->escape(usr.email), usr.login_attempts, transaction->escape(usr.verification_code), usr.admin, usr.no_of_players));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
     if(result.empty()) {
         //already exists
@@ -56,14 +56,14 @@ void users_repository<pool_T, transaction_T>::update(user const &usr, unique_ptr
     auto result = transaction->execute(fmt::format("UPDATE users SET username = '{}', password = '{}', email = '{}', login_attempts = {}, verification_code = '{}', admin = {}, no_of_players = {} WHERE id = {}",
             transaction->escape(usr.username), transaction->escape(usr.password), transaction->escape(usr.email), usr.login_attempts, transaction->escape(usr.verification_code), usr.admin, usr.no_of_players, usr.id));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 }
 
 template<typename pool_T, typename transaction_T>
 optional<user> users_repository<pool_T, transaction_T>::get(int id, unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("SELECT * FROM users WHERE id = {}", id));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
     if(result.empty()) {
         return {};
@@ -79,7 +79,7 @@ template<typename pool_T, typename transaction_T>
 optional<user> users_repository<pool_T, transaction_T>::get(string const &username, unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("SELECT * FROM users WHERE username = '{}'", transaction->escape(username)));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
     if(result.empty()) {
         return {};

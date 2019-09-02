@@ -31,7 +31,7 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
     string actual_script_file = fmt::format("assets/scripts/spawners/{}.yml", script_file);
     spawner_script script;
 
-    spdlog::debug("{} loading spawner script {}", __FUNCTION__, actual_script_file);
+    spdlog::debug("[{}] loading spawner script {}", __FUNCTION__, actual_script_file);
 
     auto env_contents = read_whole_file(actual_script_file);
 
@@ -51,12 +51,12 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
     for(auto const &kv : tree["npcIds"]) {
         auto npc_name = kv["name"].as<string>();
         auto chance = kv["chance"].as<uint32_t>();
-        spdlog::trace("{} npc id {} {}", __FUNCTION__, npc_name, chance);
+        spdlog::trace("[{}] npc id {} {}", __FUNCTION__, npc_name, chance);
         script.npc_ids.emplace_back(chance, npc_name);
     }
 
     for(auto const &kv : tree["paths"]) {
-        spdlog::trace("{} npc path {}", __FUNCTION__, kv.as<string>());
+        spdlog::trace("[{}] npc path {}", __FUNCTION__, kv.as<string>());
         script.paths.push_back(kv.as<string>());
     }
 
@@ -81,7 +81,7 @@ vector<map_property> get_properties(Value const &properties) {
 }
 
 optional<map_component> lotr::load_map_from_file(const string &file) {
-    spdlog::debug("{} Loading load_map {}", __FUNCTION__, file);
+    spdlog::debug("[{}] Loading load_map {}", __FUNCTION__, file);
     auto env_contents = read_whole_file(file);
 
     if(!env_contents) {
@@ -92,7 +92,7 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
     d.Parse(env_contents->c_str(), env_contents->size());
 
     if (d.HasParseError() || !d.IsObject()) {
-        spdlog::error("{} deserialize config.json failed", __FUNCTION__);
+        spdlog::error("[{}] deserialize config.json failed", __FUNCTION__);
         return {};
     }
 
@@ -105,11 +105,11 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
 
     for(SizeType i = 0; i < json_layers.Size(); i++) {
         auto& current_layer = json_layers[i];
-        spdlog::trace("{} layer {}: {}", __FUNCTION__, i, current_layer["name"].GetString());
+        spdlog::trace("[{}] layer {}: {}", __FUNCTION__, i, current_layer["name"].GetString());
 
 
         if (!current_layer.IsObject()) {
-            spdlog::warn("{} deserialize failed", __FUNCTION__);
+            spdlog::warn("[{}] deserialize failed", __FUNCTION__);
             return nullopt;
         }
 
@@ -128,7 +128,7 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
             for (SizeType j = 0; j < current_layer["objects"].Size(); j++) {
 
                 auto& current_object = current_layer["objects"][j];
-                //spdlog::trace("{} object {}", __FUNCTION__, current_object["id"].GetUint());
+                //spdlog::trace("[{}] object {}", __FUNCTION__, current_object["id"].GetUint());
 
                 vector<map_property> object_properties;
                 if(current_object.HasMember("properties")) {
@@ -157,7 +157,7 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
 
     vector<map_property> map_properties = get_properties(d["properties"]);
 
-    spdlog::trace("{} map {} {} {}", __FUNCTION__, width, height, map_name);
+    spdlog::trace("[{}] map {} {} {}", __FUNCTION__, width, height, map_name);
     return make_optional<map_component>(width, height, map_name, map_properties, map_layers);
 }
 

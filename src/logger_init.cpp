@@ -42,11 +42,11 @@ void lotr::reconfigure_logger(config const& config) noexcept {
         } else if(config.debug_level == "trace") {
             logger->set_level(spdlog::level::trace);
         } else {
-            spdlog::warn(R"(No debug level set, couldn't match "{}" to anything)", config.debug_level);
+            spdlog::warn(R"([{}] No debug level set, couldn't match "{}" to anything)", __FUNCTION__, config.debug_level);
         }
     }
 
     spdlog::set_default_logger(logger);
 
-    spdlog::info("debug level: {}", config.debug_level);
+    spdlog::info("[{}] debug level: {}", __FUNCTION__, config.debug_level);
 }

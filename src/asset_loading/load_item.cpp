@@ -33,7 +33,7 @@ using namespace lotr;
 #define ITEM_BOOL_FIELD(x) if(item_node[ #x ]) { item. x = item_node[ #x ].as<bool>(); }
 
 vector<global_item_component> lotr::load_global_items_from_file(string const &file) {
-    spdlog::debug("{} loading items from file {}", __FUNCTION__, file);
+    spdlog::debug("[{}] loading items from file {}", __FUNCTION__, file);
 
     auto env_contents = read_whole_file(file);
 
@@ -50,16 +50,16 @@ vector<global_item_component> lotr::load_global_items_from_file(string const &fi
         item.desc = item_node["desc"].as<string>();
         item.sprite = item_node["sprite"].as<uint64_t>();
 
-        spdlog::debug("{} loading item {}", __FUNCTION__, item.name);
+        spdlog::debug("[{}] loading item {}", __FUNCTION__, item.name);
 
         for (auto &stat : stats) {
             if (item_node["stats"] && item_node["stats"][stat]) {
-                spdlog::trace("{} loading stat {}:{}", __FUNCTION__, stat, item_node["stats"][stat].as<int64_t>());
+                spdlog::trace("[{}] loading stat {}:{}", __FUNCTION__, stat, item_node["stats"][stat].as<int64_t>());
                 item.stats.emplace_back(stat, item_node["stats"][stat].as<int64_t>());
             }
 
             if (item_node["randomStats"] && item_node["randomStats"][stat]) {
-                spdlog::trace("{} loading random stat {}:{}-{}", __FUNCTION__, stat, item_node["randomStats"][stat]["min"].as<int64_t>(), item_node["randomStats"][stat]["max"].as<int64_t>());
+                spdlog::trace("[{}] loading random stat {}:{}-{}", __FUNCTION__, stat, item_node["randomStats"][stat]["min"].as<int64_t>(), item_node["randomStats"][stat]["max"].as<int64_t>());
                 item.random_stats.emplace_back(stat, item_node["randomStats"][stat]["min"].as<int64_t>(), item_node["randomStats"][stat]["max"].as<int64_t>());
             }
         }
@@ -81,7 +81,7 @@ vector<global_item_component> lotr::load_global_items_from_file(string const &fi
 
             if (item_node["requirements"]["profession"]) {
                 for(auto const &profession_node : item_node["requirements"]["profession"]) {
-                    spdlog::trace("{} loading requirements profession {}", __FUNCTION__, profession_node.as<string>());
+                    spdlog::trace("[{}] loading requirements profession {}", __FUNCTION__, profession_node.as<string>());
                     item.required_professions.emplace_back(profession_node.as<string>());
                 }
             }
@@ -105,7 +105,7 @@ vector<global_item_component> lotr::load_global_items_from_file(string const &fi
 
             for (auto &stat : stats) {
                 if (item_node["effect"]["stats"] && item_node["effect"]["stats"][stat]) {
-                    spdlog::trace("{} loading effect stat {}:{}", __FUNCTION__, stat, item_node["effect"]["stats"][stat].as<int64_t>());
+                    spdlog::trace("[{}] loading effect stat {}:{}", __FUNCTION__, stat, item_node["effect"]["stats"][stat].as<int64_t>());
                     effect.stats.emplace_back(stat, item_node["effect"]["stats"][stat].as<int64_t>());
                 }
             }

@@ -46,7 +46,7 @@ optional<string> lotr::read_whole_file(string const &path) {
     ifstream file(path);
 
     if(!file) {
-        spdlog::error("{} no \"{}\" file found.", __FUNCTION__, path);
+        spdlog::error("[{}] no \"{}\" file found.", __FUNCTION__, path);
         return {};
     }
 

@@ -41,7 +41,7 @@ lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _w
     d.Parse(dict_contents->c_str(), dict_contents->size());
 
     if (d.HasParseError() || !d.IsObject()) {
-        spdlog::warn("{} deserialize failed: {}", __FUNCTION__, d.GetParseError());
+        spdlog::warn("[{}] deserialize failed: {}", __FUNCTION__, d.GetParseError());
         throw runtime_error("deserialize failed");
     }
 
@@ -65,7 +65,7 @@ bool lotr::censor_sensor::is_profane(string phrase) {
     while ((next = phrase.find(' ', last)) != std::string::npos && !contains_profanity) {
         auto word = phrase_view.substr(last, next-last);
         last = next + 1;
-        spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
+        spdlog::trace("[{}] testing word {} in phrase {}", __FUNCTION__, word, phrase);
         auto word_iter = _word_tiers.find(word);
 
         if (word_iter == _word_tiers.end()) {
@@ -83,7 +83,7 @@ bool lotr::censor_sensor::is_profane(string phrase) {
 
     if(!contains_profanity) {
         auto word = phrase_view.substr(last);
-        spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
+        spdlog::trace("[{}] testing word {} in phrase {}", __FUNCTION__, word, phrase);
         auto word_iter = _word_tiers.find(word);
 
         if (word_iter == _word_tiers.end()) {
@@ -100,7 +100,7 @@ bool lotr::censor_sensor::is_profane(string phrase) {
     }
 
     end:
-    spdlog::trace("{} phrase {} profane: {}", __FUNCTION__, phrase, contains_profanity);
+    spdlog::trace("[{}] phrase {} profane: {}", __FUNCTION__, phrase, contains_profanity);
     return contains_profanity;
 }
 
@@ -111,13 +111,13 @@ bool lotr::censor_sensor::is_profane_ish(string phrase) {
             auto tier_iter = _enabled_tiers.find(tier);
 
             if(tier_iter != _enabled_tiers.end()) {
-                spdlog::trace("{} phrase {} profane ish", __FUNCTION__, phrase);
+                spdlog::trace("[{}] phrase {} profane ish", __FUNCTION__, phrase);
                 return true;
             }
         }
     }
 
-    spdlog::trace("{} phrase {} not profane ish", __FUNCTION__, phrase);
+    spdlog::trace("[{}] phrase {} not profane ish", __FUNCTION__, phrase);
     return false;
 }
 
@@ -150,7 +150,7 @@ string lotr::censor_sensor::clean_profanity(string phrase) {
     }
 
     auto word = phrase_view.substr(last);
-    spdlog::trace("{} testing word {} in phrase {}", __FUNCTION__, word, phrase);
+    spdlog::trace("[{}] testing word {} in phrase {}", __FUNCTION__, word, phrase);
     auto word_iter = _word_tiers.find(word);
 
     if (word_iter != _word_tiers.end()) {
@@ -165,7 +165,7 @@ string lotr::censor_sensor::clean_profanity(string phrase) {
         }
     }
 
-    spdlog::trace("{} phrase {}", __FUNCTION__, phrase);
+    spdlog::trace("[{}] phrase {}", __FUNCTION__, phrase);
     return phrase;
 }
 
@@ -186,20 +186,20 @@ string lotr::censor_sensor::clean_profanity_ish(string phrase) {
         }
     }
 
-    spdlog::trace("{} phrase {}", __FUNCTION__, phrase);
+    spdlog::trace("[{}] phrase {}", __FUNCTION__, phrase);
     return phrase;
 }
 
 void lotr::censor_sensor::enable_tier(uint32_t tier) {
     if(tier <= static_cast<uint32_t>(profanity_type::USER_ADDED)) {
         _enabled_tiers.insert(tier);
-        spdlog::trace("{} tier {} enabled", __FUNCTION__, tier);
+        spdlog::trace("[{}] tier {} enabled", __FUNCTION__, tier);
     }
 }
 
 void lotr::censor_sensor::disable_tier(uint32_t tier) {
     if(tier <= static_cast<uint32_t>(profanity_type::USER_ADDED)) {
         _enabled_tiers.erase(tier);
-        spdlog::trace("{} tier {} disabled", __FUNCTION__, tier);
+        spdlog::trace("[{}] tier {} disabled", __FUNCTION__, tier);
     }
 }

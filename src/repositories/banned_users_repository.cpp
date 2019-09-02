@@ -42,7 +42,7 @@ bool banned_users_repository<pool_T, transaction_T>::insert_if_not_exists(banned
 
     auto result = transaction->execute(fmt::format("INSERT INTO banned_users (ip, user_id, until) VALUES ({}, {}, {}) RETURNING id", ip, user_id, until));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
     if(result.empty()) {
         //already exists
@@ -62,14 +62,14 @@ void banned_users_repository<pool_T, transaction_T>::update(banned_user const &u
 
     auto result = transaction->execute(fmt::format("UPDATE banned_users SET ip = {}, user_id = {}, until = {}", ip, user_id, until));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 }
 
 template<typename pool_T, typename transaction_T>
 optional<banned_user> banned_users_repository<pool_T, transaction_T>::get(int id, unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("SELECT id, ip, user_id, until FROM banned_users WHERE id = {}", id));
 
-    spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+    spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
     if(result.empty()) {
         return {};
@@ -97,7 +97,7 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::get(int id
 template<typename pool_T, typename transaction_T>
 optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_username_or_ip_banned(optional<string> username, optional<string> ip, unique_ptr<transaction_T> const &transaction) const {
     if(!username && !ip) {
-        spdlog::error("{} called without arguments", __FUNCTION__);
+        spdlog::error("[{}] called without arguments", __FUNCTION__);
         return {};
     }
 
@@ -112,7 +112,7 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
                                            "WHERE bu.until >= {} AND (u.id IS NOT NULL OR bu.ip = '{}')",
                                            transaction->escape(username.value()), now, transaction->escape(ip.value())));
 
-        spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+        spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
         if(result.empty()) {
             return {};
@@ -132,7 +132,7 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
                                            "LEFT JOIN users u ON bu.user_id = u.id AND u.username = '{}' "
                                            "WHERE bu.until >= {} AND u.id IS NOT NULL", transaction->escape(username.value()), now));
 
-        spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+        spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
         if(result.empty()) {
             return {};
@@ -151,7 +151,7 @@ optional<banned_user> banned_users_repository<pool_T, transaction_T>::is_usernam
         auto result = transaction->execute(fmt::format("SELECT bu.id as id, bu.ip, until FROM banned_users bu "
                                            "WHERE bu.until >= {} AND bu.ip = '{}'", now, transaction->escape(ip.value())));
 
-        spdlog::debug("{} contains {} entries", __FUNCTION__, result.size());
+        spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
         if(result.empty()) {
             return {};
