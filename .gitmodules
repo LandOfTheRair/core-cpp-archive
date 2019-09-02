@@ -1,0 +1,36 @@
+[submodule "external/uWebSockets"]
+	path = external/uWebSockets
+	url = https://github.com/uNetworking/uWebSockets.git
+[submodule "external/spdlog"]
+	path = external/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "external/rapidjson"]
+	path = external/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "external/libpqxx"]
+	path = external/libpqxx
+	url = https://github.com/jtv/libpqxx.git
+[submodule "external/range-v3"]
+	path = external/range-v3
+	url = https://github.com/ericniebler/range-v3.git
+[submodule "external/Catch2"]
+	path = external/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "external/libsodium"]
+	path = external/libsodium
+	url = https://github.com/jedisct1/libsodium.git
+[submodule "external/xxHash"]
+	path = external/xxHash
+	url = https://github.com/Cyan4973/xxHash.git
+[submodule "external/robin-hood-hashing"]
+	path = external/robin-hood-hashing
+	url = https://github.com/martinus/robin-hood-hashing.git
+[submodule "external/entt"]
+	path = external/entt
+	url = https://github.com/skypjack/entt.git
+[submodule "assets"]
+	path = assets
+	url = git@github.com:LandOfTheRair/core2.git
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
