@@ -41,8 +41,6 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
 
     YAML::Node tree = YAML::Load(env_contents.value());
 
-    spdlog::trace("{} loading script3 {}", __FUNCTION__, actual_script_file);
-
     script.respawn_rate = tree["respawnRate"].as<uint32_t>();
     script.initial_spawn = tree["initialSpawn"].as<uint32_t>();
     script.max_creatures = tree["maxCreatures"].as<uint32_t>();
