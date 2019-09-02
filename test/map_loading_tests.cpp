@@ -50,7 +50,7 @@ TEST_CASE("map_loading tests") {
                             "id":174,
                             "name":"Armor Seller",
                             "properties": {
-                                "script":"tutorial\/monster"
+                                "script":"tutorial\/townee"
                             },
                             "propertytypes": {
                                 "script":"string"
@@ -119,20 +119,24 @@ TEST_CASE("map_loading tests") {
     REQUIRE(map->layers[1].objects[0].type == "test"s);
     REQUIRE(map->layers[1].objects[0].properties.size() == 1);
     REQUIRE(map->layers[1].objects[0].properties[0].name == "script");
-    REQUIRE(get<string>(map->layers[1].objects[0].properties[0].value) == "tutorial/monster");
+    REQUIRE(get<string>(map->layers[1].objects[0].properties[0].value) == "tutorial/townee");
+
     REQUIRE(map->layers[1].objects[0].script);
-    REQUIRE(map->layers[1].objects[0].script->npc_ids.size() == 2);
-    REQUIRE(map->layers[1].objects[0].script->npc_ids[0].name == "Tutorial Deer");
+    REQUIRE(map->layers[1].objects[0].script->npc_ids.size() == 1);
+    REQUIRE(map->layers[1].objects[0].script->npc_ids[0].name == "Tutorial Townee");
     REQUIRE(map->layers[1].objects[0].script->npc_ids[0].chance == 0);
-    REQUIRE(map->layers[1].objects[0].script->npc_ids[1].name == "Tutorial Wolf");
-    REQUIRE(map->layers[1].objects[0].script->npc_ids[1].chance == 0);
     REQUIRE(map->layers[1].objects[0].script->respawn_rate == 15);
     REQUIRE(map->layers[1].objects[0].script->initial_spawn == 2);
-    REQUIRE(map->layers[1].objects[0].script->max_creatures == 6);
-    REQUIRE(map->layers[1].objects[0].script->spawn_radius == 1);
-    REQUIRE(map->layers[1].objects[0].script->random_walk_radius == 5);
-    REQUIRE(map->layers[1].objects[0].script->leash_radius == 10);
+    REQUIRE(map->layers[1].objects[0].script->max_creatures == 20);
+    REQUIRE(map->layers[1].objects[0].script->spawn_radius == 0);
+    REQUIRE(map->layers[1].objects[0].script->random_walk_radius == 0);
+    REQUIRE(map->layers[1].objects[0].script->leash_radius == 30);
 
+    REQUIRE(map->layers[1].objects[0].script->paths.size() == 4);
+    REQUIRE(map->layers[1].objects[0].script->paths[0] == "23-E 16-S 23-W 16-N"s);
+    REQUIRE(map->layers[1].objects[0].script->paths[1] == "16-S 23-E 16-N 23-W"s);
+    REQUIRE(map->layers[1].objects[0].script->paths[2] == "8-S 23-E 8-S 23-W 8-N 23-E 8-N 23-W"s);
+    REQUIRE(map->layers[1].objects[0].script->paths[3] == "23-E 8-S 23-W 8-S 23-E 8-N 23-W 8-N"s);
 
     REQUIRE(map->properties.size() == 5);
     REQUIRE(map->properties[0].name == "itemExpirationHours"s);

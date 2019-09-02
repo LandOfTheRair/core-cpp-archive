@@ -58,7 +58,7 @@ if(NOT XXHASH_LIBRARY)
 endif()
 
 if(NOT YAML_LIBRARY)
-    message(FATAL_ERROR "yaml-cpp not found")
+    message(FATAL_ERROR "rapidyaml not found")
 endif()
 
 find_package(ZLIB REQUIRED)
@@ -107,6 +107,12 @@ target_link_libraries(lotr_benchmark PUBLIC ${YAML_LIBRARY})
 
 add_custom_command(
         TARGET lotr_backend POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets/
+        ${CMAKE_BINARY_DIR}/assets)
+
+add_custom_command(
+        TARGET lotr_test POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets/
         ${CMAKE_BINARY_DIR}/assets)

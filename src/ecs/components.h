@@ -78,6 +78,27 @@ namespace lotr {
         vector<character_component> characters;
     };
 
+    // scripts
+
+    struct spawner_npc_id {
+        uint32_t chance;
+        string name;
+
+        spawner_npc_id(uint32_t chance, string name) : chance(chance), name(move(name)) {}
+    };
+
+    struct spawner_script {
+        uint32_t respawn_rate;
+        uint32_t initial_spawn;
+        uint32_t max_creatures;
+        uint32_t spawn_radius;
+        uint32_t random_walk_radius;
+        uint32_t leash_radius;
+
+        vector<spawner_npc_id> npc_ids;
+        vector<string> paths;
+    };
+
     // maps
 
     struct map_property {
@@ -98,9 +119,10 @@ namespace lotr {
         string name;
         string type;
         vector<map_property> properties;
+        optional<spawner_script> script;
 
-        map_object(uint32_t gid, uint32_t id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_property> properties)
-            : gid(gid), id(id), x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), properties(move(properties)) {}
+        map_object(uint32_t gid, uint32_t id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_property> properties, optional<spawner_script> script)
+            : gid(gid), id(id), x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), properties(move(properties)), script(move(script)) {}
     };
 
     struct map_layer {

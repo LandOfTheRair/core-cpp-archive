@@ -17,12 +17,9 @@
 */
 
 #include "load_map.h"
-
-#define RYML_DBG
-
 #include <filesystem>
 #include <rapidjson/document.h>
-#include <ryml.hpp>
+#include <yaml-cpp/yaml.h>
 #include <working_directory_manipulation.h>
 #include "spdlog/spdlog.h"
 
@@ -42,31 +39,27 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
         return {};
     }
 
-    auto substr = c4::to_csubstr(env_contents->c_str());
-    ryml::Tree tree = ryml::parse(substr);
+    YAML::Node tree = YAML::Load(env_contents.value());
 
     spdlog::trace("{} loading script3 {}", __FUNCTION__, actual_script_file);
 
-    tree["respawnRate"] >> script.respawn_rate;
-    tree["initialSpawn"] >> script.initial_spawn ;
-    tree["maxCreatures"] >> script.max_creatures;
-    tree["spawnRadius"] >> script.spawn_radius;
-    tree["randomWalkRadius"] >> script.random_walk_radius;
-    tree["leashRadius"] >> script.leash_radius;
+    script.respawn_rate = tree["respawnRate"].as<uint32_t>();
+    script.initial_spawn = tree["initialSpawn"].as<uint32_t>();
+    script.max_creatures = tree["maxCreatures"].as<uint32_t>();
+    script.spawn_radius = tree["spawnRadius"].as<uint32_t>();
+    script.random_walk_radius = tree["randomWalkRadius"].as<uint32_t>();
+    script.leash_radius = tree["leashRadius"].as<uint32_t>();
 
-    if(tree.has_key())
     for(const auto &kv : tree["npcIds"]) {
-        string npc_name(kv["name"].val().data(), kv["name"].val().size());
-        uint32_t chance;
-        kv["chance"] >> chance;
+        auto npc_name = kv["name"].as<string>();
+        auto chance = kv["chance"].as<uint32_t>();
         spdlog::trace("{} npc id {} {}", __FUNCTION__, npc_name, chance);
         script.npc_ids.emplace_back(chance, npc_name);
     }
 
     for(const auto &kv : tree["paths"]) {
-        string npc_path(kv.val().data(), kv.val().size());
-        spdlog::trace("{} path {} {}", __FUNCTION__, npc_path);
-        script.paths.emplace_back(npc_path);
+        spdlog::trace("{} npc path {}", __FUNCTION__, kv.as<string>());
+        script.paths.push_back(kv.as<string>());
     }
 
     return script;
