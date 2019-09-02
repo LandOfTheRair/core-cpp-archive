@@ -20,8 +20,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "test_helpers/startup_helper.h"
-#include "../src/map_loading/load_map.h"
+#include "asset_loading/load_map.h"
 
 using namespace std;
 using namespace lotr;

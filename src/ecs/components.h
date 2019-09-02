@@ -20,25 +20,85 @@
 
 #include <string>
 #include <variant>
+#include <array>
+#include <vector>
 
 using namespace std;
 
 namespace lotr {
+    array<string, 39> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
+                                     "weaponDamageRolls"s, "weaponArmorClass"s, "armorClass"s, "accuracy"s, "offense"s, "defense"s, "stealth"s,
+                                     "perception"s, "physicalDamageBoost"s, "magicalDamageBoost"s, "healingBoost"s, "physicalDamageReflect"s,
+                                     "magicalDamageReflect"s, "mitigation"s, "magicalResist"s, "physicalResist"s, "necroticResist"s, "energyResist"s,
+                                     "waterResist"s, "fireResist"s, "iceResist"s, "poisonResist"s, "diseaseResist"s, "actionSpeed"s, "damageFactor"s};
+
     struct stat_component {
-        uint64_t database_id;
         string name;
-        uint64_t value;
+        int64_t value;
+
+        stat_component(string name, int64_t value) : name(move(name)), value(value) {}
+    };
+
+    struct random_stat_component {
+        string name;
+        int64_t min;
+        int64_t max;
+
+        random_stat_component(string name, int64_t min, int64_t max) : name(move(name)), min(min), max(max) {}
     };
 
     struct skill_component {
-        uint64_t database_id;
         string name;
+        int64_t value;
+    };
+
+    struct item_effect_component {
+        string name;
+        string tooltip;
+        string message;
+        uint32_t potency;
+        uint32_t duration;
+        uint32_t uses;
+        uint32_t range;
+        uint32_t chance;
+        bool autocast;
+        bool can_apply;
+        vector<stat_component> stats;
+    };
+
+    struct item_required_skill_component {
+        string name;
+        uint32_t level;
+    };
+
+    struct global_item_component {
+        string name;
+        string desc;
+        string type;
+        //string required_quest;
+        //string required_alignment;
+        uint64_t quality;
+        uint64_t enchant_level;
         uint64_t value;
+        uint64_t sprite;
+        uint64_t required_level;
+        uint64_t tier;
+        bool binds;
+        bool tells_bind;
+        optional<item_effect_component> effect;
+        //optional<random_stat_component> random_trait_levels;
+        //vector<string> random_trait_names;
+        vector<string> required_professions;
+        //vector<item_required_skill_component> required_skills;
+        vector<stat_component> stats;
+        vector<random_stat_component> random_stats;
     };
 
     struct item_component {
-        uint64_t database_id;
         string name;
+        string desc;
+        uint64_t value;
+        uint64_t sprite;
         vector<stat_component> stats;
     };
 
@@ -49,7 +109,6 @@ namespace lotr {
     };
 
     struct silver_purchases_component {
-        uint64_t database_id;
         string name;
         uint32_t count;
     };

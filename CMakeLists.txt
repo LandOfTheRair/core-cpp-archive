@@ -31,7 +31,7 @@ add_executable(lotr_backend ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCE
 
 file(GLOB_RECURSE PROJECT_SOURCES_WITHOUT_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM PROJECT_SOURCES_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/main.cpp")
-file(GLOB PROJECT_TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/*.cpp ${PROJECT_SOURCE_DIR}/test/test_helpers/*.cpp)
+file(GLOB_RECURSE PROJECT_TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/*.cpp)
 add_executable(lotr_test ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES_WITHOUT_MAIN} ${PROJECT_TEST_SOURCES})
 add_test(NAME MyTest COMMAND lotr_test)
 
@@ -78,6 +78,7 @@ include_directories("${EXTERNAL_DIR}/xxHash")
 include_directories("${EXTERNAL_DIR}/robin-hood-hashing/src/include")
 include_directories("${EXTERNAL_DIR}/entt/src")
 include_directories("${EXTERNAL_DIR}/yaml-cpp/include")
+include_directories("${EXTERNAL_DIR}/pcg-cpp/include")
 
 
 target_link_libraries(lotr_backend PUBLIC ${PQXX_LIBRARY} -lpq)

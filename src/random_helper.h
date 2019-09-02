@@ -1,6 +1,6 @@
 /*
-    Realm of Aesir client
-    Copyright (C) 2016  Michael de Lang
+    Land of the Rair
+    Copyright (C) 2019 Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,12 +16,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #pragma once
 
-#include <optional>
-#include <vector>
-#include <ecs/components.h>
+#include <pcg_random.hpp>
 
 namespace lotr {
-    std::optional<map_component> load_map_from_file(const std::string &file);
+    class random_helper {
+    public:
+        random_helper();
+
+        uint64_t generate_single(uint64_t from, uint64_t end);
+        uint64_t generate_single_uint64();
+        int64_t generate_single(int64_t from, int64_t end);
+        int64_t generate_single_int64();
+        float generate_single(float from, float end);
+        double generate_single(double from, double end);
+    private:
+        pcg64 _rng64;
+    };
 }

@@ -28,10 +28,10 @@ using namespace rapidjson;
 using namespace lotr;
 
 optional<spawner_script> get_spawner_script(string const &script_file) {
-    string actual_script_file = "assets/scripts/spawners/" + script_file + ".yml";
+    string actual_script_file = fmt::format("assets/scripts/spawners/{}.yml", script_file);
     spawner_script script;
 
-    spdlog::trace("{} loading script {}", __FUNCTION__, actual_script_file);
+    spdlog::debug("{} loading spawner script {}", __FUNCTION__, actual_script_file);
 
     auto env_contents = read_whole_file(actual_script_file);
 
@@ -48,14 +48,14 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
     script.random_walk_radius = tree["randomWalkRadius"].as<uint32_t>();
     script.leash_radius = tree["leashRadius"].as<uint32_t>();
 
-    for(const auto &kv : tree["npcIds"]) {
+    for(auto const &kv : tree["npcIds"]) {
         auto npc_name = kv["name"].as<string>();
         auto chance = kv["chance"].as<uint32_t>();
         spdlog::trace("{} npc id {} {}", __FUNCTION__, npc_name, chance);
         script.npc_ids.emplace_back(chance, npc_name);
     }
 
-    for(const auto &kv : tree["paths"]) {
+    for(auto const &kv : tree["paths"]) {
         spdlog::trace("{} npc path {}", __FUNCTION__, kv.as<string>());
         script.paths.push_back(kv.as<string>());
     }

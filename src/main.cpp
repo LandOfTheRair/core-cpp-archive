@@ -29,11 +29,12 @@
 #include <message_handlers/register_handler.h>
 
 #include <entt/entt.hpp>
+#include <asset_loading/load_map.h>
+#include <asset_loading/load_item.h>
 
 #include "config.h"
 #include "logger_init.h"
 #include "config_parsers.h"
-#include "map_loading/load_map.h"
 
 
 #include "repositories/users_repository.h"
@@ -118,7 +119,7 @@ int main() {
                     user_data->user_id = 0;
                     spdlog::trace("[uws] open connection {} {}", req->getUrl(), user_data->connection_id);
                 },
-                .message = [pool, &message_router](auto *ws, std::string_view message, uWS::OpCode op_code) {
+                .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
                     spdlog::trace("[uws] message {} {}", message, op_code);
 
                     if (message.empty() || message.length() < 4) {
@@ -189,6 +190,19 @@ int main() {
 
         auto new_entity = registry.create();
         registry.assign<map_component>(new_entity, map.value());
+    }
+
+    for(auto& p: filesystem::recursive_directory_iterator("assets/items")) {
+        if(!p.is_regular_file()) {
+            continue;
+        }
+
+        auto items = load_global_items_from_file(p.path().string());
+
+        for(auto &item: items) {
+            auto new_entity = registry.create();
+            registry.assign<global_item_component>(new_entity, item);
+        }
     }
     //world w;
     //w.load_from_database(db_pool, config, player_event_queue, producer);
