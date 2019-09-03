@@ -1,0 +1,14 @@
+npcIds:
+  - name: Dedlaen Escort Townee
+    chance: 3
+  - name: Dedlaen Escort Guard
+    chance: 1
+respawnRate: 3600
+initialSpawn: 5
+maxCreatures: 5
+spawnRadius: 2
+randomWalkRadius: 10
+leashRadius: 15
+npcAISettings: ['dedlaenescort']
+canSlowDown: no
+doInitialSpawnImmediately: yes

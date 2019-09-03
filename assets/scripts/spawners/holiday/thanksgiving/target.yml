@@ -1,0 +1,13 @@
+# TODO: only active during Thanksgiving holiday time
+
+npcIds:
+  - name: Thanksgiving Turkey Target
+    chance: 0
+respawnRate: 0
+initialSpawn: 0
+maxCreatures: 20
+spawnRadius: 0
+randomWalkRadius: 0
+leashRadius: 0
+doInitialSpawnImmediately: yes
+shouldBeActive: yes

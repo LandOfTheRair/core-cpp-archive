@@ -1,0 +1,17 @@
+# the npcId is inferred from the map, and all of these properties can be overridden by the map object
+# obj.properties.resourceName is the npcId to spawn
+
+npcIds: []
+respawnRate: 1800
+initialSpawn: 1
+maxSpawn: 1
+maxCreatures: 1
+spawnRadius: 0
+randomWalkRadius: 0
+leashRadius: 0
+shouldSerialize: yes
+alwaysSpawn: yes
+requireDeadToRespawn: yes
+canSlowDown: no
+eliteTickCap: 0
+npcAISettings: ['resource']

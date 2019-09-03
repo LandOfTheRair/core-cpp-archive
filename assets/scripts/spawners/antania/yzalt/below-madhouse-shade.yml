@@ -1,0 +1,11 @@
+npcIds:
+  - name: Ranata Shade
+    chance: 0
+respawnRate: 0
+initialSpawn: 1
+maxCreatures: 1
+spawnRadius: 1
+randomWalkRadius: 1
+leashRadius: 50
+shouldBeActive: yes
+canSlowDown: no

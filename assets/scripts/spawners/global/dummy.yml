@@ -1,0 +1,18 @@
+npcIds:
+  - name: Training Dummy
+    chance: 0
+
+respawnRate: 5
+initialSpawn: 1
+maxSpawn: 1
+maxCreatures: 1
+spawnRadius: 0
+randomWalkRadius: 0
+leashRadius: 0
+shouldSerialize: yes
+alwaysSpawn: yes
+requireDeadToRespawn: yes
+canSlowDown: no
+eliteTickCap: 0
+npcAISettings: ['trainingdummy']
+doInitialSpawnImmediately: yes

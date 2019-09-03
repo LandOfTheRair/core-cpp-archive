@@ -1,0 +1,11 @@
+npcIds:
+  - name: Catacombs Qell 1F
+    chance: 0
+respawnRate: 40
+initialSpawn: 2
+maxCreatures: 3
+spawnRadius: 1
+randomWalkRadius: 15
+leashRadius: 25
+eliteTickCap: 45
+

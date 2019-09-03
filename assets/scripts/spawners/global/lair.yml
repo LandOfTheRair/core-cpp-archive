@@ -1,0 +1,19 @@
+# the npcId is inferred from the map, and all of these properties can be overridden by the map object
+# obj.properties.lairName is the npcId to spawn
+
+npcIds: []
+respawnRate: 3600
+initialSpawn: 1
+maxSpawn: 1
+maxCreatures: 1
+spawnRadius: 0
+randomWalkRadius: 2
+leashRadius: 10
+shouldSerialize: yes
+alwaysSpawn: yes
+requireDeadToRespawn: yes
+shouldStrip: yes
+stripOnSpawner: yes
+canSlowDown: no
+isDangerous: yes
+eliteTickCap: 0

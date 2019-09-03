@@ -1,0 +1,15 @@
+npcIds:
+  - name: Rylt Townee
+    chance: 0
+  - name: Rylt Guard
+    chance: 0
+paths:
+  - '34-E 6-S 34-W 6-N'
+  - '6-S 34-E 6-N 34-W'
+respawnRate: 15
+initialSpawn: 3
+maxCreatures: 15
+spawnRadius: 1
+randomWalkRadius: 20
+leashRadius: 35
+doInitialSpawnImmediately: yes

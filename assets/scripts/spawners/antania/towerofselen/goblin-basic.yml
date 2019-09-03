@@ -1,0 +1,9 @@
+npcIds:
+  - name: Tower Goblin
+    chance: 0
+respawnRate: 50
+initialSpawn: 2
+maxCreatures: 5
+spawnRadius: 1
+randomWalkRadius: 10
+leashRadius: 20

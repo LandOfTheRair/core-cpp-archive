@@ -1,0 +1,10 @@
+npcIds:
+  - name: Frostlands Slave
+    chance: 0
+respawnRate: 30
+initialSpawn: 1
+maxCreatures: 3
+spawnRadius: 1
+randomWalkRadius: 7
+leashRadius: 12
+doInitialSpawnImmediately: yes

@@ -1,0 +1,23 @@
+npcIds:
+  - name: Dedlaen Goblin
+    chance: 15
+  - name: Dedlaen Goblin Thief
+    chance: 5
+  - name: Dedlaen Hobgoblin
+    chance: 10
+  - name: Dedlaen Orc
+    chance: 5
+  - name: Dedlaen Orc Healer
+    chance: 2
+  - name: Dedlaen Orc Mage
+    chance: 2
+  - name: Dedlaen Troll
+    chance: 1
+  - name: Dedlaen Lizardman
+    chance: 1
+respawnRate: 3
+initialSpawn: 1
+maxCreatures: 20
+spawnRadius: 10
+randomWalkRadius: 15
+leashRadius: 20

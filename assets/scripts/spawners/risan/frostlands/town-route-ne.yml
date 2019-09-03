@@ -1,0 +1,15 @@
+npcIds:
+  - name: Frostlands Guard
+    chance: 5
+  - name: Frostlands Townee
+    chance: 1
+paths: 
+  - '30-W 1-N 30-E 1-S'
+  - '30-S 1-E 30-N 1-W'
+respawnRate: 30
+initialSpawn: 3
+maxCreatures: 7
+spawnRadius: 1
+randomWalkRadius: 0
+leashRadius: 35
+doInitialSpawnImmediately: yes

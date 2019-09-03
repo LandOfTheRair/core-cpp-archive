@@ -1,0 +1,9 @@
+npcIds:
+  - name: Tower Town Guard
+respawnRate: 40
+initialSpawn: 1
+maxCreatures: 3
+spawnRadius: 1
+randomWalkRadius: 15
+leashRadius: 20
+doInitialSpawnImmediately: yes

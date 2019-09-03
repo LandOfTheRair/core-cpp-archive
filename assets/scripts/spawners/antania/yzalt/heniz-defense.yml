@@ -1,0 +1,13 @@
+# TODO: only active when minute >= 15 && <= 30 OR minute >= 45 && <= 60
+
+npcIds:
+  - name: Heniz Thief Defender
+    chance: 0
+  - name: Heniz Mage Defender
+    chance: 0
+respawnRate: 10
+initialSpawn: 0
+maxCreatures: 5
+spawnRadius: 0
+randomWalkRadius: 15
+leashRadius: 35

@@ -1,10 +1,11 @@
 npcIds:
   - name: Tutorial Townee
     chance: 0
-paths: ['23-E 16-S 23-W 16-N',
-        '16-S 23-E 16-N 23-W',
-        '8-S 23-E 8-S 23-W 8-N 23-E 8-N 23-W',
-        '23-E 8-S 23-W 8-S 23-E 8-N 23-W 8-N']
+paths: 
+  - '23-E 16-S 23-W 16-N'
+  - '16-S 23-E 16-N 23-W'
+  - '8-S 23-E 8-S 23-W 8-N 23-E 8-N 23-W'
+  - '23-E 8-S 23-W 8-S 23-E 8-N 23-W 8-N'
 respawnRate: 15
 initialSpawn: 2
 maxCreatures: 20

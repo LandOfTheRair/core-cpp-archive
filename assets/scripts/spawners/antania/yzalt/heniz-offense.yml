@@ -1,0 +1,15 @@
+# TODO: only active when minute >= 0 && <= 15 OR minute >= 30 && <= 45
+
+npcIds:
+  - name: Heniz Thief Offender
+    chance: 0
+  - name: Heniz Mage Offender
+    chance: 0
+paths:
+  - '20-N 20-S'
+respawnRate: 15
+initialSpawn: 0
+maxCreatures: 3
+spawnRadius: 0
+randomWalkRadius: 15
+leashRadius: 35

@@ -1,12 +1,10 @@
 npcIds:
   - name: Risan Crazed Deer
-    chance: 0
-  - name: Risan Crazed Wolf
-    chance: 0
+    chance: 1
   - name: Risan Crazed Bear
-    chance: 0
-  - name: Risan Crazed Moose
-    chance: 0
+    chance: 1
+  - name: Risan Crazed Wolf
+    chance: 1
 respawnRate: 7
 initialSpawn: 2
 maxCreatures: 6

@@ -1,0 +1,12 @@
+# TODO: only active during Thanksgiving holiday time
+
+npcIds:
+  - name: Thanksgiving Pilgrim
+    chance: 0
+respawnRate: 30
+initialSpawn: 2
+maxCreatures: 6
+spawnRadius: 1
+randomWalkRadius: 25
+leashRadius: 35
+doInitialSpawnImmediately: yes

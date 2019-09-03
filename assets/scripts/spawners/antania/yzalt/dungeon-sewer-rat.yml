@@ -1,0 +1,9 @@
+npcIds:
+  - name: Yzalt Sewer Rat
+    chance: 0
+respawnRate: 15
+initialSpawn: 3
+maxCreatures: 3
+spawnRadius: 0
+randomWalkRadius: 25
+leashRadius: 45

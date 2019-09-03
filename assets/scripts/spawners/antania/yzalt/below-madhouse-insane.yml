@@ -1,0 +1,16 @@
+npcIds:
+  - name: Lunatic Warrior
+    chance: 0
+  - name: Lunatic Mage
+    chance: 0
+  - name: Lunatic Healer
+    chance: 0
+  - name: Lunatic Thief
+    chance: 0
+respawnRate: 0
+initialSpawn: 0
+maxCreatures: 100
+spawnRadius: 2
+randomWalkRadius: 7
+leashRadius: 50
+shouldBeActive: yes
