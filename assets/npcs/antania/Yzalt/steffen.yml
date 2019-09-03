@@ -68,6 +68,7 @@
   leashMessage: "the lost child says: Mama says I shouldn't go into these woods.."
 
 - npcId: Steffen Townee
+  name: townee
   allegiance: Royalty
   monsterClass: Humanoid
   sprite: [580, 595, 610, 615]

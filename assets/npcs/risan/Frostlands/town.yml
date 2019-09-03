@@ -1,5 +1,6 @@
 
 - npcId: Frostlands Townee
+  name: townee
   monsterClass: Humanoid
   allegiance: None
   stats: 25

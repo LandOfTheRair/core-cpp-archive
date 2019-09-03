@@ -31,6 +31,7 @@
     Armor: Antanian Tunic
 
 - npcId: Heniz Townee
+  name: townee
   allegiance: Pirates
   monsterClass: Humanoid
   sprite: [580, 595, 610, 615]

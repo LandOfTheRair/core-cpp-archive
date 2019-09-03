@@ -67,6 +67,10 @@
     Armor: Tutorial Fur
     Hands: Basic Claws
 
+  gold:
+    min: 0
+    max: 0
+
   hp:
     min: 50
     max: 100

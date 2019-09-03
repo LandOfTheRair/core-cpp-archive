@@ -32,6 +32,10 @@
       chance: 1
       maxChance: 25
 
+  gold:
+    min: 0
+    max: 0
+
   hp:
     min: 50
     max: 100
@@ -92,6 +96,10 @@
   giveXp:
     min: 400
     max: 500
+
+  gold:
+    min: 0
+    max: 0
 
   tansFor: Weredeer Robe
   tanSkillRequired: 3
@@ -230,6 +238,10 @@
   giveXp:
     min: 1500
     max: 2000
+
+  gold:
+    min: 0
+    max: 0
 
   tansFor: Rylt Werebear Fur
   tanSkillRequired: 5

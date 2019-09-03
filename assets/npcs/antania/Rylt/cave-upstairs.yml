@@ -1,5 +1,3 @@
-
-
 - npcId: Crazed Saraxa
   name: Saraxa
   monsterClass: Humanoid
@@ -7,7 +5,12 @@
   affiliation: Crazed
   alignment: Evil
   baseClass: Mage
-  stats:
+  stats: 15
+  level: 20
+
+  otherStats:
+    accuracy: 10
+    perception: 250
     int: 25
     dex: 25
     str: 25
@@ -15,11 +18,6 @@
     agi: 25
     luk: 10
     wil: 15
-  level: 20
-
-  otherStats:
-    accuracy: 10
-    perception: 250
 
   skillLevels: 6
 
@@ -130,15 +128,14 @@
   baseClass: Warrior
   sprite: 75
   stats: 20
-  otherStats:
-    accuracy: 10
-    wil: 13
   skillLevels: 10
   level: 15
 
   otherStats:
     con: 33
     perception: 170
+    accuracy: 10
+    wil: 13
 
   skillOnKill: 25
 
@@ -193,6 +190,10 @@
   giveXp:
     min: 300
     max: 500
+
+  gold:
+    min: 0
+    max: 0
 
   rightHand: Tower Longbow Strong
 

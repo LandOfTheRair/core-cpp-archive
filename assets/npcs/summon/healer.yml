@@ -16,6 +16,14 @@
     - Disease
     - Blind
 
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
+
   hp:
     min: 500
     max: 500
@@ -39,6 +47,14 @@
     - Regen
     - Vision
     - Antidote
+
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
 
   hp:
     min: 500
@@ -66,6 +82,14 @@
     - TrueSight
     - MagicShield
     - Absorption
+
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
 
   hp:
     min: 500

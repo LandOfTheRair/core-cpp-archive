@@ -12,6 +12,10 @@
 
   skillOnKill: 1
 
+  gold:
+    min: 0
+    max: 0
+
   hp:
     min: 6
     max: 10

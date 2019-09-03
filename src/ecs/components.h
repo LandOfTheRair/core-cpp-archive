@@ -26,11 +26,11 @@
 using namespace std;
 
 namespace lotr {
-    array<string, 39> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
+    array<string, 38> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
                                      "weaponDamageRolls"s, "weaponArmorClass"s, "armorClass"s, "accuracy"s, "offense"s, "defense"s, "stealth"s,
                                      "perception"s, "physicalDamageBoost"s, "magicalDamageBoost"s, "healingBoost"s, "physicalDamageReflect"s,
                                      "magicalDamageReflect"s, "mitigation"s, "magicalResist"s, "physicalResist"s, "necroticResist"s, "energyResist"s,
-                                     "waterResist"s, "fireResist"s, "iceResist"s, "poisonResist"s, "diseaseResist"s, "actionSpeed"s, "damageFactor"s};
+                                     "waterResist"s, "fireResist"s, "iceResist"s, "poisonResist"s, "diseaseResist"s, "actionSpeed"s/*, "damageFactor"s TODO damage factor is a double :< */};
 
     struct stat_component {
         string name;
@@ -114,8 +114,26 @@ namespace lotr {
     };
 
     struct character_component {
-        uint64_t database_id;
         string name;
+        string npc_id;
+        string allegiance;
+        string alignment;
+        string sex;
+        string dir;
+        string hostility;
+        string character_class;
+        string monster_class;
+        string spawn_message;
+        string sfx;
+
+        uint32_t level;
+        uint32_t highest_level;
+        uint32_t sprite;
+        uint32_t skill_on_kill;
+        uint32_t gold;
+        uint32_t give_xp;
+        uint32_t sfx_max_chance;
+
         vector<stat_component> stats;
         vector<item_component> items;
         vector<skill_component> skills;
@@ -123,8 +141,37 @@ namespace lotr {
         location_component location;
     };
 
+    struct player_component {
+        // component used in ECS to determine type
+    };
+
+    struct global_npc_component {
+        string name;
+        string npc_id;
+        string allegiance;
+        string alignment;
+        string sex;
+        string dir;
+        string hostility;
+        string character_class;
+        string monster_class;
+        string spawn_message;
+        string sfx;
+
+        uint32_t level;
+        uint32_t highest_level;
+        vector<uint32_t> sprite;
+        uint32_t skill_on_kill;
+        uint32_t sfx_max_chance;
+
+        vector<stat_component> stats;
+        vector<random_stat_component> random_stats;
+        vector<item_component> items;
+        vector<skill_component> skills;
+        location_component location;
+    };
+
     struct user_component {
-        uint64_t database_id;
         string name;
         string email;
         uint16_t subscription_tier;
@@ -153,9 +200,19 @@ namespace lotr {
         uint32_t spawn_radius;
         uint32_t random_walk_radius;
         uint32_t leash_radius;
+        uint32_t elite_tick_cap;
+        uint32_t max_spawn;
+
+        bool should_be_active;
+        bool can_slow_down;
+        bool should_serialize;
+        bool always_spawn;
+        bool require_dead_to_respawn;
+        bool do_initial_spawn_immediately;
 
         vector<spawner_npc_id> npc_ids;
         vector<string> paths;
+        vector<string> npc_ai_settings;
     };
 
     // maps

@@ -11,6 +11,10 @@
 
   skillOnKill: 1
 
+  gold:
+    min: 0
+    max: 0
+
   hp:
     min: 6
     max: 10
@@ -122,6 +126,9 @@
       maxChance: 50
       requireHoliday: Christmas
 
+    - result: Antanian Branch
+      chance: -1
+
   dropPool:
     replace: true
     choose:
@@ -132,10 +139,6 @@
         chance: 5
       - result: Antanian Branch
         chance: 1
-
-  drops:
-    - result: Antanian Branch
-      chance: -1
 
 - npcId: Small Risan Dying Tree
   name: dying tree
@@ -148,6 +151,10 @@
   level: 1
 
   skillOnKill: 1
+
+  gold:
+    min: 0
+    max: 0
 
   hp:
     min: 6
@@ -211,6 +218,9 @@
       chance: 1
       maxChance: 2
       requireHoliday: Thanksgiving
+    - result: Risan Branch
+
+      chance: -1
 
   dropPool:
     replace: true
@@ -224,7 +234,3 @@
         chance: 100
       - result: Risan Frozen Twig
         chance: 1
-
-  drops:
-    - result: Risan Branch
-      chance: -1

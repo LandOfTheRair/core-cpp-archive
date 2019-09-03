@@ -32,6 +32,7 @@
 #include <entt/entt.hpp>
 #include <asset_loading/load_map.h>
 #include <asset_loading/load_item.h>
+#include <asset_loading/load_npc.h>
 
 #include "config.h"
 #include "logger_init.h"
@@ -178,6 +179,34 @@ int main() {
 
     entt::registry registry;
 
+    auto items_loading_start = chrono::system_clock::now();
+    for(auto& p: filesystem::recursive_directory_iterator("assets/items")) {
+        if(!p.is_regular_file()) {
+            continue;
+        }
+
+        auto items = load_global_items_from_file(p.path().string());
+
+        for(auto &item: items) {
+            auto new_entity = registry.create();
+            registry.assign<global_item_component>(new_entity, item);
+        }
+    }
+
+    auto npcs_loading_start = chrono::system_clock::now();
+    for(auto& p: filesystem::recursive_directory_iterator("assets/npcs")) {
+        if(!p.is_regular_file()) {
+            continue;
+        }
+
+        auto npcs = load_global_npcs_from_file(p.path().string());
+
+        for(auto &npc: npcs) {
+            auto new_entity = registry.create();
+            registry.assign<global_npc_component>(new_entity, npc);
+        }
+    }
+
     auto maps_loading_start = chrono::system_clock::now();
     for(auto& p: filesystem::recursive_directory_iterator("assets/maps")) {
         if(!p.is_regular_file()) {
@@ -194,23 +223,11 @@ int main() {
         registry.assign<map_component>(new_entity, map.value());
     }
 
-    auto items_loading_start = chrono::system_clock::now();
-    for(auto& p: filesystem::recursive_directory_iterator("assets/items")) {
-        if(!p.is_regular_file()) {
-            continue;
-        }
-
-        auto items = load_global_items_from_file(p.path().string());
-
-        for(auto &item: items) {
-            auto new_entity = registry.create();
-            registry.assign<global_item_component>(new_entity, item);
-        }
-    }
     auto loading_end = chrono::system_clock::now();
-    spdlog::info("[{}] maps loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(items_loading_start - maps_loading_start).count());
-    spdlog::info("[{}] items loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - items_loading_start).count());
-    spdlog::info("[{}] everything loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - maps_loading_start).count());
+    spdlog::info("[{}] items loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(npcs_loading_start - items_loading_start).count());
+    spdlog::info("[{}] npcs loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(maps_loading_start - npcs_loading_start).count());
+    spdlog::info("[{}] maps loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - maps_loading_start).count());
+    spdlog::info("[{}] everything loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - items_loading_start).count());
     //world w;
     //w.load_from_database(db_pool, config, player_event_queue, producer);
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);
@@ -223,12 +240,12 @@ int main() {
         next_tick += chrono::milliseconds(config.tick_length);
     }
 
-    spdlog::warn("quitting program");
+    spdlog::warn("[{}] quitting program", __FUNCTION__);
     shit_uws.loop->defer([&shit_uws] {
         us_listen_socket_close(0, shit_uws.socket);
     });
     uws_thread.join();
-    spdlog::warn("uws thread stopped");
+    spdlog::warn("[{}] uws thread stopped", __FUNCTION__);
 
     return 0;
 }

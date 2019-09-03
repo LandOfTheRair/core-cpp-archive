@@ -11,6 +11,14 @@
   gear:
     Armor: Antanian Tunic
 
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
+
   hp:
     min: 1
     max: 1
@@ -29,6 +37,14 @@
 
   usableSkills:
     - Provoke
+
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
 
   hp:
     min: 1000

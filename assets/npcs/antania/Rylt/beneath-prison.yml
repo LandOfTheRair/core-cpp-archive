@@ -7,7 +7,14 @@
   monsterClass: Humanoid
   alignment: Evil
   baseClass: Thief
-  stats:
+  stats: 20
+
+  level: 30
+
+  otherStats:
+    accuracy: 15
+    stealth: 50
+    perception: 350
     int: 30
     dex: 30
     str: 23
@@ -15,12 +22,6 @@
     agi: 35
     luk: 30
     wil: 25
-  level: 30
-
-  otherStats:
-    accuracy: 15
-    stealth: 50
-    perception: 350
 
   skillLevels: 9
 
@@ -118,7 +119,12 @@
   hostility: Always
   alignment: Evil
   baseClass: Warrior
-  stats:
+  stats: 20
+  level: 25
+
+  otherStats:
+    accuracy: 10
+    perception: 350
     int: 20
     dex: 20
     str: 20
@@ -126,11 +132,6 @@
     agi: 20
     luk: 20
     wil: 25
-  level: 25
-
-  otherStats:
-    accuracy: 10
-    perception: 350
 
   skillLevels: 9
 
@@ -177,7 +178,12 @@
   hostility: Always
   alignment: Evil
   baseClass: Mage
-  stats:
+  stats: 20
+  level: 25
+
+  otherStats:
+    accuracy: 10
+    perception: 350
     int: 20
     dex: 20
     str: 20
@@ -185,11 +191,6 @@
     agi: 20
     luk: 20
     wil: 25
-  level: 25
-
-  otherStats:
-    accuracy: 10
-    perception: 350
 
   skillLevels: 7
 
@@ -242,7 +243,12 @@
   hostility: Always
   alignment: Evil
   baseClass: Healer
-  stats:
+  stats: 20
+  level: 25
+
+  otherStats:
+    accuracy: 10
+    perception: 350
     int: 20
     dex: 20
     str: 20
@@ -250,11 +256,6 @@
     agi: 20
     luk: 20
     wil: 25
-  level: 25
-
-  otherStats:
-    accuracy: 10
-    perception: 350
 
   skillLevels: 9
 

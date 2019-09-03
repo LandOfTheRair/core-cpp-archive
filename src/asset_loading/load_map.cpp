@@ -27,6 +27,10 @@ using namespace std;
 using namespace rapidjson;
 using namespace lotr;
 
+#define SPAWN_STRING_FIELD(x) if(tree[ #x ]) { script. x = tree[ #x ].as<string>(); }
+#define SPAWN_UINT_FIELD(x) if(tree[ #x ]) { script. x = tree[ #x ].as<uint32_t>(); }
+#define SPAWN_BOOL_FIELD(x) if(tree[ #x ]) { script. x = tree[ #x ].as<bool>(); }
+
 optional<spawner_script> get_spawner_script(string const &script_file) {
     string actual_script_file = fmt::format("assets/scripts/spawners/{}.yml", script_file);
     spawner_script script;
@@ -48,6 +52,16 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
     script.random_walk_radius = tree["randomWalkRadius"].as<uint32_t>();
     script.leash_radius = tree["leashRadius"].as<uint32_t>();
 
+    SPAWN_UINT_FIELD(elite_tick_cap)
+    SPAWN_UINT_FIELD(max_spawn)
+
+    SPAWN_BOOL_FIELD(should_be_active)
+    SPAWN_BOOL_FIELD(can_slow_down)
+    SPAWN_BOOL_FIELD(should_serialize)
+    SPAWN_BOOL_FIELD(always_spawn)
+    SPAWN_BOOL_FIELD(require_dead_to_respawn)
+    SPAWN_BOOL_FIELD(do_initial_spawn_immediately)
+
     for(auto const &kv : tree["npcIds"]) {
         auto npc_name = kv["name"].as<string>();
         auto chance = kv["chance"].as<uint32_t>();
@@ -58,6 +72,13 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
     for(auto const &kv : tree["paths"]) {
         spdlog::trace("[{}] npc path {}", __FUNCTION__, kv.as<string>());
         script.paths.push_back(kv.as<string>());
+    }
+
+    if(tree["npcAISettings"]) {
+        for (auto const &kv : tree["npcAISettings"]) {
+            spdlog::trace("[{}] npc ai setting {}", __FUNCTION__, kv.as<string>());
+            script.npc_ai_settings.push_back(kv.as<string>());
+        }
     }
 
     return script;

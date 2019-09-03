@@ -1,5 +1,6 @@
 
 - npcId: Rylt Townee
+  name: townee
   allegiance: None
   monsterClass: Humanoid
   stats: 15

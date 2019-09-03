@@ -26,6 +26,14 @@
     min: 2000
     max: 2000
 
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
+
   spawnMessage: "the gobbling of a turkey"
   sfx: "turkey"
   sfxMaxChance: 1
@@ -58,6 +66,14 @@
     IceMistWiden: 3
     WintersEmbrace: 1
     WintersChill: 1
+
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
 
   hp:
     min: 2000

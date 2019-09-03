@@ -12,6 +12,10 @@
         effectInfo:
           isPermanent: true
 
+  gold:
+    min: 0
+    max: 0
+
   hp:
     min: 1000000
     max: 1000000

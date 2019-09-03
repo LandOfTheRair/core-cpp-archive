@@ -16,6 +16,14 @@
   usableSkills:
     - PoisonBiteWeak
 
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
+
   hp:
     min: 500
     max: 500
@@ -39,6 +47,10 @@
   giveXp:
     min: 100
     max: 125
+
+  gold:
+    min: 0
+    max: 0
 
   gear:
     Armor: Rylt Fur
@@ -69,6 +81,10 @@
   hp:
     min: 5000
     max: 5000
+
+  giveXp:
+    min: 0
+    max: 0
 
   gear:
     Armor: Rylt Bear Fur
@@ -101,6 +117,14 @@
     min: 10000
     max: 10000
 
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
+
   gear:
     Hands: Medium Claws
 
@@ -121,6 +145,14 @@
   hp:
     min: 3000
     max: 3000
+
+  gold:
+    min: 0
+    max: 0
+
+  giveXp:
+    min: 0
+    max: 0
 
   gear:
     Hands: Medium Claws

@@ -157,17 +157,16 @@
   affiliation: Corrupted
   alignment: Evil
   baseClass: Mage
-  stats:
+  stats: 2
+  otherStats:
     int: 15
     dex: 10
     str: 7
     con: 27
     agi: 10
     luk: 5
-  level: 15
-
-  otherStats:
     perception: 250
+  level: 15
 
   skillLevels:
     Wand: 3

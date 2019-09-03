@@ -47,7 +47,14 @@
   monsterClass: Humanoid
   alignment: Evil
   baseClass: Healer
-  stats:
+  stats: 25
+
+  level: 30
+
+  otherStats:
+    accuracy: 15
+    stealth: 50
+    perception: 350
     int: 30
     dex: 30
     str: 23
@@ -56,12 +63,6 @@
     luk: 30
     wil: 25
     wis: 30
-  level: 30
-
-  otherStats:
-    accuracy: 15
-    stealth: 50
-    perception: 350
 
   skillLevels: 10
 

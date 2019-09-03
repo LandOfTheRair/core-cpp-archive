@@ -1,5 +1,6 @@
 
 - npcId: Dedlaen Townee
+  name: townee
   monsterClass: Humanoid
   sprite: [580, 595, 610, 615]
   stats: 10
