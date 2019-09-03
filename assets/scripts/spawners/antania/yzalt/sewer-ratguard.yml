@@ -1,6 +1,6 @@
 npcIds:
   - name: Yzalt Sewer RatGuard
-    chance: 0
+    chance: 1
 respawnRate: 15
 initialSpawn: 3
 maxCreatures: 3

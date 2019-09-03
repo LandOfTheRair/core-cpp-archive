@@ -1,8 +1,8 @@
 npcIds:
   - name: Tower Goblin
-    chance: 0
+    chance: 1
   - name: Tower Goblin Thief
-    chance: 0
+    chance: 1
 respawnRate: 50
 initialSpawn: 2
 maxCreatures: 5

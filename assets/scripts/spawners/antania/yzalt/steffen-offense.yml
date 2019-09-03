@@ -2,9 +2,9 @@
 
 npcIds:
   - name: Steffen Warrior Offender
-    chance: 0
+    chance: 1
   - name: Steffen Healer Offender
-    chance: 0
+    chance: 1
 paths:
   - '20-S 20-N'
 respawnRate: 15

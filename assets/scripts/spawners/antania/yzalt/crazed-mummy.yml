@@ -1,6 +1,6 @@
 npcIds:
   - name: Crazed Mummy
-    chance: 0
+    chance: 1
 respawnRate: 30
 initialSpawn: 3
 maxCreatures: 5

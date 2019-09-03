@@ -2,9 +2,9 @@
 
 npcIds:
   - name: Heniz Thief Defender
-    chance: 0
+    chance: 1
   - name: Heniz Mage Defender
-    chance: 0
+    chance: 1
 respawnRate: 10
 initialSpawn: 0
 maxCreatures: 5

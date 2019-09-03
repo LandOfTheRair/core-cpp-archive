@@ -1,6 +1,6 @@
 npcIds:
   - name: Training Dummy
-    chance: 0
+    chance: 1
 
 respawnRate: 5
 initialSpawn: 1

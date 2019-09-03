@@ -1,8 +1,8 @@
 npcIds:
   - name: Tutorial Deer
-    chance: 0
+    chance: 1
   - name: Tutorial Wolf
-    chance: 0
+    chance: 1
 respawnRate: 15
 initialSpawn: 2
 maxCreatures: 6

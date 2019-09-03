@@ -1,6 +1,6 @@
 npcIds:
   - name: Frostlands Sabretooth
-    chance: 0
+    chance: 1
 respawnRate: 7
 initialSpawn: 3
 maxCreatures: 5

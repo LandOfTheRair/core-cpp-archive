@@ -449,7 +449,7 @@
                  "name":"Shade Spawner 3",
                  "properties":
                     {
-                     "script":"antania\/yzalt\/belowmadhouse-shade"
+                     "script":"antania\/yzalt\/below-madhouse-shade"
                     },
                  "propertytypes":
                     {
@@ -469,7 +469,7 @@
                  "name":"Shade Spawner 4",
                  "properties":
                     {
-                     "script":"antania\/yzalt\/belowmadhouse-shade"
+                     "script":"antania\/yzalt\/below-madhouse-shade"
                     },
                  "propertytypes":
                     {
@@ -489,7 +489,7 @@
                  "name":"Shade Spawner 1",
                  "properties":
                     {
-                     "script":"antania\/yzalt\/belowmadhouse-shade"
+                     "script":"antania\/yzalt\/below-madhouse-shade"
                     },
                  "propertytypes":
                     {
@@ -509,7 +509,7 @@
                  "name":"Shade Spawner 2",
                  "properties":
                     {
-                     "script":"antania\/yzalt\/belowmadhouse-shade"
+                     "script":"antania\/yzalt\/below-madhouse-shade"
                     },
                  "propertytypes":
                     {
@@ -529,7 +529,7 @@
                  "name":"Insane Spawner",
                  "properties":
                     {
-                     "script":"antania\/yzalt\/belowmadhouse-insane"
+                     "script":"antania\/yzalt\/below-madhouse-insane"
                     },
                  "propertytypes":
                     {
@@ -672,7 +672,7 @@
      "respawnMap":"Yzalt",
      "respawnX":71,
      "respawnY":175,
-     "script":"antania\/yzalt\/yzalt-belowmadhouse-dungeon"
+     "script":"antania\/yzalt\/yzalt-below-madhouse-dungeon"
     },
  "propertytypes":
     {

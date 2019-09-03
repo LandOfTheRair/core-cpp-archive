@@ -1,8 +1,8 @@
 npcIds:
   - name: Crazed Heniz Thief
-    chance: 0
+    chance: 1
   - name: Crazed Heniz Mage
-    chance: 0
+    chance: 1
 respawnRate: 30
 initialSpawn: 3
 maxCreatures: 5

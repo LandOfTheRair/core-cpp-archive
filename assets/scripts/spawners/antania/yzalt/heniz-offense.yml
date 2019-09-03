@@ -2,9 +2,9 @@
 
 npcIds:
   - name: Heniz Thief Offender
-    chance: 0
+    chance: 1
   - name: Heniz Mage Offender
-    chance: 0
+    chance: 1
 paths:
   - '20-N 20-S'
 respawnRate: 15

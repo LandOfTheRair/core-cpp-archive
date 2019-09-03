@@ -1,6 +1,6 @@
 npcIds:
   - name: Risan Crazed Dryad
-    chance: 0
+    chance: 1
 respawnRate: 7
 initialSpawn: 1
 maxCreatures: 7

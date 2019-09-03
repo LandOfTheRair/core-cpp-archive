@@ -1,6 +1,6 @@
 npcIds:
   - name: Frostlands Guard
-    chance: 0
+    chance: 1
 paths: 
   - '5-N 5-S'
   - '35-E 14-S 35-W 14-N'

@@ -1,7 +1,7 @@
 
 npcIds:
   - name: Steffen LostChild
-    chance: 0
+    chance: 1
 respawnRate: 900
 initialSpawn: 1
 maxCreatures: 1

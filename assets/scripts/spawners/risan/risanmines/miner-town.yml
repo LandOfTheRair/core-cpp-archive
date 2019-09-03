@@ -1,6 +1,6 @@
 npcIds:
   - name: Risan Miner
-    chance: 0
+    chance: 1
 respawnRate: 10
 initialSpawn: 5
 maxCreatures: 10

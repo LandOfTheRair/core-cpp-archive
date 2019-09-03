@@ -1,8 +1,8 @@
 npcIds:
   - name: Rylt Townee
-    chance: 0
+    chance: 1
   - name: Rylt Guard
-    chance: 0
+    chance: 1
 paths:
   - '34-E 6-S 34-W 6-N'
   - '6-S 34-E 6-N 34-W'

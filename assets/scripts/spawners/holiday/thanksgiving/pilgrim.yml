@@ -2,7 +2,7 @@
 
 npcIds:
   - name: Thanksgiving Pilgrim
-    chance: 0
+    chance: 1
 respawnRate: 30
 initialSpawn: 2
 maxCreatures: 6

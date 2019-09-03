@@ -1,12 +1,12 @@
 npcIds:
   - name: Insane Steffen Warrior
-    chance: 0
+    chance: 1
   - name: Insane Steffen Healer
-    chance: 0
+    chance: 1
   - name: Insane Heniz Thief
-    chance: 0
+    chance: 1
   - name: Insane Heniz Mage
-    chance: 0
+    chance: 1
 respawnRate: 30
 initialSpawn: 5
 maxCreatures: 5

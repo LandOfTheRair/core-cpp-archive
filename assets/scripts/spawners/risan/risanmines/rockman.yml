@@ -1,6 +1,6 @@
 npcIds:
   - name: Mines Rockman
-    chance: 0
+    chance: 1
 respawnRate: 10
 initialSpawn: 3
 maxCreatures: 10

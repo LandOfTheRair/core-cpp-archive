@@ -1,10 +1,10 @@
 npcIds:
   - name: Tower Orc
-    chance: 0
+    chance: 1
   - name: Tower Orc Mage
-    chance: 0
+    chance: 1
   - name: Tower Orc Healer
-    chance: 0
+    chance: 1
 respawnRate: 60
 initialSpawn: 2
 maxCreatures: 5

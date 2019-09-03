@@ -1,6 +1,6 @@
 npcIds:
   - name: Tutorial Yeti
-    chance: 0
+    chance: 1
 respawnRate: 30
 initialSpawn: 1
 maxCreatures: 1

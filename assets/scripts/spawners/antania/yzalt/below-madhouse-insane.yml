@@ -1,12 +1,12 @@
 npcIds:
   - name: Lunatic Warrior
-    chance: 0
+    chance: 1
   - name: Lunatic Mage
-    chance: 0
+    chance: 1
   - name: Lunatic Healer
-    chance: 0
+    chance: 1
   - name: Lunatic Thief
-    chance: 0
+    chance: 1
 respawnRate: 0
 initialSpawn: 0
 maxCreatures: 100

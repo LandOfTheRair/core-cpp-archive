@@ -1,6 +1,6 @@
 npcIds:
   - name: Catacombs Spectre 1F
-    chance: 0
+    chance: 1
 respawnRate: 40
 initialSpawn: 2
 maxCreatures: 3

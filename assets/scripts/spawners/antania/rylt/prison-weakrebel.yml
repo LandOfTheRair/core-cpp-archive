@@ -1,6 +1,6 @@
 npcIds:
   - name: Rylt Renegade Weak Rebel
-    chance: 0
+    chance: 1
 respawnRate: 20
 initialSpawn: 2
 maxCreatures: 4

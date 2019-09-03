@@ -1,8 +1,8 @@
 npcIds:
   - name: Tower Warg
-    chance: 0
+    chance: 1
   - name: Tower Warspider
-    chance: 0
+    chance: 1
 respawnRate: 30
 initialSpawn: 2
 maxCreatures: 5

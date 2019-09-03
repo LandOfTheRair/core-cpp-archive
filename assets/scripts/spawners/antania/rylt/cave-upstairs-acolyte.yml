@@ -1,6 +1,6 @@
 npcIds:
   - name: Crazed Saraxa Acolyte
-    chance: 0
+    chance: 1
 respawnRate: 0
 initialSpawn: 0
 maxCreatures: 1

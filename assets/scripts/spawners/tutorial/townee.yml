@@ -1,6 +1,6 @@
 npcIds:
   - name: Tutorial Townee
-    chance: 0
+    chance: 1
 paths: 
   - '23-E 16-S 23-W 16-N'
   - '16-S 23-E 16-N 23-W'

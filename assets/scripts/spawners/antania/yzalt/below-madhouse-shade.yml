@@ -1,6 +1,6 @@
 npcIds:
   - name: Ranata Shade
-    chance: 0
+    chance: 1
 respawnRate: 0
 initialSpawn: 1
 maxCreatures: 1

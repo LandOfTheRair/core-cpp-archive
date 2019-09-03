@@ -2,7 +2,7 @@
 
 npcIds:
   - name: Thanksgiving Turkey Target
-    chance: 0
+    chance: 1
 respawnRate: 0
 initialSpawn: 0
 maxCreatures: 20
