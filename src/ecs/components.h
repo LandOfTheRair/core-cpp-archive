@@ -22,6 +22,7 @@
 #include <variant>
 #include <array>
 #include <vector>
+#include <optional>
 
 using namespace std;
 
@@ -237,6 +238,7 @@ namespace lotr {
         vector<map_property> properties;
         optional<spawner_script> script;
 
+        map_object() : gid(0), id(0), x(0), y(0), width(0), height(0), name(), type(), properties(), script() {}
         map_object(uint32_t gid, uint32_t id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_property> properties, optional<spawner_script> script)
             : gid(gid), id(id), x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), properties(move(properties)), script(move(script)) {}
     };

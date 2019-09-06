@@ -119,6 +119,8 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
 
     uint32_t width = d["width"].GetUint();
     uint32_t height = d["height"].GetUint();
+    uint32_t tilewidth = d["tilewidth"].GetUint();
+    uint32_t tileheight = d["tileheight"].GetUint();
     string map_name = filesystem::path(file).filename();
 
     vector<map_layer> map_layers;
@@ -146,6 +148,11 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
         string current_layer_name = current_layer["name"].GetString();
         if(current_layer["type"].GetString() == "objectgroup"s) {
             vector<map_object> objects;
+
+            for(uint32_t i2 = 0; i2 < width*height; i2++) {
+                objects.emplace_back(0, 0, 0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
+            }
+
             for (SizeType j = 0; j < current_layer["objects"].Size(); j++) {
 
                 auto& current_object = current_layer["objects"][j];
@@ -162,12 +169,14 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
                 }
 
                 optional<spawner_script> spawn_script;
-                auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop){return prop.name == "script"s;});
+                auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "script"s;});
                 if(current_layer_name == "Spawners"s && object_script_property != end(object_properties)) {
                     spawn_script = get_spawner_script(get<string>(object_script_property->value));
                 }
 
-                objects.emplace_back(gid, current_object["id"].GetUint(),
+                uint32_t x = current_object["x"].GetUint() / tilewidth;
+                uint32_t y = current_object["y"].GetUint() / tileheight;
+                objects[x + y * width] = map_object(gid, current_object["id"].GetUint(),
                         current_object["x"].GetUint(), current_object["y"].GetUint(), current_object["width"].GetUint(),
                         current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script);
             }

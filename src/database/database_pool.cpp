@@ -89,7 +89,7 @@ void database_pool::release_connection(uint32_t id) {
 
     spdlog::debug("[database_pool] releasing connection {}", id);
 
-    auto result = find_if(begin(_connections), end(_connections), [&](tuple<bool, uint32_t, shared_ptr<connection>> &t) {
+    auto result = find_if(begin(_connections), end(_connections), [&](tuple<bool, uint32_t, shared_ptr<connection>> const &t) noexcept {
         return get<1>(t) == id;
     });
 

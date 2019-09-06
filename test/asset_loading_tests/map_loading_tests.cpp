@@ -30,6 +30,8 @@ TEST_CASE("map_loading tests") {
     map_file << R"({
                     "height":48,
                     "width":48,
+                    "tileheight":64,
+                    "tilewidth":64,
                     "layers":[{
                         "data": [1, 2, 3, 4, 5, 6],
                         "height":48,
@@ -105,37 +107,38 @@ TEST_CASE("map_loading tests") {
     REQUIRE(map->layers[1].y == 0);
     REQUIRE(map->layers[1].name == "Spawners"s);
     REQUIRE(map->layers[1].type == "objectgroup"s);
-    REQUIRE(map->layers[1].objects.size() == 1);
+    REQUIRE(map->layers[1].objects.size() == 48*48);
     REQUIRE(map->layers[1].data.size() == 0);
 
-    REQUIRE(map->layers[1].objects[0].gid == 3182);
-    REQUIRE(map->layers[1].objects[0].id == 174);
-    REQUIRE(map->layers[1].objects[0].x == 1472);
-    REQUIRE(map->layers[1].objects[0].y == 2176);
-    REQUIRE(map->layers[1].objects[0].width == 64);
-    REQUIRE(map->layers[1].objects[0].height == 64);
-    REQUIRE(map->layers[1].objects[0].name == "Armor Seller"s);
-    REQUIRE(map->layers[1].objects[0].type == "test"s);
-    REQUIRE(map->layers[1].objects[0].properties.size() == 1);
-    REQUIRE(map->layers[1].objects[0].properties[0].name == "script");
-    REQUIRE(get<string>(map->layers[1].objects[0].properties[0].value) == "tutorial/townee");
+    auto const &object = map->layers[1].objects[1472/64 + 2176/64 * 48];
+    REQUIRE(object.gid == 3182);
+    REQUIRE(object.id == 174);
+    REQUIRE(object.x == 1472);
+    REQUIRE(object.y == 2176);
+    REQUIRE(object.width == 64);
+    REQUIRE(object.height == 64);
+    REQUIRE(object.name == "Armor Seller"s);
+    REQUIRE(object.type == "test"s);
+    REQUIRE(object.properties.size() == 1);
+    REQUIRE(object.properties[0].name == "script");
+    REQUIRE(get<string>(object.properties[0].value) == "tutorial/townee");
 
-    REQUIRE(map->layers[1].objects[0].script);
-    REQUIRE(map->layers[1].objects[0].script->npc_ids.size() == 1);
-    REQUIRE(map->layers[1].objects[0].script->npc_ids[0].name == "Tutorial Townee");
-    REQUIRE(map->layers[1].objects[0].script->npc_ids[0].chance == 0);
-    REQUIRE(map->layers[1].objects[0].script->respawn_rate == 15);
-    REQUIRE(map->layers[1].objects[0].script->initial_spawn == 2);
-    REQUIRE(map->layers[1].objects[0].script->max_creatures == 20);
-    REQUIRE(map->layers[1].objects[0].script->spawn_radius == 0);
-    REQUIRE(map->layers[1].objects[0].script->random_walk_radius == 0);
-    REQUIRE(map->layers[1].objects[0].script->leash_radius == 30);
+    REQUIRE(object.script);
+    REQUIRE(object.script->npc_ids.size() == 1);
+    REQUIRE(object.script->npc_ids[0].name == "Tutorial Townee");
+    REQUIRE(object.script->npc_ids[0].chance == 1);
+    REQUIRE(object.script->respawn_rate == 15);
+    REQUIRE(object.script->initial_spawn == 2);
+    REQUIRE(object.script->max_creatures == 20);
+    REQUIRE(object.script->spawn_radius == 0);
+    REQUIRE(object.script->random_walk_radius == 0);
+    REQUIRE(object.script->leash_radius == 30);
 
-    REQUIRE(map->layers[1].objects[0].script->paths.size() == 4);
-    REQUIRE(map->layers[1].objects[0].script->paths[0] == "23-E 16-S 23-W 16-N"s);
-    REQUIRE(map->layers[1].objects[0].script->paths[1] == "16-S 23-E 16-N 23-W"s);
-    REQUIRE(map->layers[1].objects[0].script->paths[2] == "8-S 23-E 8-S 23-W 8-N 23-E 8-N 23-W"s);
-    REQUIRE(map->layers[1].objects[0].script->paths[3] == "23-E 8-S 23-W 8-S 23-E 8-N 23-W 8-N"s);
+    REQUIRE(object.script->paths.size() == 4);
+    REQUIRE(object.script->paths[0] == "23-E 16-S 23-W 16-N"s);
+    REQUIRE(object.script->paths[1] == "16-S 23-E 16-N 23-W"s);
+    REQUIRE(object.script->paths[2] == "8-S 23-E 8-S 23-W 8-N 23-E 8-N 23-W"s);
+    REQUIRE(object.script->paths[3] == "23-E 8-S 23-W 8-S 23-E 8-N 23-W 8-N"s);
 
     REQUIRE(map->properties.size() == 5);
     REQUIRE(map->properties[0].name == "itemExpirationHours"s);

@@ -25,9 +25,39 @@
 #include "../src/config_parsers.h"
 #include "benchmark_helpers/startup_helper.h"
 #include "../src/working_directory_manipulation.h"
+#include "../src/fov.h"
+#include "../src/asset_loading/load_map.h"
 
 using namespace std;
 using namespace lotr;
+
+void bench_censor_sensor() {
+    censor_sensor s("assets/profanity_locales/en.json");
+
+    auto start = chrono::system_clock::now();
+
+    for(int i = 0; i < 1'000'000; i++) {
+        s.is_profane("this is bollocks");
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("is_profane {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
+void bench_fov() {
+    auto m = load_map_from_file("assets/maps/antania/DedlaenMaze.json");
+
+    auto start = chrono::system_clock::now();
+
+    for(int i = 0; i < 1'000'000; i++) {
+        compute_fov_restrictive_shadowcasting(m.value(), 4, 4, false);
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("compute_fov_restrictive_shadowcasting {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
 
 int main(int argc, char **argv) {
     set_cwd(get_selfpath());
@@ -45,16 +75,7 @@ int main(int argc, char **argv) {
     db_pool = make_shared<database_pool>();
     db_pool->create_connections(config.connection_string, 2);
 
+    //bench_censor_sensor();
+    bench_fov();
 
-    censor_sensor s("assets/profanity_locales/en.json");
-
-    auto start = chrono::system_clock::now();
-
-    for(int i = 0; i < 10'000'000; i++) {
-        s.is_profane("this is bollocks");
-    }
-
-    auto end = chrono::system_clock::now();
-
-    spdlog::info("is_profane {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
 }
