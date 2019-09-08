@@ -1,0 +1,6 @@
+exclude:
+- /external
+- /external/.*
+languages:
+- cpp
+component_depth: 2
