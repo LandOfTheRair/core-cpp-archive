@@ -75,7 +75,7 @@ vector<global_npc_component> lotr::load_global_npcs_from_file(string const &file
         }
 
         auto base_stat = npc_node["stats"].as<uint32_t >();
-        for (auto &stat : stats) {
+        for (auto const &stat : stats) {
             spdlog::trace("[{}] loading stat {}", __FUNCTION__, stat);
             npc.stats.emplace_back(stat, base_stat);
 
