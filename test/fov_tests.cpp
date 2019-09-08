@@ -20,6 +20,7 @@
 #include <spdlog/spdlog.h>
 #include "test_helpers/startup_helper.h"
 #include "../src/fov.h"
+#include <ecs/components.h>
 
 using namespace std;
 using namespace lotr;
