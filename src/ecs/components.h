@@ -23,15 +23,13 @@
 #include <array>
 #include <vector>
 #include <optional>
+#include <lotr_flat_map.h>
+#include <fov.h>
 
 using namespace std;
 
 namespace lotr {
-    array<string, 38> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
-                                     "weaponDamageRolls"s, "weaponArmorClass"s, "armorClass"s, "accuracy"s, "offense"s, "defense"s, "stealth"s,
-                                     "perception"s, "physicalDamageBoost"s, "magicalDamageBoost"s, "healingBoost"s, "physicalDamageReflect"s,
-                                     "magicalDamageReflect"s, "mitigation"s, "magicalResist"s, "physicalResist"s, "necroticResist"s, "energyResist"s,
-                                     "waterResist"s, "fireResist"s, "iceResist"s, "poisonResist"s, "diseaseResist"s, "actionSpeed"s/*, "damageFactor"s TODO damage factor is a double :< */};
+    extern array<string, 38> const stats;
 
     struct stat_component {
         string name;
@@ -103,10 +101,40 @@ namespace lotr {
         vector<stat_component> stats;
     };
 
-    struct location_component {
+    /*struct location_component {
         string map_name;
         uint32_t x;
         uint32_t y;
+    };*/
+
+    struct spawner_npc_id {
+        uint32_t chance;
+        string name;
+
+        spawner_npc_id(uint32_t chance, string name) : chance(chance), name(move(name)) {}
+    };
+
+    struct spawner_script {
+        uint32_t id;
+        uint32_t respawn_rate;
+        uint32_t initial_spawn;
+        uint32_t max_creatures;
+        uint32_t spawn_radius;
+        uint32_t random_walk_radius;
+        uint32_t leash_radius;
+        uint32_t elite_tick_cap;
+        uint32_t max_spawn;
+
+        bool should_be_active;
+        bool can_slow_down;
+        bool should_serialize;
+        bool always_spawn;
+        bool require_dead_to_respawn;
+        bool do_initial_spawn_immediately;
+
+        vector<spawner_npc_id> npc_ids;
+        vector<string> paths;
+        vector<string> npc_ai_settings;
     };
 
     struct silver_purchases_component {
@@ -115,8 +143,8 @@ namespace lotr {
     };
 
     struct character_component {
+        uint64_t id;
         string name;
-        string npc_id;
         string allegiance;
         string alignment;
         string sex;
@@ -135,16 +163,36 @@ namespace lotr {
         uint32_t give_xp;
         uint32_t sfx_max_chance;
 
-        vector<stat_component> stats;
-        vector<item_component> items;
+        uint32_t x;
+        uint32_t y;
+
+        lotr_flat_custom_map<string, uint64_t> stats;
+        lotr_flat_custom_map<string, item_component> items;
         vector<skill_component> skills;
-        vector<silver_purchases_component> silver_purchases;
-        location_component location;
+        //location_component location;
+
+        character_component() : id(), name(), allegiance(), alignment(), sex(), dir(), hostility(), character_class(), monster_class(), spawn_message(),
+                          sfx(), level(), highest_level(), sprite(), skill_on_kill(), sfx_max_chance(), x(), y(), stats(), items(), skills() {}
     };
 
-    struct player_component {
-        // component used in ECS to determine type
+    struct pc_component : character_component {
+        vector<silver_purchases_component> silver_purchases;
+        bitset<power(fov_diameter)> fov;
+
+        pc_component() : character_component(), silver_purchases(), fov() {}
     };
+
+    struct npc_component : character_component {
+        string npc_id;
+
+        spawner_script *spawner;
+        npc_component *agro_target;
+
+        npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr) {}
+    };
+
+
+    // stuff? Don't pay attention to comments, lol.
 
     struct global_npc_component {
         string name;
@@ -169,7 +217,7 @@ namespace lotr {
         vector<random_stat_component> random_stats;
         vector<item_component> items;
         vector<skill_component> skills;
-        location_component location;
+        //location_component location;
     };
 
     struct user_component {
@@ -183,37 +231,6 @@ namespace lotr {
         string discord_tag;
         bool discord_online;
         vector<character_component> characters;
-    };
-
-    // scripts
-
-    struct spawner_npc_id {
-        uint32_t chance;
-        string name;
-
-        spawner_npc_id(uint32_t chance, string name) : chance(chance), name(move(name)) {}
-    };
-
-    struct spawner_script {
-        uint32_t respawn_rate;
-        uint32_t initial_spawn;
-        uint32_t max_creatures;
-        uint32_t spawn_radius;
-        uint32_t random_walk_radius;
-        uint32_t leash_radius;
-        uint32_t elite_tick_cap;
-        uint32_t max_spawn;
-
-        bool should_be_active;
-        bool can_slow_down;
-        bool should_serialize;
-        bool always_spawn;
-        bool require_dead_to_respawn;
-        bool do_initial_spawn_immediately;
-
-        vector<spawner_npc_id> npc_ids;
-        vector<string> paths;
-        vector<string> npc_ai_settings;
     };
 
     // maps
@@ -264,8 +281,10 @@ namespace lotr {
         string name;
         vector<map_property> properties;
         vector<map_layer> layers;
+        vector<npc_component> npcs;
+        vector<pc_component> players;
 
         map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, vector<map_layer> layers)
-            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)) {}
+            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), npcs(), players() {}
     };
 }

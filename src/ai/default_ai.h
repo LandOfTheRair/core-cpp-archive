@@ -1,6 +1,6 @@
 /*
     Land of the Rair
-    Copyright (C) 2019 Michael de Lang
+    Copyright (C) 2019  Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,39 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <lotr_flat_map.h>
+#include "../ecs/components.h"
 
 using namespace std;
 
 namespace lotr {
+    using lotr_player_location_map = lotr_flat_custom_map <tuple<uint64_t, uint64_t>, vector<pc_component*>>;
 
-
-    enum class profanity_type : uint32_t {
-        SLURS,
-        COMMON_PROFANITY,
-        SEXUAL_TERMS,
-        POSSIBLY_OFFENSIVE,
-        USER_ADDED
-    };
-
-    class censor_sensor {
-    public:
-        explicit censor_sensor(string const &profanity_dictionary_path);
-        bool is_profane(string phrase);
-        bool is_profane_ish(string phrase);
-        string clean_profanity(string phrase);
-        string clean_profanity_ish(string phrase);
-        void enable_tier(uint32_t tier);
-        void disable_tier(uint32_t tier);
-
-    private:
-        lotr_flat_custom_map<string, int> _word_tiers;
-        unordered_set<int> _enabled_tiers;
-    };
+    void run_ai_on(npc_component &npc, map_component &m, lotr_player_location_map const &player_location_map);
 }

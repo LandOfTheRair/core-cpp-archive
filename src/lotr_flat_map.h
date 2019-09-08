@@ -44,6 +44,16 @@ namespace lotr {
         }
     };
 
+    template<>
+    class xxhash_function<tuple<uint64_t, uint64_t>>
+    {
+    public:
+        size_t operator()(tuple<uint64_t, uint64_t> t) const
+        {
+            return XXH3_64bits(&get<0>(t), sizeof(uint64_t)) ^ XXH3_64bits(&get<1>(t), sizeof(uint64_t));
+        }
+    };
+
     template<class Key>
     class custom_equalto;
 
@@ -67,6 +77,18 @@ namespace lotr {
         }
     };
 
+    template<>
+    class custom_equalto<tuple<uint64_t, uint64_t>>
+    {
+    public:
+        bool operator()(tuple<uint64_t, uint64_t> const &lhs, tuple<uint64_t, uint64_t> const &rhs) const
+        {
+            return lhs == rhs;
+        }
+    };
+
     template <typename Key, typename T>
-    using lotr_flat_map = robin_hood::unordered_flat_map<Key, T, xxhash_function<Key>, custom_equalto<Key>>;
+    using lotr_flat_custom_map = robin_hood::unordered_flat_map<Key, T, xxhash_function<Key>, custom_equalto<Key>>;
+    template <typename Key, typename T>
+    using lotr_flat_map = robin_hood::unordered_flat_map<Key, T>;
 }
