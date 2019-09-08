@@ -74,16 +74,16 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
         /* do while there are unblocked slopes left and the algo is within the map's boundaries
            scan progressive lines/columns from the PC outwards */
         y = player_y+dy; /* the outer slope's coordinates (first processed line) */
-        if (y < 0 || y >= m.height) {
+        if (y < 0 || y >= static_cast<int32_t>(m.height)) {
             done = true;
         }
         while (!done) {
             /* process cells in the line */
             double slopes_per_cell = 1.0 / (double)(iteration);
             double half_slopes = slopes_per_cell * 0.5;
-            int32_t processed_cell = (int32_t)((min_angle + half_slopes) / slopes_per_cell);
+            int32_t processed_cell = static_cast<int32_t>((min_angle + half_slopes) / slopes_per_cell);
             int32_t minx = max(0, player_x - iteration);
-            int32_t maxx = min((int32_t)m.width - 1, player_x + iteration);
+            int32_t maxx = min(static_cast<int32_t>(m.width) - 1, player_x + iteration);
             done = true;
             for (x = player_x + (processed_cell * dx); x >= minx && x <= maxx; x+=dx) {
                 int32_t c = x + (y * m.width);
@@ -98,7 +98,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
                 auto const &object = opaque_layer->objects[c];
 
 #ifdef LOG_FOV_EXTREME
-                spdlog::trace("{} vertical {}:{} c {} wall {}", __FUNCTION__, x, y, c, walls_layer->data[c]);
+                spdlog::trace("[{}] vertical {}:{} c {} wall {}", __FUNCTION__, x, y, c, walls_layer->data[c]);
 #endif
 
                 if (obstacles_in_last_line > 0) {
@@ -156,7 +156,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
             iteration++;
             obstacles_in_last_line = total_obstacles;
             y += dy;
-            if (y < 0 || y >= m.height) {
+            if (y < 0 || y >= static_cast<int32_t>(m.height)) {
                 done = true;
             }
         }
@@ -175,7 +175,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
         /* do while there are unblocked slopes left and the algo is within the map's boundaries
            scan progressive lines/columns from the PC outwards */
         x = player_x+dx; /*the outer slope's coordinates (first processed line) */
-        if (x < 0 || x >= m.width) {
+        if (x < 0 || x >= static_cast<int32_t>(m.width)) {
             done = true;
         }
         while (!done) {
@@ -184,7 +184,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
             double half_slopes = slopes_per_cell * 0.5;
             int32_t processed_cell = (int)((min_angle + half_slopes) / slopes_per_cell);
             int32_t miny = max(0, player_y - iteration);
-            int32_t maxy = min((int32_t)m.height - 1, player_y + iteration);
+            int32_t maxy = min(static_cast<int32_t>(m.height) - 1, player_y + iteration);
             done = true;
             for (y = player_y + (processed_cell * dy); y >= miny && y <= maxy; y += dy) {
                 int32_t c = x + (y * m.width);
@@ -198,7 +198,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
                 auto const &object = opaque_layer->objects[c];
 
 #ifdef LOG_FOV_EXTREME
-                spdlog::trace("{} horizontal {}:{} c {} wall {}", __FUNCTION__, x, y, c, walls_layer->data[c]);
+                spdlog::trace("[{}] horizontal {}:{} c {} wall {}", __FUNCTION__, x, y, c, walls_layer->data[c]);
 #endif
 
                 if (obstacles_in_last_line > 0) {
@@ -256,7 +256,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
             iteration++;
             obstacles_in_last_line = total_obstacles;
             x += dx;
-            if (x >= m.width) {
+            if (x < 0 || x >= static_cast<int32_t>(m.width)) {
                 done = true;
             }
         }
@@ -278,11 +278,11 @@ bitset<power(fov_diameter)> lotr::compute_fov_restrictive_shadowcasting(map_comp
         end_angle = make_unique<double[]>(max_obstacles);
     }
 
-    auto const walls_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l){return l.name == wall_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
-    auto const opaque_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l){return l.name == opaque_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
+    auto const walls_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == wall_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
+    auto const opaque_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == opaque_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
 
     if(walls_layer == cend(m.layers) || opaque_layer == cend(m.layers)) {
-        spdlog::error("{} missing walls or opaque layer for map {}", m.name);
+        spdlog::error("[{}] missing walls or opaque layer for map {}", m.name);
         return {};
     }
 
@@ -305,6 +305,6 @@ void lotr::log_fov(bitset<power(fov_diameter)> const &fov, string name) {
         for(uint32_t x = 0; x < fov_diameter; x++) {
             test += fov[x + y * fov_diameter] == true ? "1"s : "0"s;
         }
-        spdlog::trace("{} {} {}: {}", __FUNCTION__, name, y, test);
+        spdlog::trace("[{}] {} {}: {}", __FUNCTION__, name, y, test);
     }
 }

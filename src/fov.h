@@ -20,7 +20,6 @@
 #pragma once
 
 #include <bitset>
-#include <ecs/components.h>
 
 using namespace std;
 
@@ -28,9 +27,11 @@ namespace lotr {
     constexpr uint32_t fov_max_distance = 4;
     constexpr uint32_t fov_diameter = fov_max_distance * 2 + 1;
 
-    constexpr uint32_t power(uint32_t x) {
+    constexpr uint32_t power(uint32_t x) noexcept {
         return x * x;
     }
+
+    struct map_component;
 
     [[nodiscard]]
     bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting(map_component const &m, int32_t const player_x, int32_t const player_y, bool const light_walls);
