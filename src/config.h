@@ -29,5 +29,6 @@ namespace lotr {
         string debug_level;
         string connection_string;
         uint32_t tick_length;
+        bool log_tick_times;
     };
 }
