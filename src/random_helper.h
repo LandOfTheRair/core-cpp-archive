@@ -32,7 +32,10 @@ namespace lotr {
         int64_t generate_single_int64();
         float generate_single(float from, float end);
         double generate_single(double from, double end);
+        bool one_in_x(uint32_t x);
     private:
         pcg64 _rng64;
     };
+
+    extern thread_local random_helper random;
 }

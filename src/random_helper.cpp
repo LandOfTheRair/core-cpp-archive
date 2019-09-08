@@ -18,6 +18,7 @@
 
 #include "random_helper.h"
 #include <random>
+#include <spdlog/spdlog.h>
 
 using namespace std;
 using namespace lotr;
@@ -26,33 +27,54 @@ random_helper::random_helper() : _rng64(pcg_extras::seed_seq_from<random_device>
 
 uint64_t random_helper::generate_single(uint64_t from, uint64_t end) {
     uniform_int_distribution<decltype(from)> uniform_dist(from, end);
-    return uniform_dist(_rng64);
+    decltype(from) ret = uniform_dist(_rng64);
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
 }
 
 uint64_t random_helper::generate_single_uint64() {
     uniform_int_distribution<decltype(random_helper::generate_single_uint64())> uniform_dist(
             numeric_limits<decltype(random_helper::generate_single_uint64())>::min(),
             numeric_limits<decltype(random_helper::generate_single_uint64())>::max());
-    return uniform_dist(_rng64);
+    decltype(random_helper::generate_single_uint64()) ret = uniform_dist(_rng64);
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
 }
 int64_t random_helper::generate_single(int64_t from, int64_t end) {
     uniform_int_distribution<decltype(from)> uniform_dist(from, end);
-    return uniform_dist(_rng64);
+    decltype(from) ret = uniform_dist(_rng64);
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
 }
 
 int64_t random_helper::generate_single_int64() {
     uniform_int_distribution<decltype(random_helper::generate_single_int64())> uniform_dist(
             numeric_limits<decltype(random_helper::generate_single_int64())>::min(),
             numeric_limits<decltype(random_helper::generate_single_int64())>::max());
-    return uniform_dist(_rng64);
+    decltype(random_helper::generate_single_int64()) ret = uniform_dist(_rng64);
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
 }
 
 float random_helper::generate_single(float from, float end) {
     uniform_real_distribution<decltype(from)> uniform_dist(from, end);
-    return uniform_dist(_rng64);
+    decltype(from) ret = uniform_dist(_rng64);
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
 }
 
 double random_helper::generate_single(double from, double end) {
     uniform_real_distribution<decltype(from)> uniform_dist(from, end);
-    return uniform_dist(_rng64);
+    decltype(from) ret = uniform_dist(_rng64);
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
 }
+
+bool random_helper::one_in_x(uint32_t x) {
+    uniform_int_distribution<uint32_t> uniform_dist(0, x);
+    bool ret = uniform_dist(_rng64) == 0;
+    spdlog::trace("[{}] ret {}", __FUNCTION__, ret);
+    return ret;
+}
+
+thread_local random_helper lotr::random;
