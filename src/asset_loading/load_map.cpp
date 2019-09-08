@@ -129,8 +129,6 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
     vector<map_layer> map_layers;
     auto& json_layers = d["layers"];
 
-    string const tile_layer_name = "tilelayer";
-    string const object_layer_name = "objectgroup";
     for(SizeType i = 0; i < json_layers.Size(); i++) {
         auto& current_layer = json_layers[i];
         spdlog::trace("[{}] layer {}: {}", __FUNCTION__, i, current_layer["name"].GetString());
@@ -186,9 +184,9 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
 
                 uint32_t x = current_object["x"].GetUint() / tilewidth;
                 uint32_t y = current_object["y"].GetUint() / tileheight;
-                objects[x + y * width] = move(map_object(gid, current_object["id"].GetUint(),
+                objects[x + y * width] = map_object(gid, current_object["id"].GetUint(),
                         current_object["x"].GetUint(), current_object["y"].GetUint(), current_object["width"].GetUint(),
-                        current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script));
+                        current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script);
             }
             map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["name"].GetString(), current_layer["type"].GetString(),
                                     move(objects), vector<uint32_t>{});

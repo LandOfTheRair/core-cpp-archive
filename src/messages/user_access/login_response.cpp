@@ -35,9 +35,10 @@ string login_response::serialize() const {
 
     writer.String("players");
     writer.StartArray();
-    writer.StartObject();
 
     for(auto& player : players) {
+        writer.StartObject();
+
         writer.String("name");
         writer.String(player.name.c_str(), player.name.size());
 
@@ -49,11 +50,12 @@ string login_response::serialize() const {
 
         writer.String("y");
         writer.Int(player.y);
-    }
 
-    writer.EndObject();
+        writer.EndObject();
+    }
     writer.EndArray();
 
+    writer.EndObject();
     return sb.GetString();
 }
 

@@ -191,9 +191,6 @@ namespace lotr {
         npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr) {}
     };
 
-
-    // stuff? Don't pay attention to comments, lol.
-
     struct global_npc_component {
         string name;
         string npc_id;
@@ -232,8 +229,6 @@ namespace lotr {
         bool discord_online;
         vector<character_component> characters;
     };
-
-    // maps
 
     struct map_property {
         string name;
@@ -287,4 +282,11 @@ namespace lotr {
         map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, vector<map_layer> layers)
             : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), npcs(), players() {}
     };
+
+    // constants
+
+    extern string const spawners_layer_name;
+    extern string const tile_layer_name;
+    extern string const object_layer_name;
+
 }
