@@ -1,0 +1,21 @@
+language: cpp
+sudo: required
+dist: bionic
+addons:
+  coverity_scan:
+    project:
+      name: LandOfTheRair/core2
+      description: Back-end for land of the rair
+    notification_email: kingoipo@gmail.com
+    build_command_prepend: cmake
+    build_command: make
+    branch_pattern: coverity_scan
+matrix:
+  include:
+  - os: linux
+    compiler: gcc
+    env:
+      - MAKEFLAGS=-j2
+    script:
+    - cmake -DCMAKE_BUILD_TYPE=Release .
+    - make
