@@ -26,9 +26,9 @@ matrix:
           - binutils
     env:
       - MAKEFLAGS=-j2
+      - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+
     script:
-      - sudo ln -s /usr/bin/gcc-9 /usr/local/bin/gcc
-      - sudo ln -s /usr/bin/g++-9 /usr/local/bin/g++
       - gcc -v && g++ -v && cmake --version
       - ./compile_external_release.sh
       - cmake -DCMAKE_BUILD_TYPE=Release .
