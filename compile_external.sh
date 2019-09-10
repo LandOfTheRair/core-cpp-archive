@@ -20,4 +20,9 @@ cmake -DCMAKE_BUILD_TYPE=Debug .
 make clean
 make -j$CPUS
 
+cd $DIR/external/xxHash
+make clean
+make -j$CPUS
+rm *.so*
+
 cd $DIR
