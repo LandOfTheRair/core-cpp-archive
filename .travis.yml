@@ -27,7 +27,8 @@ matrix:
     env:
       - MAKEFLAGS=-j2
       - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
-
+    before_script:
+      - eval "${MATRIX_EVAL}"
     script:
       - gcc -v && g++ -v && cmake --version
       - ./compile_external_release.sh
