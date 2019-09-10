@@ -1,6 +1,6 @@
 [submodule "external/uWebSockets"]
 	path = external/uWebSockets
-	url = https://github.com/uNetworking/uWebSockets.git
+	url = https://github.com/Oipo/uWebSockets.git
 [submodule "external/spdlog"]
 	path = external/spdlog
 	url = https://github.com/gabime/spdlog.git
