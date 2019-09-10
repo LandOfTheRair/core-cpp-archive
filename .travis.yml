@@ -36,5 +36,7 @@ matrix:
       - make
     after_script:
       - ssh-add - <<< "${SSH_KEY}"
-      - scp bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
-      - ssh lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'
+      - export TEMPFILE=$(mktemp)
+      - echo "$SSH_KNOWN_HOSTS" > $TEMPFILE
+      - scp -o "UserKnownHostsFile $TEMPFILE" bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
+      - ssh -o "UserKnownHostsFile $TEMPFILE" lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'
