@@ -23,6 +23,8 @@
 using namespace lotr;
 using namespace rapidjson;
 
+string const register_request::type = "Auth:register";
+
 register_request::register_request(string username, string password, string email) noexcept
  : username(move(username)), password(move(password)), email(move(email)) {
 
@@ -33,6 +35,9 @@ string register_request::serialize() const {
     Writer<StringBuffer> writer(sb);
 
     writer.StartObject();
+
+    writer.String("type");
+    writer.String(type.c_str(), type.size());
 
     writer.String("username");
     writer.String(username.c_str(), username.size());
@@ -48,8 +53,13 @@ string register_request::serialize() const {
 }
 
 optional<register_request> register_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("username") || ! d.HasMember("password") || ! d.HasMember("email")) {
+    if (!d.HasMember("type") || !d.HasMember("username") || ! d.HasMember("password") || ! d.HasMember("email")) {
         spdlog::warn("[register_request] deserialize failed");
+        return nullopt;
+    }
+
+    if(d["type"].GetString() != type) {
+        spdlog::warn("[register_request] deserialize failed wrong type");
         return nullopt;
     }
 

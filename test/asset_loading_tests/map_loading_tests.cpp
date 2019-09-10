@@ -68,6 +68,32 @@ TEST_CASE("map_loading tests") {
                         "visible":true,
                         "x":0,
                         "y":0
+                    },{
+                        "draworder":"topdown",
+                        "name":"NPCs",
+                        "objects":[{
+                            "gid":3183,
+                            "height":64,
+                            "id":175,
+                            "name":"Weapon Seller",
+                            "properties": {
+                                "script":"tutorial\/crier"
+                            },
+                            "propertytypes": {
+                                "script":"string"
+                            },
+                            "rotation":0,
+                            "type":"test",
+                            "visible":true,
+                            "width":64,
+                            "x":1536,
+                            "y":2240
+                        }],
+                        "opacity":1,
+                        "type":"objectgroup",
+                        "visible":true,
+                        "x":0,
+                        "y":0
                     }],
                     "properties": {
                         "itemExpirationHours":1,
@@ -75,16 +101,31 @@ TEST_CASE("map_loading tests") {
                         "region":"Tutorial",
                         "respawnX":14,
                         "respawnY":14
-                    }})";
+                    },
+                    "tilesets":[{
+                        "columns":24,
+                        "firstgid":1,
+                        "image":"..\/..\/client\/assets\/spritesheets\/terrain.png",
+                        "imageheight":2560,
+                        "imagewidth":1536,
+                        "margin":0,
+                        "name":"Terrain",
+                        "spacing":0,
+                        "terrains": [],
+                        "tilecount":960,
+                        "tileheight":64,
+                        "tiles": [],
+                        "tilewidth":64
+                    }]})";
 
     map_file.close();
 
     auto map = load_map_from_file("test_map.json");
     REQUIRE(map);
-    REQUIRE(map->name == "test_map.json"s);
+    REQUIRE(map->name == "test_map"s);
     REQUIRE(map->width == 48);
     REQUIRE(map->height == 48);
-    REQUIRE(map->layers.size() == 2);
+    REQUIRE(map->layers.size() == 3);
     REQUIRE(map->layers[0].width == 48);
     REQUIRE(map->layers[0].height == 48);
     REQUIRE(map->layers[0].x == 0);
@@ -110,11 +151,20 @@ TEST_CASE("map_loading tests") {
     REQUIRE(map->layers[1].objects.size() == 48*48);
     REQUIRE(map->layers[1].data.size() == 0);
 
-    auto const &object = map->layers[1].objects[1472/64 + 2176/64 * 48];
+    REQUIRE(map->layers[2].width == 0);
+    REQUIRE(map->layers[2].height == 0);
+    REQUIRE(map->layers[2].x == 0);
+    REQUIRE(map->layers[2].y == 0);
+    REQUIRE(map->layers[2].name == "NPCs"s);
+    REQUIRE(map->layers[2].type == "objectgroup"s);
+    REQUIRE(map->layers[2].objects.size() == 48*48);
+    REQUIRE(map->layers[2].data.size() == 0);
+
+    auto const &object = map->layers[1].objects[1472/64 + (2176 - 64)/64 * 48];
     REQUIRE(object.gid == 3182);
     REQUIRE(object.id == 174);
-    REQUIRE(object.x == 1472);
-    REQUIRE(object.y == 2176);
+    REQUIRE(object.x == 23);
+    REQUIRE(object.y == 33);
     REQUIRE(object.width == 64);
     REQUIRE(object.height == 64);
     REQUIRE(object.name == "Armor Seller"s);
@@ -122,6 +172,19 @@ TEST_CASE("map_loading tests") {
     REQUIRE(object.properties.size() == 1);
     REQUIRE(object.properties[0].name == "script");
     REQUIRE(get<string>(object.properties[0].value) == "tutorial/townee");
+
+    auto const &object2 = map->layers[2].objects[1536/64 + (2240 - 64)/64 * 48];
+    REQUIRE(object2.gid == 3183);
+    REQUIRE(object2.id == 175);
+    REQUIRE(object2.x == 24);
+    REQUIRE(object2.y == 34);
+    REQUIRE(object2.width == 64);
+    REQUIRE(object2.height == 64);
+    REQUIRE(object2.name == "Weapon Seller"s);
+    REQUIRE(object2.type == "test"s);
+    REQUIRE(object2.properties.size() == 1);
+    REQUIRE(object2.properties[0].name == "script");
+    REQUIRE(get<string>(object2.properties[0].value) == "tutorial/crier");
 
     REQUIRE(object.script);
     REQUIRE(object.script->npc_ids.size() == 1);

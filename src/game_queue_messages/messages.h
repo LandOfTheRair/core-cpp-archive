@@ -1,6 +1,6 @@
 /*
     Land of the Rair
-    Copyright (C) 2019 Michael de Lang
+    Copyright (C) 2019  Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,39 +16,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <lotr_flat_map.h>
+#include <vector>
 
 using namespace std;
 
 namespace lotr {
+    struct stat_component;
 
+    struct queue_message {
+        uint32_t type;
 
-    enum class profanity_type : uint32_t {
-        SLURS,
-        COMMON_PROFANITY,
-        SEXUAL_TERMS,
-        POSSIBLY_OFFENSIVE,
-        USER_ADDED
+        queue_message(uint32_t type) : type(type) {}
+        virtual ~queue_message() {}
     };
 
-    class censor_sensor {
-    public:
-        explicit censor_sensor(string const &profanity_dictionary_path);
-        bool is_profane(string phrase);
-        bool is_profane_ish(string phrase);
-        string clean_profanity(string phrase);
-        string clean_profanity_ish(string phrase);
-        void enable_tier(uint32_t tier);
-        void disable_tier(uint32_t tier);
+    struct player_enter_message : public queue_message {
+        string character_name;
+        string map_name;
+        vector<stat_component> player_stats;
+        uint64_t connection_id;
+        uint32_t x;
+        uint32_t y;
 
-    private:
-        lotr_flat_custom_map<string, int> _word_tiers;
-        unordered_set<int> _enabled_tiers;
+        player_enter_message(string character_name, string map_name, vector<stat_component> player_stats, uint64_t connection_id, uint32_t x, uint32_t y);
+    };
+
+    struct player_leave_message : public queue_message {
+        string character_name;
+
+        player_leave_message(string character_name);
     };
 }

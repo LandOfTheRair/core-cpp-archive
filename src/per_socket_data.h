@@ -20,9 +20,10 @@
 
 namespace lotr {
     struct per_socket_data {
-        uint32_t connection_id;
-        uint32_t user_id;
+        uint64_t connection_id;
+        uint64_t user_id;
+        string *current_character;
 
-        per_socket_data() : connection_id(0), user_id(0) {}
+        per_socket_data() : connection_id(0), user_id(0), current_character() {}
     };
 }

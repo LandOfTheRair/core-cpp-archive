@@ -17,9 +17,9 @@
 */
 
 #include <catch2/catch.hpp>
-#include "test_helpers/startup_helper.h"
-#include "../src/repositories/users_repository.h"
-#include "../src/repositories/banned_users_repository.h"
+#include "../test_helpers/startup_helper.h"
+#include "repositories/users_repository.h"
+#include "repositories/banned_users_repository.h"
 
 using namespace std;
 using namespace lotr;

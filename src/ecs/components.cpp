@@ -18,7 +18,7 @@
 
 #include "components.h"
 namespace  lotr {
-    array<string, 38> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
+    array<string const, 38> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
                                      "weaponDamageRolls"s, "weaponArmorClass"s, "armorClass"s, "accuracy"s, "offense"s, "defense"s, "stealth"s,
                                      "perception"s, "physicalDamageBoost"s, "magicalDamageBoost"s, "healingBoost"s, "physicalDamageReflect"s,
                                      "magicalDamageReflect"s, "mitigation"s, "magicalResist"s, "physicalResist"s, "necroticResist"s, "energyResist"s,
@@ -27,6 +27,9 @@ namespace  lotr {
 
 
     string const spawners_layer_name = "Spawners";
+    string const npcs_layer_name = "NPCs";
     string const tile_layer_name = "tilelayer";
     string const object_layer_name = "objectgroup";
+    string const wall_layer_name = "Walls"s;
+    string const opaque_layer_name = "OpaqueDecor"s;
 }

@@ -25,9 +25,9 @@
 using namespace std;
 
 namespace lotr {
-    optional<npc_component> create_npc(global_npc_component const &global_npc, spawner_script *script);
+    optional<npc_component> create_npc(global_npc_component const &global_npc, map_component const &m, spawner_script *script);
     void remove_dead_npcs(vector<npc_component> &npcs);
-    void fill_spawners(vector<npc_component> &npcs, entt::registry &registry);
+    void fill_spawners(map_component const &m, vector<npc_component> &npcs, entt::registry &registry);
 
     extern atomic<uint64_t> npc_id_counter;
 }

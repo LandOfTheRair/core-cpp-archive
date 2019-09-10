@@ -19,31 +19,16 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <optional>
+#include <App.h>
 #include <rapidjson/document.h>
+#include <database/database_pool.h>
+#include <per_socket_data.h>
+#include <readerwriterqueue.h>
+#include <game_queue_messages/messages.h>
 
 using namespace std;
 
 namespace lotr {
-    struct character_component;
-
-    struct characters_visible {
-        string name;
-    };
-
-    struct map_update_response {
-        map_update_response(vector<character_component> npcs) noexcept;
-
-        ~map_update_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<map_update_response> deserialize(rapidjson::Document const &d);
-
-        vector<character_component> npcs;
-
-        static string const type;
-    };
+    void handle_play_character(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                         per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

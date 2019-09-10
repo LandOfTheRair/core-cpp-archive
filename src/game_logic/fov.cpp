@@ -32,7 +32,7 @@
 /*
 * Mingos' Restrictive Precise Angle Shadowcasting (MRPAS) v1.2.
  *
- * Shamelessly taken from libtcod.
+ * Shamelessly taken from libtcod and edited accordingly.
 */
 
 #include "fov.h"
@@ -42,6 +42,8 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
+//#define LOG_FOV_EXTREME 1
+
 using namespace std;
 using namespace lotr;
 
@@ -50,8 +52,6 @@ unique_ptr<double[]> start_angle = nullptr;
 unique_ptr<double[]> end_angle = nullptr;
 /* number of allocated angle pairs */
 int allocated = 0;
-const string wall_layer_name = "Walls"s;
-const string opaque_layer_name = "OpaqueDecor"s;
 
 [[nodiscard]]
 bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_component const &m, map_layer const *walls_layer, map_layer const *opaque_layer,
@@ -102,8 +102,8 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
 #endif
 
                 if (obstacles_in_last_line > 0) {
-                    if (!(fov_array[c_fov-(fov_diameter)] && walls_layer->data[c-(m.width * dy)] == 0 && opaque_layer->objects[c-(m.width * dy)].gid == 0) &&
-                        !(fov_array[c_fov - (fov_diameter) - dx] && walls_layer->data[c-(m.width * dy) - dx] == 0 && opaque_layer->objects[c-(m.width * dy) - dx].gid == 0))
+                    if (!(fov_array[c_fov - (fov_diameter * dy)] && walls_layer->data[c-(m.width * dy)] == 0 && opaque_layer->objects[c-(m.width * dy)].gid == 0) &&
+                        !(fov_array[c_fov - (fov_diameter * dy) - dx] && walls_layer->data[c-(m.width * dy) - dx] == 0 && opaque_layer->objects[c-(m.width * dy) - dx].gid == 0))
                     {
                         visible = false;
                     } else {
@@ -202,8 +202,8 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
 #endif
 
                 if (obstacles_in_last_line > 0) {
-                    if (!(fov_array[c_fov-dx] && walls_layer->data[c-dx] == 0 && opaque_layer->objects[c-dx].gid == 0) &&
-                        !(fov_array[c_fov - (fov_diameter) - dx] && walls_layer->data[c-(m.width * dy) - dx] == 0 && opaque_layer->objects[c-(m.width * dy) - dx].gid == 0))
+                    if (!(fov_array[c_fov - dx] && walls_layer->data[c-dx] == 0 && opaque_layer->objects[c-dx].gid == 0) &&
+                        !(fov_array[c_fov - (fov_diameter * dy) - dx] && walls_layer->data[c-(m.width * dy) - dx] == 0 && opaque_layer->objects[c-(m.width * dy) - dx].gid == 0))
                     {
                         visible = false;
                     } else {

@@ -35,3 +35,6 @@
 [submodule "external/pcg-cpp"]
 	path = external/pcg-cpp
 	url = https://github.com/imneme/pcg-cpp.git
+[submodule "external/readerwriterqueue"]
+	path = external/readerwriterqueue
+	url = https://github.com/cameron314/readerwriterqueue.git

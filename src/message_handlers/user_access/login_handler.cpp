@@ -28,20 +28,14 @@
 #include <repositories/banned_users_repository.h>
 #include <repositories/players_repository.h>
 #include <on_leaving_scope.h>
+#include "message_handlers/handler_macros.h"
 
 
 using namespace std;
 namespace lotr {
     void handle_login(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                      per_socket_data *user_data) {
-
-        auto msg = login_request::deserialize(d);
-
-        if (!msg) {
-            ws->send("Stop messing around", op_code, true);
-            ws->end(0);
-            return;
-        }
+                      per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
+        DESERIALIZE_WITH_CHECK(login_request)
 
         users_repository<database_pool, database_transaction> user_repo(pool);
         banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
@@ -59,9 +53,7 @@ namespace lotr {
         auto usr = user_repo.get(msg->username, transaction);
 
         if (!usr) {
-            if (!ws->send("User does not exist", op_code, true)) {
-                ws->end(0);
-            }
+            SEND_ERROR("User already exists", "", "", true);
             return;
         }
 
@@ -72,9 +64,7 @@ namespace lotr {
             });
 
             if (crypto_pwhash_str_verify(usr->password.c_str(), msg->password.c_str(), msg->password.length()) != 0) {
-                if (!ws->send("Password incorrect", op_code, true)) {
-                    ws->end(0);
-                }
+                SEND_ERROR("Password incorrect", "", "", true);
                 return;
             }
 

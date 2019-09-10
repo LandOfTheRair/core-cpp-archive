@@ -47,5 +47,7 @@ namespace lotr {
         static optional<login_response> deserialize(rapidjson::Document const &d);
 
         vector<message_player> players;
+
+        static string const type;
     };
 }

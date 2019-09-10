@@ -44,6 +44,7 @@ namespace lotr {
 
         unique_ptr<transaction_T> create_transaction();
 
+        bool insert(player &plyr, unique_ptr<transaction_T> const &transaction) const;
         bool insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction) const;
         void update_player(player const &plyr, unique_ptr<transaction_T> const &transaction) const;
         optional<player> get_player(string const &name, included_tables includes, unique_ptr<transaction_T> const &transaction) const;

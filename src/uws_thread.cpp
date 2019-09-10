@@ -21,9 +21,14 @@
 #include <App.h>
 #include <lotr_flat_map.h>
 #include <rapidjson/document.h>
-#include <message_handlers/login_handler.h>
-#include <message_handlers/register_handler.h>
-#include <game_logic/logic_helpers.h>
+#include <message_handlers/user_access/login_handler.h>
+#include <message_handlers/user_access/register_handler.h>
+#include <message_handlers/user_access/play_character_handler.h>
+#include <message_handlers/user_access/create_character_handler.h>
+#include <messages/user_access/login_request.h>
+#include <messages/user_access/register_request.h>
+#include <messages/user_access/play_character_request.h>
+#include <messages/user_access/create_character_request.h>
 #include "per_socket_data.h"
 
 using namespace std;
@@ -34,19 +39,24 @@ using namespace lotr;
 
 atomic<uint64_t> connection_id_counter = 0;
 
+lotr_flat_map<uint64_t, uWS::WebSocket<false, true> *> lotr::user_connections;
+moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
+
 void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> &quit) {
     connection_id_counter = 0;
     shit_uws.loop = uWS::Loop::get();
 
-    lotr_flat_map<string, function<void(uWS::WebSocket<false, true> *, uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data*)>> message_router;
-    message_router.emplace("Auth:login", handle_login);
-    message_router.emplace("Auth:register", handle_register);
+    lotr_flat_map<string, function<void(uWS::WebSocket<false, true> *, uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data*, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &)>> message_router;
+    message_router.emplace(login_request::type, handle_login);
+    message_router.emplace(register_request::type, handle_register);
+    message_router.emplace(play_character_request::type, handle_play_character);
+    message_router.emplace(create_character_request::type, handle_create_character);
 
     uWS::TemplatedApp<false>().
                     ws<per_socket_data>("/*", {
                     .compression = uWS::SHARED_COMPRESSOR,
                     .maxPayloadLength = 16 * 1024,
-                    .idleTimeout = 10,
+                    .idleTimeout = 300,
                     .open = [&](uWS::WebSocket<false, true> *ws, uWS::HttpRequest *req) {
                         if(quit) {
                             spdlog::debug("[uws] new connection in closing state");
@@ -58,7 +68,9 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         auto *user_data = (per_socket_data *) ws->getUserData();
                         user_data->connection_id = connection_id_counter++;
                         user_data->user_id = 0;
-                        spdlog::trace("[uws] open connection {} {}", req->getUrl(), user_data->connection_id);
+                        user_data->current_character = new string;
+                        user_connections[user_data->connection_id] = ws;
+                        spdlog::debug("[uws] open connection {} {}", req->getUrl(), user_data->connection_id);
                     },
                     .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
                         spdlog::trace("[uws] message {} {}", message, op_code);
@@ -82,27 +94,32 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
 
                         auto handler = message_router.find(type);
                         if (handler != message_router.end()) {
-                            handler->second(ws, op_code, d, pool, user_data);
+                            handler->second(ws, op_code, d, pool, user_data, game_loop_queue);
                         } else {
                             spdlog::trace("[uws] no handler for type {}", type);
                         }
                     },
                     .drain = [](auto *ws) {
                         /* Check getBufferedAmount here */
-                        spdlog::trace("[uws] Something about draining {}", ws->getBufferedAmount());
+                        spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
                     },
                     .ping = [](auto *ws) {
                         auto user_data = (per_socket_data *) ws->getUserData();
-                        spdlog::trace("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
+                        spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
                     },
                     .pong = [](auto *ws) {
                         auto user_data = (per_socket_data *) ws->getUserData();
-                        spdlog::trace("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
+                        spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
                     },
                     .close = [](auto *ws, int code, std::string_view message) {
                         //only called on close
                         auto *user_data = (per_socket_data *) ws->getUserData();
-                        spdlog::trace("[uws] close connection {} {} {} {}", code, message, user_data->connection_id, user_data->user_id);
+                        user_connections.erase(user_data->connection_id);
+                        if(!user_data->current_character->empty()) {
+                            game_loop_queue.enqueue(make_unique<player_leave_message>(*user_data->current_character));
+                        }
+                        spdlog::debug("[uws] close connection {} {} {} {} {}", code, message, user_data->connection_id, user_data->user_id, *(user_data->current_character));
+                        delete user_data->current_character;
                     }
             })
 

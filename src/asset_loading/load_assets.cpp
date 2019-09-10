@@ -79,8 +79,35 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
             continue;
         }
 
-        for(uint32_t i = 0; i < 10; i++) {
-            map->players.emplace_back();
+        auto const npcs_layer = find_if(cbegin(map->layers), cend(map->layers), [](map_layer const &l) noexcept { return l.name == npcs_layer_name; }); // Case-sensitive. This will probably bite us in the ass later.
+        if(npcs_layer != cend(map->layers)) {
+            for(auto &npc : npcs_layer->objects) {
+                if(npc.gid == 0 || !npc.script) {
+                    continue;
+                }
+
+                if(npc.script->initial_spawn == 0 || npc.script->max_creatures == 0 || npc.script->npc_ids.empty()) {
+                    continue;
+                }
+
+                auto new_entity = registry.create();
+                global_npc_component gnpc{};
+
+                gnpc.name = npc.name;
+                gnpc.npc_id = npc.name;
+                gnpc.sprite.push_back(npc.gid - map->tilesets[3].firstgid);
+
+                for(auto &stat : stats) {
+                    gnpc.stats.emplace_back(stat, 10);
+                }
+
+                registry.assign<global_npc_component>(new_entity, move(gnpc));
+                npc_count++;
+
+                spdlog::trace("[{}] npc {} assigned global npc component", __FUNCTION__, npc.name);
+            }
+        } else {
+            spdlog::error("[{}] no npcs layer found", __FUNCTION__);
         }
 
         auto new_entity = registry.create();
@@ -96,7 +123,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
 
         auto spawners_layer = find_if(begin(m.layers), end(m.layers), [&](map_layer const &l) noexcept {return l.name == spawners_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
         if(spawners_layer == end(m.layers)) {
-            spdlog::warn("No npc layer found for map {}", m.name);
+            spdlog::warn("No spawner layer found for map {}", m.name);
             return;
         }
 
@@ -117,7 +144,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
                         return;
                     }
 
-                    auto npc = create_npc(global_npc, &spawner_object.script.value());
+                    auto npc = create_npc(global_npc, m, &spawner_object.script.value());
 
                     if(npc) {
                         m.npcs.emplace_back(move(*npc));
@@ -125,6 +152,42 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
                     }
                 });
             }
+        }
+    });
+
+    registry.view<map_component>().each([&](map_component &m) noexcept {
+        if(quit) {
+            return;
+        }
+
+        auto npcs_layer = find_if(begin(m.layers), end(m.layers), [&](map_layer const &l) noexcept {return l.name == npcs_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
+        if(npcs_layer == end(m.layers)) {
+            spdlog::warn("No npc layer found for map {}", m.name);
+            return;
+        }
+
+        for(auto &npc_object : npcs_layer->objects) {
+            if(npc_object.gid == 0 || !npc_object.script) {
+                continue;
+            }
+
+            if(npc_object.script->initial_spawn == 0 || npc_object.script->max_creatures == 0 || npc_object.script->npc_ids.empty()) {
+                continue;
+            }
+
+            spdlog::trace("Determining whether to create npc {} for map {}", npc_object.name, m.name);
+            registry.view<global_npc_component>().each([&](global_npc_component const &global_npc) noexcept {
+                if(global_npc.npc_id != npc_object.name) {
+                    return;
+                }
+
+                auto npc = create_npc(global_npc, m, &npc_object.script.value());
+
+                if(npc) {
+                    m.npcs.emplace_back(move(*npc));
+                    entity_count++;
+                }
+            });
         }
     });
 

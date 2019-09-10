@@ -19,13 +19,14 @@
 #include <spdlog/spdlog.h>
 #include <filesystem>
 #include <chrono>
-#include <censor_sensor.h>
+#include <game_logic/censor_sensor.h>
+#include <sodium.h>
 
 #include "../src/config.h"
 #include "../src/config_parsers.h"
 #include "benchmark_helpers/startup_helper.h"
 #include "../src/working_directory_manipulation.h"
-#include "../src/fov.h"
+#include "game_logic/fov.h"
 #include "../src/asset_loading/load_map.h"
 
 using namespace std;
@@ -46,17 +47,50 @@ void bench_censor_sensor() {
 }
 
 void bench_fov() {
-    auto m = load_map_from_file("assets/maps/antania/DedlaenMaze.json");
+    auto m = load_map_from_file("assets/maps/antania/DedlaenMaze.json").value();
 
     auto start = chrono::system_clock::now();
 
     for(int i = 0; i < 1'000'000; i++) {
-        compute_fov_restrictive_shadowcasting(m.value(), 4, 4, false);
+        compute_fov_restrictive_shadowcasting(m, 4, 4, false);
     }
 
     auto end = chrono::system_clock::now();
 
     spdlog::info("compute_fov_restrictive_shadowcasting {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
+char hashed_password[crypto_pwhash_STRBYTES];
+string test_pass = "very_secure_password";
+#define crypto_pwhash_argon2id_MEMLIMIT_rair 33554432U
+
+void bench_hashing() {
+    auto start = chrono::system_clock::now();
+
+    if (crypto_pwhash_str(hashed_password,
+                          test_pass.c_str(),
+                          test_pass.length(),
+                          crypto_pwhash_argon2id_OPSLIMIT_MODERATE,
+                          crypto_pwhash_argon2id_MEMLIMIT_rair) != 0) {
+        spdlog::error("out of memory?");
+        return;
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("hashing {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
+void bench_hash_verify() {
+    auto start = chrono::system_clock::now();
+
+    if (crypto_pwhash_str_verify(hashed_password, test_pass.c_str(), test_pass.length()) != 0) {
+        spdlog::error("Hash should verify");
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("hashing verify {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
 }
 
 int main(int argc, char **argv) {
@@ -75,7 +109,13 @@ int main(int argc, char **argv) {
     db_pool = make_shared<database_pool>();
     db_pool->create_connections(config.connection_string, 2);
 
-    //bench_censor_sensor();
+    if(sodium_init() != 0) {
+        spdlog::error("sodium init failure");
+        return 1;
+    }
+    bench_censor_sensor();
     bench_fov();
+    bench_hashing();
+    bench_hash_verify();
 
 }

@@ -23,6 +23,10 @@
 #include "censor_sensor.h"
 #include "working_directory_manipulation.h"
 
+using namespace lotr;
+
+censor_sensor lotr::sensor("assets/profanity_locales/en.json");
+
 void string_tolower(string &str) {
     transform(str.begin(), str.end(), str.begin(),
               [](unsigned char c){ return tolower(c); });
@@ -31,7 +35,7 @@ void string_tolower(string &str) {
 
 
 
-lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _word_tiers() {
+censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _word_tiers() {
     auto dict_contents = read_whole_file(profanity_dictionary_path);
     if(!dict_contents) {
         throw runtime_error("no dict_contents");
@@ -55,7 +59,7 @@ lotr::censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _w
     }
 }
 
-bool lotr::censor_sensor::is_profane(string phrase) {
+bool censor_sensor::is_profane(string phrase) {
     string_tolower(phrase);
 
     auto phrase_view = string_view(phrase);
@@ -104,7 +108,7 @@ bool lotr::censor_sensor::is_profane(string phrase) {
     return contains_profanity;
 }
 
-bool lotr::censor_sensor::is_profane_ish(string phrase) {
+bool censor_sensor::is_profane_ish(string phrase) {
     string_tolower(phrase);
     for(auto& [word, tier] : _word_tiers) {
         if(phrase.find(word) != string::npos) {
@@ -121,7 +125,7 @@ bool lotr::censor_sensor::is_profane_ish(string phrase) {
     return false;
 }
 
-string lotr::censor_sensor::clean_profanity(string phrase) {
+string censor_sensor::clean_profanity(string phrase) {
     string_tolower(phrase);
 
     auto phrase_view = string_view(phrase);
@@ -169,7 +173,7 @@ string lotr::censor_sensor::clean_profanity(string phrase) {
     return phrase;
 }
 
-string lotr::censor_sensor::clean_profanity_ish(string phrase) {
+string censor_sensor::clean_profanity_ish(string phrase) {
     string_tolower(phrase);
     for(auto& [word, tier] : _word_tiers) {
         auto pos = phrase.find(word);
@@ -190,14 +194,14 @@ string lotr::censor_sensor::clean_profanity_ish(string phrase) {
     return phrase;
 }
 
-void lotr::censor_sensor::enable_tier(uint32_t tier) {
+void censor_sensor::enable_tier(uint32_t tier) {
     if(tier <= static_cast<uint32_t>(profanity_type::USER_ADDED)) {
         _enabled_tiers.insert(tier);
         spdlog::trace("[{}] tier {} enabled", __FUNCTION__, tier);
     }
 }
 
-void lotr::censor_sensor::disable_tier(uint32_t tier) {
+void censor_sensor::disable_tier(uint32_t tier) {
     if(tier <= static_cast<uint32_t>(profanity_type::USER_ADDED)) {
         _enabled_tiers.erase(tier);
         spdlog::trace("[{}] tier {} disabled", __FUNCTION__, tier);

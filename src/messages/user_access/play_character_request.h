@@ -36,5 +36,7 @@ namespace lotr {
         static optional<play_character_request> deserialize(rapidjson::Document const &d);
 
         string name;
+
+        static string const type;
     };
 }

@@ -20,30 +20,35 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <optional>
-#include <rapidjson/document.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <lotr_flat_map.h>
 
 using namespace std;
 
 namespace lotr {
-    struct character_component;
-
-    struct characters_visible {
-        string name;
+    enum class profanity_type : uint32_t {
+        SLURS,
+        COMMON_PROFANITY,
+        SEXUAL_TERMS,
+        POSSIBLY_OFFENSIVE,
+        USER_ADDED
     };
 
-    struct map_update_response {
-        map_update_response(vector<character_component> npcs) noexcept;
+    class censor_sensor {
+    public:
+        explicit censor_sensor(string const &profanity_dictionary_path);
+        bool is_profane(string phrase);
+        bool is_profane_ish(string phrase);
+        string clean_profanity(string phrase);
+        string clean_profanity_ish(string phrase);
+        void enable_tier(uint32_t tier);
+        void disable_tier(uint32_t tier);
 
-        ~map_update_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<map_update_response> deserialize(rapidjson::Document const &d);
-
-        vector<character_component> npcs;
-
-        static string const type;
+    private:
+        lotr_flat_custom_map<string, int> _word_tiers;
+        unordered_set<int> _enabled_tiers;
     };
+
+    extern censor_sensor sensor;
 }

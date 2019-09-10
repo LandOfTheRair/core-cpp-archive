@@ -16,20 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "play_character_request.h"
+#include "create_character_request.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
 
 using namespace lotr;
 using namespace rapidjson;
 
-string const play_character_request::type = "Game:play_character";
+string const create_character_request::type = "Game:create_character";
 
-play_character_request::play_character_request(string name) noexcept : name(move(name)) {
+create_character_request::create_character_request(string name, string sex, string allegiance, string baseclass) noexcept
+    : name(move(name)), sex(move(sex)), allegiance(move(allegiance)), baseclass(move(baseclass)) {
 
 }
 
-string play_character_request::serialize() const {
+string create_character_request::serialize() const {
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
 
@@ -41,20 +42,29 @@ string play_character_request::serialize() const {
     writer.String("name");
     writer.String(name.c_str(), name.size());
 
+    writer.String("sex");
+    writer.String(sex.c_str(), sex.size());
+
+    writer.String("allegiance");
+    writer.String(allegiance.c_str(), allegiance.size());
+
+    writer.String("baseclass");
+    writer.String(baseclass.c_str(), baseclass.size());
+
     writer.EndObject();
     return sb.GetString();
 }
 
-optional<play_character_request> play_character_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("name")) {
-        spdlog::warn("[play_character_request] deserialize failed");
+optional<create_character_request> create_character_request::deserialize(rapidjson::Document const &d) {
+    if (!d.HasMember("type") || !d.HasMember("name") || ! d.HasMember("sex") || ! d.HasMember("allegiance") || ! d.HasMember("baseclass")) {
+        spdlog::warn("[create_character_request] deserialize failed");
         return nullopt;
     }
 
     if(d["type"].GetString() != type) {
-        spdlog::warn("[play_character_request] deserialize failed wrong type");
+        spdlog::warn("[create_character_request] deserialize failed wrong type");
         return nullopt;
     }
 
-    return play_character_request(d["name"].GetString());
+    return create_character_request(d["name"].GetString(), d["sex"].GetString(), d["allegiance"].GetString(), d["baseclass"].GetString());
 }

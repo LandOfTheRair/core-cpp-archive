@@ -16,15 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #pragma once
 
-#include <App.h>
+#include <string>
+#include <optional>
 #include <rapidjson/document.h>
-#include <database/database_pool.h>
-#include <per_socket_data.h>
 
 using namespace std;
 
 namespace lotr {
-    void handle_login(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data *user_data);
+    struct create_character_request {
+        create_character_request(string name, string sex, string allegiance, string baseclass) noexcept;
+
+        ~create_character_request() noexcept = default;
+
+        [[nodiscard]]
+        string serialize() const;
+        static optional<create_character_request> deserialize(rapidjson::Document const &d);
+
+        string name;
+        string sex;
+        string allegiance;
+        string baseclass;
+
+        static string const type;
+    };
 }

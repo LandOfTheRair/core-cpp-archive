@@ -19,13 +19,27 @@
 
 #pragma once
 
-#include <App.h>
+#include <string>
+#include <optional>
+#include <vector>
 #include <rapidjson/document.h>
-#include <database/database_pool.h>
-#include <per_socket_data.h>
 
 using namespace std;
 
 namespace lotr {
-    void handle_register(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data *user_data);
+    struct stat_component;
+    struct create_character_response {
+        create_character_response(string name, vector<stat_component> stats) noexcept;
+
+        ~create_character_response() noexcept = default;
+
+        [[nodiscard]]
+        string serialize() const;
+        static optional<create_character_response> deserialize(rapidjson::Document const &d);
+
+        string name;
+        vector<stat_component> stats;
+
+        static string const type;
+    };
 }

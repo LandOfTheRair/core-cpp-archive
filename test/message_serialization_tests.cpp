@@ -21,7 +21,12 @@
 #include <messages/user_access/login_response.h>
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
+#include <messages/user_access/create_character_request.h>
+#include <messages/user_access/create_character_response.h>
+#include <messages/map_update_response.h>
 #include <messages/generic_error_response.h>
+
+#include <ecs/components.h>
 
 using namespace std;
 using namespace lotr;
@@ -69,6 +74,52 @@ TEST_CASE("message serialization tests") {
     SECTION("play character request") {
         SERDE(play_character_request, "character");
         REQUIRE(msg.name == msg2->name);
+    }
+
+    SECTION("play character request") {
+        SERDE(create_character_request, "name", "sex", "allegiance", "baseclass");
+        REQUIRE(msg.name == msg2->name);
+        REQUIRE(msg.sex == msg2->sex);
+        REQUIRE(msg.allegiance == msg2->allegiance);
+        REQUIRE(msg.baseclass == msg2->baseclass);
+    }
+
+    SECTION("play character request") {
+        vector<stat_component> player_stats;
+        player_stats.emplace_back("hp", 10);
+        player_stats.emplace_back("mp", 20);
+        SERDE(create_character_response, "name", player_stats);
+        REQUIRE(msg.name == msg2->name);
+        REQUIRE(msg.stats.size() == msg2->stats.size());
+        for(uint32_t i = 0; i < msg.stats.size(); i++) {
+            REQUIRE(msg.stats[i].name == msg2->stats[i].name);
+            REQUIRE(msg.stats[i].value == msg2->stats[i].value);
+        }
+    }
+
+    SECTION("map update response") {
+        vector<character_component> npcs;
+        character_component one;
+        one.name = "test";
+        one.sprite = 1;
+        one.x = 2;
+        one.y = 3;
+
+        character_component two;
+        two.name = "test2";
+        two.sprite = 4;
+        two.x = 5;
+        two.y = 6;
+        npcs.push_back(one);
+        npcs.push_back(two);
+        SERDE(map_update_response, npcs)
+        REQUIRE(msg.npcs.size() == msg2->npcs.size());
+        for(uint32_t i = 0; i < msg.npcs.size(); i++) {
+            REQUIRE(msg.npcs[i].name == msg2->npcs[i].name);
+            REQUIRE(msg.npcs[i].sprite == msg2->npcs[i].sprite);
+            REQUIRE(msg.npcs[i].x == msg2->npcs[i].x);
+            REQUIRE(msg.npcs[i].y == msg2->npcs[i].y);
+        }
     }
 
     SECTION("generic error response") {

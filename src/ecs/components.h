@@ -24,12 +24,12 @@
 #include <vector>
 #include <optional>
 #include <lotr_flat_map.h>
-#include <fov.h>
+#include <game_logic/fov.h>
 
 using namespace std;
 
 namespace lotr {
-    extern array<string, 38> const stats;
+    extern array<string const, 38> const stats;
 
     struct stat_component {
         string name;
@@ -124,6 +124,8 @@ namespace lotr {
         uint32_t leash_radius;
         uint32_t elite_tick_cap;
         uint32_t max_spawn;
+        uint32_t x;
+        uint32_t y;
 
         bool should_be_active;
         bool can_slow_down;
@@ -140,6 +142,8 @@ namespace lotr {
     struct silver_purchases_component {
         string name;
         uint32_t count;
+
+        silver_purchases_component() : name(), count(0) {}
     };
 
     struct character_component {
@@ -178,6 +182,7 @@ namespace lotr {
     struct pc_component : character_component {
         vector<silver_purchases_component> silver_purchases;
         bitset<power(fov_diameter)> fov;
+        uint32_t connection_id;
 
         pc_component() : character_component(), silver_purchases(), fov() {}
     };
@@ -270,23 +275,34 @@ namespace lotr {
             : x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), objects(move(objects)), data(move(data)) {}
     };
 
+    struct map_tileset {
+        uint32_t firstgid;
+        string name;
+
+        map_tileset(uint32_t firstgid, string name) : firstgid(firstgid), name(move(name)) {}
+    };
+
     struct map_component {
         uint32_t width;
         uint32_t height;
         string name;
         vector<map_property> properties;
         vector<map_layer> layers;
+        vector<map_tileset> tilesets;
         vector<npc_component> npcs;
         vector<pc_component> players;
 
-        map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, vector<map_layer> layers)
-            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), npcs(), players() {}
+        map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, vector<map_layer> layers, vector<map_tileset> tilesets)
+            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), tilesets(move(tilesets)), npcs(), players() {}
     };
 
     // constants
 
     extern string const spawners_layer_name;
+    extern string const npcs_layer_name;
     extern string const tile_layer_name;
     extern string const object_layer_name;
+    extern string const wall_layer_name;
+    extern string const opaque_layer_name;
 
 }

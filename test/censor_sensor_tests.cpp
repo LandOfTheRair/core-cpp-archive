@@ -18,7 +18,7 @@
 
 #include <catch2/catch.hpp>
 #include "test_helpers/startup_helper.h"
-#include "../src/censor_sensor.h"
+#include "game_logic/censor_sensor.h"
 
 using namespace std;
 using namespace lotr;

@@ -23,6 +23,8 @@
 using namespace lotr;
 using namespace rapidjson;
 
+string const login_response::type = "Auth:login_response";
+
 login_response::login_response(vector<message_player> players) noexcept : players(move(players)) {
 
 }
@@ -32,6 +34,9 @@ string login_response::serialize() const {
     Writer<StringBuffer> writer(sb);
 
     writer.StartObject();
+
+    writer.String("type");
+    writer.String(type.c_str(), type.size());
 
     writer.String("players");
     writer.StartArray();
@@ -60,8 +65,13 @@ string login_response::serialize() const {
 }
 
 optional<login_response> login_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("players")) {
+    if (!d.HasMember("type") || !d.HasMember("players")) {
         spdlog::warn("[login_response] deserialize failed");
+        return nullopt;
+    }
+
+    if(d["type"].GetString() != type) {
+        spdlog::warn("[login_response] deserialize failed wrong type");
         return nullopt;
     }
 

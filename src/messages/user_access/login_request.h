@@ -37,5 +37,7 @@ namespace lotr {
 
         string username;
         string password;
+
+        static string const type;
     };
 }

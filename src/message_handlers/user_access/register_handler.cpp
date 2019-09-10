@@ -28,28 +28,23 @@
 #include <repositories/players_repository.h>
 #include <on_leaving_scope.h>
 #include <messages/user_access/login_response.h>
-#include <censor_sensor.h>
+#include <game_logic/censor_sensor.h>
+#include "message_handlers/handler_macros.h"
 
+#define crypto_pwhash_argon2id_MEMLIMIT_rair 33554432U
 
 using namespace std;
 namespace lotr {
     void handle_register(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
-                         shared_ptr<database_pool> pool, per_socket_data *user_data) {
-        auto msg = register_request::deserialize(d);
-        static censor_sensor s("assets/profanity_locales/en.json");
-
-        if (!msg) {
-            ws->send("Stop messing around", op_code, true);
-            ws->end(0);
-            return;
-        }
+                         shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
+        DESERIALIZE_WITH_CHECK(register_request)
 
         users_repository<database_pool, database_transaction> user_repo(pool);
         banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
         players_repository<database_pool, database_transaction> player_repo(pool);
 
-        if(s.is_profane_ish(msg->username)) {
-            ws->send("Usernames cannot contain profanities", op_code, true);
+        if(sensor.is_profane_ish(msg->username)) {
+            SEND_ERROR("Usernames cannot contain profanities", "", "", true);
             return;
         }
 
@@ -66,9 +61,7 @@ namespace lotr {
         auto usr = user_repo.get(msg->username, transaction);
 
         if (usr) {
-            if (!ws->send("User already exists", op_code, true)) {
-                ws->end(0);
-            } // TODO figure out how to not have to do this shit every time I want to send stuff
+            SEND_ERROR("User already exists", "", "", true);
             return;
         }
 
@@ -80,13 +73,11 @@ namespace lotr {
 
             char hashed_password[crypto_pwhash_STRBYTES];
 
-            // TODO benchmark this, having increased the no. of passes to the recommended 10 or higher,
-            //  this might result in taking a huge amount of time
             if (crypto_pwhash_str(hashed_password,
                                   msg->password.c_str(),
                                   msg->password.length(),
-                                  10,
-                                  crypto_pwhash_argon2id_MEMLIMIT_INTERACTIVE) != 0) {
+                                  crypto_pwhash_argon2id_OPSLIMIT_MODERATE,
+                                  crypto_pwhash_argon2id_MEMLIMIT_rair) != 0) {
                 spdlog::error("Registering user, but out of memory?");
                 if (!ws->send("Server error", op_code, true)) {
                     ws->end(0);
@@ -98,11 +89,11 @@ namespace lotr {
             auto inserted = user_repo.insert_if_not_exists(new_usr, transaction);
 
             if (!inserted) {
-                if (!ws->send("Server error", op_code, true)) {
-                    ws->end(0);
-                }
+                SEND_ERROR("Server error", "", "", true);
                 return;
             }
+
+            transaction->commit();
 
             login_response response({});
             auto response_msg = response.serialize();

@@ -34,6 +34,30 @@ unique_ptr<transaction_T> players_repository<pool_T, transaction_T>::create_tran
 }
 
 template<typename pool_T, typename transaction_T>
+bool players_repository<pool_T, transaction_T>::insert(player &plyr, unique_ptr<transaction_T> const &transaction) const {
+
+    auto result = transaction->execute(fmt::format(
+            "INSERT INTO players (user_id, location_id, player_name) VALUES ({}, {}, '{}') "
+            "ON CONFLICT (player_name) DO NOTHING RETURNING xmax, id",
+            plyr.user_id, plyr.location_id, transaction->escape(plyr.name), plyr.user_id, plyr.location_id));
+
+    if(result.empty()) {
+        spdlog::error("[{}] contains {} entries", __FUNCTION__, result.size());
+        return false;
+    }
+
+    plyr.id = result[0][1].as(uint64_t{});
+
+    if(result[0][0].as(uint64_t{}) == 0) {
+        spdlog::debug("[{}] inserted player {}", __FUNCTION__, plyr.id);
+        return true;
+    }
+
+    spdlog::debug("[{}] could not insert player {} {}", __FUNCTION__, plyr.id, plyr.name);
+    return false;
+}
+
+template<typename pool_T, typename transaction_T>
 bool players_repository<pool_T, transaction_T>::insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction) const {
 
     auto result = transaction->execute(fmt::format(

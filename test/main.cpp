@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
     db_pool->create_connections(config.connection_string, 2);
 
     int result = Catch::Session().run( argc, argv );
-
     // global clean-up...
 
     return ( result < 0xff ? result : 0xff );

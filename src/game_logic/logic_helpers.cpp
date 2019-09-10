@@ -26,7 +26,7 @@ using namespace lotr;
 
 atomic<uint64_t> lotr::npc_id_counter;
 
-optional<npc_component> lotr::create_npc(global_npc_component const &global_npc, spawner_script *script) {
+optional<npc_component> lotr::create_npc(global_npc_component const &global_npc, map_component const &m, spawner_script *script) {
     if(global_npc.sprite.empty()) {
         spdlog::error("global npc {}:{} has no sprites", global_npc.name, global_npc.npc_id);
         return {};
@@ -53,6 +53,25 @@ optional<npc_component> lotr::create_npc(global_npc_component const &global_npc,
 
     npc.spawner = script;
 
+    if(script->spawn_radius > 0) {
+        bool found_coord = false;
+        auto const walls_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == wall_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
+        auto const opaque_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == opaque_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
+        while(!found_coord) {
+            npc.x = lotr::random.generate_single((uint64_t)script->x - script->spawn_radius, script->x + script->spawn_radius);
+            npc.y = lotr::random.generate_single((uint64_t)script->y - script->spawn_radius, script->y + script->spawn_radius);
+            int32_t c = npc.x + (npc.y * m.width);
+
+            spdlog::trace("[{}] c {} npc x {} y {} w {} h {} map {} script x {} script y {} spawn_radius {} wall {} object {}",  __FUNCTION__, c, npc.x, npc.y, m.width, m.height, m.name, script->x, script->y, script->spawn_radius, walls_layer->data[c], opaque_layer->objects[c].gid);
+            if(walls_layer->data[c] == 0 && opaque_layer->objects[c].gid == 0) {
+                found_coord = true;
+            }
+        }
+    } else {
+        npc.x = script->x;
+        npc.y = script->y;
+    }
+
     for (auto const &stat : stats) {
         auto const random_stat_it = find_if(cbegin(global_npc.random_stats), cend(global_npc.random_stats),
                                             [&](random_stat_component const &rs) noexcept { return rs.name == stat; });
@@ -63,26 +82,26 @@ optional<npc_component> lotr::create_npc(global_npc_component const &global_npc,
             auto const stat_it = find_if(cbegin(global_npc.stats), cend(global_npc.stats),
                                          [&](stat_component const &s) noexcept { return s.name == stat; });
             if (stat_it == cend(global_npc.stats)) {
-                spdlog::error("Initializing spawn for global_npc {} failed, missing stat {}", global_npc.npc_id, stat);
+                spdlog::error("[{}] Initializing spawn for global_npc {} failed, missing stat {}", __FUNCTION__, global_npc.npc_id, stat);
                 return {};
             }
             npc.stats[stat] = stat_it->value;
         }
 
-        spdlog::trace("Added {}:{} to npc {}:{}", stat, npc.stats[stat], npc.id, npc.name);
+        //spdlog::trace("[{}] Added {}:{} to npc {}:{}", __FUNCTION__, stat, npc.stats[stat], npc.id, npc.name);
     }
 
-    spdlog::debug("Created npc {}:{}", npc.name, npc.npc_id);
+    spdlog::debug("[{}] Created npc {}:{}", __FUNCTION__, npc.name, npc.npc_id);
     return npc;
 }
 
 void lotr::remove_dead_npcs(vector<npc_component> &npcs) {
     if(!npcs.empty()) {
-        remove_if(begin(npcs), end(npcs), [&](npc_component &npc) noexcept { return npc.stats["hp"] <= 0; });
+        npcs.erase(remove_if(begin(npcs), end(npcs), [&](npc_component &npc) noexcept { return npc.stats["hp"] <= 0; }), end(npcs));
     }
 }
 
-void lotr::fill_spawners(vector<npc_component> &npcs, entt::registry &registry) {
+void lotr::fill_spawners(map_component const &m, vector<npc_component> &npcs, entt::registry &registry) {
     lotr_flat_map<uint32_t, tuple<uint32_t, spawner_script*>> spawner_npc_counter;
 
     for(auto &npc : npcs) {
@@ -114,7 +133,7 @@ void lotr::fill_spawners(vector<npc_component> &npcs, entt::registry &registry) 
                     return;
                 }
 
-                auto npc = create_npc(global_npc, get<1>(v));
+                auto npc = create_npc(global_npc, m, get<1>(v));
 
                 if(npc) {
                     npcs.emplace_back(move(*npc));

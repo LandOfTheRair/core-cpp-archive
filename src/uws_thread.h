@@ -23,12 +23,20 @@
 #include <Loop.h>
 #include <config.h>
 #include <database/database_pool.h>
+#include <lotr_flat_map.h>
+#include <WebSocket.h>
+#include <readerwriterqueue.h>
+
+#include <game_queue_messages/messages.h>
 
 namespace lotr {
     struct uws_is_shit_struct {
         us_listen_socket_t *socket;
         uWS::Loop *loop;
     };
+
+    extern lotr_flat_map<uint64_t, uWS::WebSocket<false, true> *> user_connections;
+    extern moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> game_loop_queue;
 
     void run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> &quit);
 }

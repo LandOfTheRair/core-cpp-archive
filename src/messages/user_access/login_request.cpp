@@ -23,6 +23,8 @@
 using namespace lotr;
 using namespace rapidjson;
 
+string const login_request::type = "Auth:login";
+
 login_request::login_request(string username, string password) noexcept : username(move(username)), password(move(password)) {
 
 }
@@ -32,6 +34,9 @@ string login_request::serialize() const {
     Writer<StringBuffer> writer(sb);
 
     writer.StartObject();
+
+    writer.String("type");
+    writer.String(type.c_str(), type.size());
 
     writer.String("username");
     writer.String(username.c_str(), username.size());
@@ -44,8 +49,13 @@ string login_request::serialize() const {
 }
 
 optional<login_request> login_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("username") || ! d.HasMember("password")) {
+    if (!d.HasMember("type") || !d.HasMember("username") || ! d.HasMember("password")) {
         spdlog::warn("[login_request] deserialize failed");
+        return nullopt;
+    }
+
+    if(d["type"].GetString() != type) {
+        spdlog::warn("[login_request] deserialize failed wrong type");
         return nullopt;
     }
 

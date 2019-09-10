@@ -23,6 +23,8 @@
 using namespace lotr;
 using namespace rapidjson;
 
+string const generic_error_response::type = "error_response";
+
 generic_error_response::generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept
 : error(move(error)), pretty_error_name(move(pretty_error_name)),  pretty_error_description(move(pretty_error_description)), clear_login_data(clear_login_data) {
 
@@ -33,6 +35,9 @@ string generic_error_response::serialize() const {
     Writer<StringBuffer> writer(sb);
 
     writer.StartObject();
+
+    writer.String("type");
+    writer.String(type.c_str(), type.size());
 
     writer.String("error");
     writer.String(error.c_str(), error.size());
@@ -51,11 +56,17 @@ string generic_error_response::serialize() const {
 }
 
 optional<generic_error_response> generic_error_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("error") ||
+    if (!d.HasMember("type") ||
+        !d.HasMember("error") ||
         !d.HasMember("prettyErrorName") ||
         !d.HasMember("prettyErrorDesc") ||
         !d.HasMember("clearLoginData")) {
         spdlog::warn("[generic_error_response] deserialize failed");
+        return nullopt;
+    }
+
+    if(d["type"].GetString() != type) {
+        spdlog::warn("[generic_error_response] deserialize failed wrong type");
         return nullopt;
     }
 

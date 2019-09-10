@@ -19,7 +19,7 @@
 #include <catch2/catch.hpp>
 #include <spdlog/spdlog.h>
 #include "test_helpers/startup_helper.h"
-#include "../src/fov.h"
+#include "game_logic/fov.h"
 #include <ecs/components.h>
 
 using namespace std;
@@ -40,7 +40,7 @@ TEST_CASE("fov tests") {
         map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
         map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
 
-        map_component m(map_size, map_size, "test"s, {}, map_layers);
+        map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
         auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
 
@@ -70,7 +70,7 @@ TEST_CASE("fov tests") {
         map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
         map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
 
-        map_component m(map_size, map_size, "test"s, {}, map_layers);
+        map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
         auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
 
@@ -108,7 +108,7 @@ TEST_CASE("fov tests") {
         map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
         map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
 
-        map_component m(map_size, map_size, "test"s, {}, map_layers);
+        map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
         auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
 
@@ -139,7 +139,7 @@ TEST_CASE("fov tests") {
         map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
         map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
 
-        map_component m(map_size, map_size, "test"s, {}, map_layers);
+        map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
         auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
 
@@ -162,7 +162,7 @@ TEST_CASE("fov tests") {
         map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
         map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
 
-        map_component m(map_size, map_size, "test"s, {}, map_layers);
+        map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
         auto fov = compute_fov_restrictive_shadowcasting(m, 0, 0, false);
         bitset<power(fov_diameter)> check_fov("111110000111110000111110000111110000111110000000000000000000000000000000000000000"s);

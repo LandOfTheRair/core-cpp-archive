@@ -33,7 +33,22 @@ using namespace lotr;
 
 uint32_t spawner_id_counter = 0;
 
-optional<spawner_script> get_spawner_script(string const &script_file) {
+optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current_object, uint32_t x, uint32_t y) {
+    spawner_script script;
+
+    script.id = spawner_id_counter++;
+    script.leash_radius = -1;
+    script.initial_spawn = 1;
+    script.max_creatures = 1;
+    script.spawn_radius = 0;
+    script.npc_ids.emplace_back(1, current_object["name"].GetString());
+    script.x = x;
+    script.y = y;
+
+    return script;
+}
+
+optional<spawner_script> get_spawner_script(string const &script_file, uint32_t x, uint32_t y) {
     string actual_script_file = fmt::format("assets/scripts/spawners/{}.yml", script_file);
     spawner_script script;
 
@@ -54,6 +69,8 @@ optional<spawner_script> get_spawner_script(string const &script_file) {
     script.spawn_radius = tree["spawnRadius"].as<uint32_t>();
     script.random_walk_radius = tree["randomWalkRadius"].as<uint32_t>();
     script.leash_radius = tree["leashRadius"].as<uint32_t>();
+    script.x = x;
+    script.y = y;
 
     SPAWN_UINT_FIELD(elite_tick_cap)
     SPAWN_UINT_FIELD(max_spawn)
@@ -125,6 +142,7 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
     uint32_t tilewidth = d["tilewidth"].GetUint();
     uint32_t tileheight = d["tileheight"].GetUint();
     string map_name = filesystem::path(file).filename();
+    map_name = map_name.substr(0, map_name.size() - 5);
 
     vector<map_layer> map_layers;
     auto& json_layers = d["layers"];
@@ -172,9 +190,11 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
                 }
 
                 optional<spawner_script> spawn_script;
+                uint32_t x = current_object["x"].GetUint() / tilewidth;
+                uint32_t y = (current_object["y"].GetUint() - tileheight) / tileheight; // something weird about tiled putting an object at offset Y coords
                 auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "script";});
-                if(current_layer_name == "Spawners" && object_script_property != end(object_properties)) {
-                    spawn_script = get_spawner_script(get<string>(object_script_property->value));
+                if((current_layer_name == spawners_layer_name) && object_script_property != end(object_properties)) {
+                    spawn_script = get_spawner_script(get<string>(object_script_property->value), x, y);
 
                     auto object_resource_name_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "resourceName";});
                     if(object_resource_name_property != end(object_properties)) {
@@ -182,10 +202,13 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
                     }
                 }
 
-                uint32_t x = current_object["x"].GetUint() / tilewidth;
-                uint32_t y = current_object["y"].GetUint() / tileheight;
+                if(current_layer_name == npcs_layer_name) {
+                    spawn_script = create_spawner_script_for_npc(current_object, x, y);
+                    spdlog::trace("[{}] npc {} assigned spawner", __FUNCTION__, current_object["name"].GetString());
+                }
+
                 objects[x + y * width] = map_object(gid, current_object["id"].GetUint(),
-                        current_object["x"].GetUint(), current_object["y"].GetUint(), current_object["width"].GetUint(),
+                        x, y, current_object["width"].GetUint(),
                         current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script);
             }
             map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["name"].GetString(), current_layer["type"].GetString(),
@@ -193,9 +216,19 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
         }
     }
 
+    auto& json_tilesets = d["tilesets"];
+    vector<map_tileset> map_tilesets;
+
+    for(SizeType i = 0; i < json_tilesets.Size(); i++) {
+        auto& current_tileset = json_tilesets[i];
+        spdlog::trace("[{}] tileset {}: {}", __FUNCTION__, i, current_tileset["name"].GetString());
+
+        map_tilesets.emplace_back(current_tileset["firstgid"].GetUint(), current_tileset["name"].GetString());
+    }
+
     vector<map_property> map_properties = get_properties(d["properties"]);
 
     spdlog::trace("[{}] map {} {} {}", __FUNCTION__, width, height, map_name);
-    return make_optional<map_component>(width, height, move(map_name), move(map_properties), move(map_layers));
+    return make_optional<map_component>(width, height, move(map_name), move(map_properties), move(map_layers), move(map_tilesets));
 }
 

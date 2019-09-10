@@ -17,8 +17,8 @@
 */
 
 #include <catch2/catch.hpp>
-#include "test_helpers/startup_helper.h"
-#include "../src/repositories/locations_repository.h"
+#include "../test_helpers/startup_helper.h"
+#include "repositories/locations_repository.h"
 
 using namespace std;
 using namespace lotr;

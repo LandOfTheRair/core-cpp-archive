@@ -16,34 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <string>
-#include <vector>
-#include <optional>
-#include <rapidjson/document.h>
-
-using namespace std;
+#include "messages.h"
+#include <ecs/components.h>
 
 namespace lotr {
-    struct character_component;
+    player_enter_message::player_enter_message(string character_name, string map_name, vector <stat_component> player_stats, uint64_t connection_id, uint32_t x, uint32_t y)
+            : queue_message(1), character_name(move(character_name)), map_name(move(map_name)), player_stats(move(player_stats)), connection_id(connection_id),
+              x(x), y(y) {}
 
-    struct characters_visible {
-        string name;
-    };
-
-    struct map_update_response {
-        map_update_response(vector<character_component> npcs) noexcept;
-
-        ~map_update_response() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<map_update_response> deserialize(rapidjson::Document const &d);
-
-        vector<character_component> npcs;
-
-        static string const type;
-    };
+    player_leave_message::player_leave_message(string character_name)
+            : queue_message(2), character_name(move(character_name)) {}
 }

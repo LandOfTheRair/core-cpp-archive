@@ -39,5 +39,7 @@ namespace lotr {
         string pretty_error_name;
         string pretty_error_description;
         bool clear_login_data;
+
+        static string const type;
     };
 }

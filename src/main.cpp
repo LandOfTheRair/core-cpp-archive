@@ -27,6 +27,10 @@
 #include <entt/entt.hpp>
 #include <asset_loading/load_assets.h>
 #include <game_logic/logic_helpers.h>
+#include <readerwriterqueue.h>
+#include <sodium.h>
+#include <messages/map_update_response.h>
+#include <range/v3/all.hpp>
 
 #include "config.h"
 #include "logger_init.h"
@@ -60,18 +64,23 @@ int main() {
         }
         config = config_opt.value();
     } catch (const exception& e) {
-        spdlog::error("[main] config.json file is malformed json.");
+        spdlog::error("[{}] config.json file is malformed json.", __FUNCTION__);
         return 1;
     }
 
     if(!filesystem::exists("logs")) {
         if(!filesystem::create_directory("logs")) {
-            spdlog::error("Fatal error creating logs directory");
-            return -1;
+            spdlog::error("[{}] Fatal error creating logs directory", __FUNCTION__);
+            return 1;
         }
     }
 
     reconfigure_logger(config);
+
+    if(sodium_init() != 0) {
+        spdlog::error("[{}] sodium init failure", __FUNCTION__);
+        return 1;
+    }
 
     auto pool = make_shared<database_pool>();
     pool->create_connections(config.connection_string, 1);
@@ -89,6 +98,7 @@ int main() {
 
     load_assets(registry, quit);
 
+    lotr_flat_map<uint32_t, moodycamel::ReaderWriterQueue<map_update_response>> per_player_map_update_queue;
     vector<uint64_t> frame_times;
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);
     auto next_log_tick_times = chrono::system_clock::now() + chrono::seconds(1);
@@ -100,7 +110,69 @@ int main() {
         }
         spdlog::trace("[{}] starting tick", __FUNCTION__);
         auto tick_start = chrono::system_clock::now();
+
         auto map_view = registry.view<map_component>();
+        unique_ptr<queue_message> msg;
+        while(game_loop_queue.try_dequeue(msg)) {
+            spdlog::trace("[{}] got game loop msg with type {}", __FUNCTION__, msg->type);
+            // TODO figure out something better than this ugly hack
+            if(msg->type == 1) {
+                auto *enter_msg = dynamic_cast<player_enter_message*>(msg.get());
+
+                if(enter_msg == nullptr) {
+                    spdlog::error("[{}] enter_message nullptr", __FUNCTION__);
+                    break;
+                }
+
+                spdlog::info("[{}] player enter message {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y);
+
+                for(auto m_entity : map_view) {
+                    map_component &m = map_view.get(m_entity);
+
+                    if(m.name != enter_msg->map_name) {
+                        continue;
+                    }
+
+                    pc_component pc{};
+                    pc.name = enter_msg->character_name;
+                    pc.x = enter_msg->x;
+                    pc.y = enter_msg->y;
+                    pc.connection_id = enter_msg->connection_id;
+
+                    if(pc.x >= m.width || pc.y >= m.height) {
+                        spdlog::error("[{}] player enter wrong coordinates {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y);
+                        break;
+                    }
+
+                    for(auto &stat : enter_msg->player_stats) {
+                        pc.stats[stat.name] = stat.value;
+                    }
+
+                    m.players.emplace_back(pc);
+
+                    spdlog::info("[{}] player {} entered game", __FUNCTION__, pc.name);
+                    break;
+                }
+            }
+
+            else if(msg->type == 2) {
+                auto *leave_message = dynamic_cast<player_leave_message*>(msg.get());
+
+                if(leave_message == nullptr) {
+                    spdlog::error("[{}] leave_message nullptr", __FUNCTION__);
+                    break;
+                }
+
+                for(auto m_entity : map_view) {
+                    map_component &m = map_view.get(m_entity);
+                    m.players.erase(remove_if(begin(m.players), end(m.players), [&](pc_component const &pc) { return pc.name == leave_message->character_name; }), end(m.players));
+                }
+
+                spdlog::info("[{}] player {} left game", __FUNCTION__, leave_message->character_name);
+            }
+        }
+
+
         for(auto m_entity : map_view) {
             map_component &m = map_view.get(m_entity);
             lotr_player_location_map player_location_map;
@@ -116,16 +188,45 @@ int main() {
                 }
 
                 player.fov = compute_fov_restrictive_shadowcasting(m, player.x, player.y, true);
+
+                auto min_x = max(0u, player.x - fov_max_distance);
+                auto min_y = max(0u, player.y - fov_max_distance);
+                auto max_x = min(m.width, player.x + fov_max_distance);
+                auto max_y = min(m.height, player.y + fov_max_distance);
+                // TODO fov?
+                auto visible_npcs = m.npcs | ranges::views::filter([&](npc_component const &npc){ return npc.x >= min_x && npc.x <= max_x && npc.y >= min_y && npc.y <= max_y; });
+                auto visible_pcs = m.players | ranges::views::filter([&](pc_component const &pc){ return pc.x >= min_x && pc.x <= max_x && pc.y >= min_y && pc.y <= max_y; });
+                vector<character_component> cs;
+
+                for(auto &npc : visible_npcs) {
+                    cs.push_back(npc);
+                }
+
+                spdlog::trace("[{}] Enqueued map update response with {} visible npcs", __FUNCTION__, cs.size());
+                per_player_map_update_queue[player.connection_id].enqueue(map_update_response{cs});
             }
 
             remove_dead_npcs(m.npcs);
-            fill_spawners(m.npcs, registry);
+            fill_spawners(m, m.npcs, registry);
         }
 
         auto tick_end = chrono::system_clock::now();
         frame_times.push_back(chrono::duration_cast<chrono::microseconds>(tick_end - tick_start).count());
         next_tick += chrono::milliseconds(config.tick_length);
         tick_counter++;
+
+        shit_uws.loop->defer([&] {
+            for(auto &[conn_id, q] : per_player_map_update_queue) {
+                auto conn = user_connections.find(conn_id);
+                if(conn != end(user_connections)) {
+                    map_update_response msg({});
+                    while(q.try_dequeue(msg)) {
+                        spdlog::trace("[main] sending map update response with {} visible npcs", msg.npcs.size());
+                        conn->second->send(msg.serialize());
+                    }
+                }
+            }
+        });
 
         if(config.log_tick_times && tick_end > next_log_tick_times) {
             spdlog::info("[{}] ticks {} - frame times max/avg/min: {} / {} / {} µs", __FUNCTION__, tick_counter,
@@ -139,6 +240,10 @@ int main() {
 
     spdlog::warn("[{}] quitting program", __FUNCTION__);
     shit_uws.loop->defer([&shit_uws] {
+        for(auto &[conn_id, ws] : user_connections) {
+            ws->end(0);
+        }
+
         us_listen_socket_close(0, shit_uws.socket);
     });
     uws_thread.join();
