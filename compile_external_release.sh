@@ -16,7 +16,7 @@ make clean
 make -j$CPUS
 
 cd $DIR/external/yaml-cpp
-cmake -DCMAKE_BUILD_TYPE=Release .
+cmake -DCMAKE_BUILD_TYPE=Release -DYAML_CPP_BUILD_CONTRIB=Off -DYAML_CPP_BUILD_TESTS=Off -DYAML_CPP_BUILD_TOOLS=Off .
 make clean
 make -j$CPUS
 
