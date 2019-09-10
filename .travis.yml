@@ -34,3 +34,7 @@ matrix:
       - ./compile_external_release.sh
       - cmake -DCMAKE_BUILD_TYPE=Release .
       - make
+    after_script:
+      - ssh-add - <<< "${SSH_KEY}"
+      - scp bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
+      - ssh lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'

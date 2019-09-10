@@ -1,8 +1,8 @@
 #!/bin/bash
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CPUS="$( grep -c ^processor /proc/cpuinfo )"
-export CFLAGS="-mavx -mavx2"
-export CXXFLAGS="-mavx -mavx2"
+export CFLAGS="-mavx"
+export CXXFLAGS="-mavx"
 
 cd $DIR/external/libsodium
 ./autogen.sh
