@@ -14,8 +14,18 @@ matrix:
   include:
   - os: linux
     compiler: gcc
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-9
+          - g++-9
+          - cmake
+          - binutils
     env:
       - MAKEFLAGS=-j2
     script:
-    - cmake -DCMAKE_BUILD_TYPE=Release .
-    - make
+      - gcc -v && g++ -v && cmake --version
+      - cmake -DCMAKE_BUILD_TYPE=Release .
+      - make
