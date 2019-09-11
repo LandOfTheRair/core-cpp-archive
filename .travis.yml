@@ -35,6 +35,7 @@ matrix:
       - cmake -DCMAKE_BUILD_TYPE=Release .
       - make
     after_script:
+      - eval "$(ssh-agent -s)"
       - ssh-add - <<< "${SSH_KEY}"
       - export TEMPFILE=$(mktemp)
       - echo "$SSH_KNOWN_HOSTS" > $TEMPFILE
