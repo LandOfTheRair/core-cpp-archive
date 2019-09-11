@@ -18,7 +18,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # only support linux/g++ for now
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXXH_STATIC_LINKING_ONLY -DRAPIDJSON_SSE42 -DSPDLOG_COMPILED_LIB -DCATCH_CONFIG_FAST_COMPILE -DSPDLOG_NO_EXCEPTIONS -Wall -Wextra -Wno-unused-variable -Wno-long-long -Wno-unused-parameter -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -pedantic -std=c++2a ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXXH_STATIC_LINKING_ONLY -DRAPIDJSON_SSE42 -DSPDLOG_COMPILED_LIB -DCATCH_CONFIG_FAST_COMPILE -DSPDLOG_NO_EXCEPTIONS -Wall -Wextra -Wno-unused-variable -Wno-long-long -Wno-unused-parameter -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -pedantic -std=c++17 ")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -ggdb -mavx")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG -mavx")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -ggdb -O2 -mavx")
@@ -89,6 +89,7 @@ target_link_libraries(lotr_backend PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_backend PUBLIC ${SODIUM_LIBRARY})
 target_link_libraries(lotr_backend PUBLIC ${XXHASH_LIBRARY})
 target_link_libraries(lotr_backend PUBLIC ${YAML_LIBRARY})
+target_link_libraries(lotr_backend PUBLIC -static-libgcc -static-libstdc++)
 
 target_link_libraries(lotr_test PUBLIC ${PQXX_LIBRARY} -lpq)
 target_link_libraries(lotr_test PUBLIC -lpthread -lstdc++fs)
@@ -97,6 +98,7 @@ target_link_libraries(lotr_test PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_test PUBLIC ${SODIUM_LIBRARY})
 target_link_libraries(lotr_test PUBLIC ${XXHASH_LIBRARY})
 target_link_libraries(lotr_test PUBLIC ${YAML_LIBRARY})
+target_link_libraries(lotr_test PUBLIC -static-libgcc -static-libstdc++)
 
 target_link_libraries(lotr_benchmark PUBLIC ${PQXX_LIBRARY} -lpq)
 target_link_libraries(lotr_benchmark PUBLIC -lpthread -lstdc++fs)
@@ -105,6 +107,7 @@ target_link_libraries(lotr_benchmark PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(lotr_benchmark PUBLIC ${SODIUM_LIBRARY})
 target_link_libraries(lotr_benchmark PUBLIC ${XXHASH_LIBRARY})
 target_link_libraries(lotr_benchmark PUBLIC ${YAML_LIBRARY})
+target_link_libraries(lotr_benchmark PUBLIC -static-libgcc -static-libstdc++)
 
 
 add_custom_command(
