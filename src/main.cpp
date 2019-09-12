@@ -30,6 +30,8 @@
 #include <readerwriterqueue.h>
 #include <sodium.h>
 #include <messages/map_update_response.h>
+#include <game_queue_message_handlers/player_enter_message_handler.h>
+#include <game_queue_message_handlers/player_leave_message_handler.h>
 #include <range/v3/all.hpp>
 
 #include "config.h"
@@ -103,6 +105,11 @@ int main() {
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);
     auto next_log_tick_times = chrono::system_clock::now() + chrono::seconds(1);
     uint32_t tick_counter = 0;
+
+    lotr_flat_map<uint32_t, function<void(queue_message*, entt::registry&)>> game_queue_message_router;
+    game_queue_message_router.emplace(player_enter_message::_type, handle_player_enter_message);
+    game_queue_message_router.emplace(player_leave_message::_type, handle_player_leave_message);
+
     while (!quit) {
         auto now = chrono::system_clock::now();
         if(now < next_tick) {
@@ -112,63 +119,12 @@ int main() {
         auto tick_start = chrono::system_clock::now();
 
         auto map_view = registry.view<map_component>();
-        unique_ptr<queue_message> msg;
-        while(game_loop_queue.try_dequeue(msg)) {
-            spdlog::trace("[{}] got game loop msg with type {}", __FUNCTION__, msg->type);
-            // TODO figure out something better than this ugly hack
-            if(msg->type == 1) {
-                auto *enter_msg = dynamic_cast<player_enter_message*>(msg.get());
 
-                if(enter_msg == nullptr) {
-                    spdlog::error("[{}] enter_message nullptr", __FUNCTION__);
-                    break;
-                }
-
-                spdlog::info("[{}] player enter message {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y);
-
-                for(auto m_entity : map_view) {
-                    map_component &m = map_view.get(m_entity);
-
-                    if(m.name != enter_msg->map_name) {
-                        continue;
-                    }
-
-                    pc_component pc{};
-                    pc.name = enter_msg->character_name;
-                    pc.x = enter_msg->x;
-                    pc.y = enter_msg->y;
-                    pc.connection_id = enter_msg->connection_id;
-
-                    if(pc.x >= m.width || pc.y >= m.height) {
-                        spdlog::error("[{}] player enter wrong coordinates {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y);
-                        break;
-                    }
-
-                    for(auto &stat : enter_msg->player_stats) {
-                        pc.stats[stat.name] = stat.value;
-                    }
-
-                    m.players.emplace_back(pc);
-
-                    spdlog::info("[{}] player {} entered game", __FUNCTION__, pc.name);
-                    break;
-                }
-            }
-
-            else if(msg->type == 2) {
-                auto *leave_message = dynamic_cast<player_leave_message*>(msg.get());
-
-                if(leave_message == nullptr) {
-                    spdlog::error("[{}] leave_message nullptr", __FUNCTION__);
-                    break;
-                }
-
-                for(auto m_entity : map_view) {
-                    map_component &m = map_view.get(m_entity);
-                    m.players.erase(remove_if(begin(m.players), end(m.players), [&](pc_component const &pc) { return pc.name == leave_message->character_name; }), end(m.players));
-                }
-
-                spdlog::info("[{}] player {} left game", __FUNCTION__, leave_message->character_name);
+        {
+            unique_ptr<queue_message> msg;
+            while (game_loop_queue.try_dequeue(msg)) {
+                spdlog::trace("[{}] got game loop msg with type {}", __FUNCTION__, msg->type);
+                game_queue_message_router[msg->type](msg.get(), registry);
             }
         }
 

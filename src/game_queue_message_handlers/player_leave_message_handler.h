@@ -16,17 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "messages.h"
-#include <ecs/components.h>
+#pragma once
+
+#include <game_queue_messages/messages.h>
+#include <entt/entt.hpp>
+
+using namespace std;
 
 namespace lotr {
-    uint32_t const player_enter_message::_type = 1;
-    uint32_t const player_leave_message::_type = 2;
-
-    player_enter_message::player_enter_message(string character_name, string map_name, vector <stat_component> player_stats, uint64_t connection_id, uint32_t x, uint32_t y)
-            : queue_message(_type), character_name(move(character_name)), map_name(move(map_name)), player_stats(move(player_stats)), connection_id(connection_id),
-              x(x), y(y) {}
-
-    player_leave_message::player_leave_message(string character_name)
-            : queue_message(_type), character_name(move(character_name)) {}
+    void handle_player_leave_message(queue_message*, entt::registry&);
 }
