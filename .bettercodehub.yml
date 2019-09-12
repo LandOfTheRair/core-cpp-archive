@@ -1,11 +1,10 @@
-exclude:
-- /external
-- /external/.*
 languages:
 - cpp
   production:
     exclude:
       - /test/.*\.cpp
+      - /external
+      - /external/.*
   test:
     include:
       - /test/.*\.cpp
