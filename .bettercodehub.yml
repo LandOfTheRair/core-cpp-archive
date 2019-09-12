@@ -1,11 +1,11 @@
 component_depth: 3
 languages:
-- name: cpp
+- name: "cpp"
   production:
     exclude:
-      - /test/.*\.cpp
-      - /external
-      - /external/.*
+    - .*/test/.*\.cpp
+    - .*/external.*
+    - .*/external/.*
   test:
     include:
-      - /test/.*\.cpp
+    - .*/test/.*\.cpp
