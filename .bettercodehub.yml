@@ -3,4 +3,10 @@ exclude:
 - /external/.*
 languages:
 - cpp
-component_depth: 2
+  production:
+    exclude:
+      - /test/.*\.cpp
+  test:
+    include:
+      - /test/.*\.cpp
+component_depth: 3
