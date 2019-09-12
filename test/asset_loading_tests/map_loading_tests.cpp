@@ -120,7 +120,13 @@ TEST_CASE("map_loading tests") {
 
     map_file.close();
 
-    auto map = load_map_from_file("test_map.json");
+    entt::registry registry;
+    auto gnpc_entity = registry.create();
+    global_npc_component gnpc;
+    gnpc.npc_id = "Tutorial Townee";
+    registry.assign<global_npc_component>(gnpc_entity, gnpc);
+
+    auto map = load_map_from_file("test_map.json", registry);
     REQUIRE(map);
     REQUIRE(map->name == "test_map"s);
     REQUIRE(map->width == 48);
@@ -188,7 +194,7 @@ TEST_CASE("map_loading tests") {
 
     REQUIRE(object.script);
     REQUIRE(object.script->npc_ids.size() == 1);
-    REQUIRE(object.script->npc_ids[0].name == "Tutorial Townee");
+    REQUIRE(object.script->npc_ids[0].npc_id == "Tutorial Townee");
     REQUIRE(object.script->npc_ids[0].chance == 1);
     REQUIRE(object.script->respawn_rate == 15);
     REQUIRE(object.script->initial_spawn == 2);

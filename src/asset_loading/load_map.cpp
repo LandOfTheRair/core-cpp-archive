@@ -22,6 +22,8 @@
 #include <yaml-cpp/yaml.h>
 #include <working_directory_manipulation.h>
 #include "spdlog/spdlog.h"
+#include <range/v3/view/remove_if.hpp>
+#include <entt/entity/registry.hpp>
 
 using namespace std;
 using namespace rapidjson;
@@ -33,7 +35,7 @@ using namespace lotr;
 
 uint32_t spawner_id_counter = 0;
 
-optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current_object, uint32_t x, uint32_t y) {
+optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current_object, uint32_t x, uint32_t y, uint32_t first_gid) {
     spawner_script script;
 
     script.id = spawner_id_counter++;
@@ -41,14 +43,19 @@ optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current
     script.initial_spawn = 1;
     script.max_creatures = 1;
     script.spawn_radius = 0;
-    script.npc_ids.emplace_back(1, current_object["name"].GetString());
     script.x = x;
     script.y = y;
+
+    script.npc_ids.emplace_back(1, current_object["name"].GetString());
+    script.npc_ids[0].sprite.push_back(current_object["gid"].GetUint() - first_gid);
+    for(auto &stat : stats) {
+        script.npc_ids[0].stats.emplace_back(stat, 10);
+    }
 
     return script;
 }
 
-optional<spawner_script> get_spawner_script(string const &script_file, uint32_t x, uint32_t y) {
+optional<spawner_script> get_spawner_script(string const &script_file, uint32_t x, uint32_t y, entt::registry &registry) {
     string actual_script_file = fmt::format("assets/scripts/spawners/{}.yml", script_file);
     spawner_script script;
 
@@ -83,10 +90,18 @@ optional<spawner_script> get_spawner_script(string const &script_file, uint32_t 
     SPAWN_BOOL_FIELD(do_initial_spawn_immediately)
 
     for(auto const &kv : tree["npcIds"]) {
-        auto npc_name = kv["name"].as<string>();
+        auto npc_id = kv["name"].as<string>();
         auto chance = kv["chance"].as<uint32_t>();
-        spdlog::trace("[{}] npc id {} {}", __FUNCTION__, npc_name, chance);
-        script.npc_ids.emplace_back(chance, npc_name);
+        spdlog::trace("[{}] npc id {} {}", __FUNCTION__, npc_id, chance);
+
+        auto gnpc = lotr::get_global_npc_by_npc_id(registry, npc_id);
+
+        if(gnpc == nullptr) {
+            spdlog::error("[{}] npc id {} not found in global npcs", __FUNCTION__, npc_id);
+            continue;
+        }
+
+        script.npc_ids.emplace_back(chance, *gnpc);
     }
 
     for(auto const &kv : tree["paths"]) {
@@ -121,7 +136,7 @@ vector<map_property> get_properties(Value const &properties) {
     return object_properties;
 }
 
-optional<map_component> lotr::load_map_from_file(const string &file) {
+optional<map_component> lotr::load_map_from_file(const string &file, entt::registry &registry) {
     spdlog::debug("[{}] Loading load_map {}", __FUNCTION__, file);
     auto env_contents = read_whole_file(file);
 
@@ -143,6 +158,16 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
     uint32_t tileheight = d["tileheight"].GetUint();
     string map_name = filesystem::path(file).filename();
     map_name = map_name.substr(0, map_name.size() - 5);
+
+    auto& json_tilesets = d["tilesets"];
+    vector<map_tileset> map_tilesets;
+
+    for(SizeType i = 0; i < json_tilesets.Size(); i++) {
+        auto& current_tileset = json_tilesets[i];
+        spdlog::trace("[{}] tileset {}: {}", __FUNCTION__, i, current_tileset["name"].GetString());
+
+        map_tilesets.emplace_back(current_tileset["firstgid"].GetUint(), current_tileset["name"].GetString());
+    }
 
     vector<map_layer> map_layers;
     auto& json_layers = d["layers"];
@@ -194,16 +219,24 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
                 uint32_t y = (current_object["y"].GetUint() - tileheight) / tileheight; // something weird about tiled putting an object at offset Y coords
                 auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "script";});
                 if((current_layer_name == spawners_layer_name) && object_script_property != end(object_properties)) {
-                    spawn_script = get_spawner_script(get<string>(object_script_property->value), x, y);
+                    spawn_script = get_spawner_script(get<string>(object_script_property->value), x, y, registry);
 
                     auto object_resource_name_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "resourceName";});
                     if(object_resource_name_property != end(object_properties)) {
-                        spawn_script->npc_ids.emplace_back(1, object_resource_name_property->name);
+                        auto gnpc = lotr::get_global_npc_by_npc_id(registry, get<string>(object_resource_name_property->value));
+
+                        if(gnpc != nullptr) {
+                            spawn_script->npc_ids.emplace_back(1, *gnpc);
+                        } else {
+                            spdlog::error("[{}] npc id {} not found in global npcs", __FUNCTION__, get<string>(object_resource_name_property->value));
+                        }
                     }
                 }
 
                 if(current_layer_name == npcs_layer_name) {
-                    spawn_script = create_spawner_script_for_npc(current_object, x, y);
+                    auto test = map_tilesets | ranges::views::remove_if([&](map_tileset const &t){ return t.firstgid > current_object["gid"].GetUint(); });
+
+                    spawn_script = create_spawner_script_for_npc(current_object, x, y, test.back().firstgid);
                     spdlog::trace("[{}] npc {} assigned spawner", __FUNCTION__, current_object["name"].GetString());
                 }
 
@@ -214,16 +247,6 @@ optional<map_component> lotr::load_map_from_file(const string &file) {
             map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["name"].GetString(), current_layer["type"].GetString(),
                                     move(objects), vector<uint32_t>{});
         }
-    }
-
-    auto& json_tilesets = d["tilesets"];
-    vector<map_tileset> map_tilesets;
-
-    for(SizeType i = 0; i < json_tilesets.Size(); i++) {
-        auto& current_tileset = json_tilesets[i];
-        spdlog::trace("[{}] tileset {}: {}", __FUNCTION__, i, current_tileset["name"].GetString());
-
-        map_tilesets.emplace_back(current_tileset["firstgid"].GetUint(), current_tileset["name"].GetString());
     }
 
     vector<map_property> map_properties = get_properties(d["properties"]);

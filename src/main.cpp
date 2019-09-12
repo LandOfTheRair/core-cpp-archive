@@ -150,8 +150,8 @@ int main() {
                 auto max_x = min(m.width, player.x + fov_max_distance);
                 auto max_y = min(m.height, player.y + fov_max_distance);
                 // TODO fov?
-                auto visible_npcs = m.npcs | ranges::views::filter([&](npc_component const &npc){ return npc.x >= min_x && npc.x <= max_x && npc.y >= min_y && npc.y <= max_y; });
-                auto visible_pcs = m.players | ranges::views::filter([&](pc_component const &pc){ return pc.x >= min_x && pc.x <= max_x && pc.y >= min_y && pc.y <= max_y; });
+                auto visible_npcs = m.npcs | ranges::views::filter([&](npc_component const &npc){ return npc.x >= min_x && npc.x <= max_x && npc.y >= min_y && npc.y <= max_y && player.fov[player.x - npc.x + fov_max_distance + ((npc.y - player.y + fov_max_distance) * fov_diameter)] == true; });
+                auto visible_pcs = m.players | ranges::views::filter([&](pc_component const &pc){ return pc.x >= min_x && pc.x <= max_x && pc.y >= min_y && pc.y <= max_y && player.fov[player.x - pc.x + fov_max_distance + ((pc.y - player.y + fov_max_distance) * fov_diameter)] == true; });
                 vector<character_component> cs;
 
                 for(auto &npc : visible_npcs) {

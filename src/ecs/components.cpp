@@ -18,18 +18,90 @@
 
 #include "components.h"
 namespace  lotr {
-    array<string const, 38> const stats = {"str"s, "dex"s, "agi"s, "int"s, "wis"s, "wil"s, "luk"s, "cha"s, "con"s, "move"s, "hpregen"s, "mpregen"s, "hp"s, "mp"s,
-                                     "weaponDamageRolls"s, "weaponArmorClass"s, "armorClass"s, "accuracy"s, "offense"s, "defense"s, "stealth"s,
-                                     "perception"s, "physicalDamageBoost"s, "magicalDamageBoost"s, "healingBoost"s, "physicalDamageReflect"s,
-                                     "magicalDamageReflect"s, "mitigation"s, "magicalResist"s, "physicalResist"s, "necroticResist"s, "energyResist"s,
-                                     "waterResist"s, "fireResist"s, "iceResist"s, "poisonResist"s, "diseaseResist"s,
-                                     "actionSpeed"s/*, "damageFactor"s TODO damage factor is a double :< */};
-
-
     string const spawners_layer_name = "Spawners";
     string const npcs_layer_name = "NPCs";
     string const tile_layer_name = "tilelayer";
     string const object_layer_name = "objectgroup";
     string const wall_layer_name = "Walls"s;
     string const opaque_layer_name = "OpaqueDecor"s;
+
+    string const stat_str = "str";
+    string const stat_dex = "dex";
+    string const stat_agi = "agi";
+    string const stat_int = "int";
+    string const stat_wis = "wis";
+    string const stat_wil = "wil";
+    string const stat_luk = "luk";
+    string const stat_cha = "cha";
+    string const stat_con = "con";
+    string const stat_move = "move";
+    string const stat_hpregen = "hpregen";
+    string const stat_mpregen = "mpregen";
+    string const stat_hp = "hp";
+    string const stat_mp = "mp";
+    string const stat_hweapon_damage_rolls = "weaponDamageRolls";
+    string const stat_weapon_armor_class = "weaponArmorClass";
+    string const stat_armor_class = "armorClass";
+    string const stat_accuracy = "accuracy";
+    string const stat_offense = "offense";
+    string const stat_defense = "defense";
+    string const stat_stealth = "stealth";
+    string const stat_perception = "perception";
+    string const stat_physical_damage_boost = "physicalDamageBoost";
+    string const stat_magical_damage_boost = "magicalDamageBoost";
+    string const stat_healing_boost = "healingBoost";
+    string const stat_physical_damage_reflect = "physicalDamageReflect";
+    string const stat_magical_damage_reflect = "magicalDamageReflect";
+    string const stat_mitigation = "mitigation";
+    string const stat_magical_resist = "magicalResist";
+    string const stat_physical_resist = "physicalResist";
+    string const stat_necrotic_resist = "necroticResist";
+    string const stat_energy_resist = "energyResist";
+    string const stat_water_resist = "waterResist";
+    string const stat_fire_resist = "fireResist";
+    string const stat_ice_resist = "iceResist";
+    string const stat_poison_resist = "poisonResist";
+    string const stat_disease_resist = "diseaseResist";
+    string const stat_action_speed = "actionSpeed";
+    /*, "damageFactor"s TODO damage factor is a double :< */
+
+    array<string const, 38> const stats = {stat_str,  stat_dex,  stat_agi,  stat_int,  stat_wis,  stat_wil,  stat_luk,  stat_cha,  stat_con,  stat_move,
+                                           stat_hpregen,  stat_mpregen,  stat_hp,  stat_mp,  stat_hweapon_damage_rolls,  stat_weapon_armor_class,  stat_armor_class,
+                                           stat_accuracy,  stat_offense,  stat_defense, stat_stealth,  stat_perception,  stat_physical_damage_boost,  stat_magical_damage_boost,
+                                           stat_healing_boost,  stat_physical_damage_reflect,  stat_magical_damage_reflect,  stat_mitigation,  stat_magical_resist,
+                                           stat_physical_resist,  stat_necrotic_resist,  stat_energy_resist,  stat_water_resist,  stat_fire_resist,  stat_ice_resist,
+                                           stat_poison_resist,  stat_disease_resist,  stat_action_speed };
+
+
+    global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string &npc_id) {
+        auto gnpc_view = registry.view<global_npc_component>();
+
+        for(auto gnpc_entity : gnpc_view) {
+            global_npc_component &gnpc = gnpc_view.get(gnpc_entity);
+
+            if(gnpc.npc_id != npc_id) {
+                continue;
+            }
+
+            return &gnpc;
+        }
+
+        return nullptr;
+    }
+
+    map_component* get_map_by_name(entt::registry &registry, string &name) {
+        auto map_view = registry.view<map_component>();
+
+        for(auto m_entity : map_view) {
+            map_component &m = map_view.get(m_entity);
+
+            if(m.name != name) {
+                continue;
+            }
+
+            return &m;
+        }
+
+        return nullptr;
+    }
 }

@@ -25,6 +25,7 @@
 #include <optional>
 #include <lotr_flat_map.h>
 #include <game_logic/fov.h>
+#include <entt/entity/registry.hpp>
 
 using namespace std;
 
@@ -107,11 +108,62 @@ namespace lotr {
         uint32_t y;
     };*/
 
+    struct global_npc_component {
+        string name;
+        string npc_id;
+        string allegiance;
+        string alignment;
+        string sex;
+        string dir;
+        string hostility;
+        string character_class;
+        string monster_class;
+        string spawn_message;
+        string sfx;
+
+        uint32_t level;
+        uint32_t highest_level;
+        vector<uint32_t> sprite;
+        uint32_t skill_on_kill;
+        uint32_t sfx_max_chance;
+
+        vector<stat_component> stats;
+        vector<random_stat_component> random_stats;
+        vector<item_component> items;
+        vector<skill_component> skills;
+        //location_component location;
+    };
+
     struct spawner_npc_id {
         uint32_t chance;
-        string name;
+        string npc_id;
+        string allegiance;
+        string alignment;
+        string sex;
+        string dir;
+        string hostility;
+        string character_class;
+        string monster_class;
+        string spawn_message;
+        string sfx;
 
-        spawner_npc_id(uint32_t chance, string name) : chance(chance), name(move(name)) {}
+        uint32_t level;
+        uint32_t highest_level;
+        vector<uint32_t> sprite;
+        uint32_t skill_on_kill;
+        uint32_t sfx_max_chance;
+
+        vector<stat_component> stats;
+        vector<random_stat_component> random_stats;
+        vector<item_component> items;
+        vector<skill_component> skills;
+
+        spawner_npc_id(uint32_t chance, string npc_id) : chance(chance), npc_id(npc_id) {}
+        spawner_npc_id(uint32_t chance, global_npc_component const &npc)
+        : chance(chance), npc_id(npc.npc_id), allegiance(npc.allegiance), alignment(npc.alignment), sex(npc.sex), dir(npc.dir), hostility(npc.hostility),
+        character_class(npc.character_class), monster_class(npc.monster_class), spawn_message(npc.spawn_message), sfx(npc.sfx), level(npc.level), highest_level(npc.highest_level),
+        sprite(npc.sprite), skill_on_kill(npc.skill_on_kill), sfx_max_chance(npc.sfx_max_chance), stats(npc.stats), random_stats(npc.random_stats), items(npc.items),
+        skills(npc.skills) {}
     };
 
     struct spawner_script {
@@ -196,32 +248,6 @@ namespace lotr {
         npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr) {}
     };
 
-    struct global_npc_component {
-        string name;
-        string npc_id;
-        string allegiance;
-        string alignment;
-        string sex;
-        string dir;
-        string hostility;
-        string character_class;
-        string monster_class;
-        string spawn_message;
-        string sfx;
-
-        uint32_t level;
-        uint32_t highest_level;
-        vector<uint32_t> sprite;
-        uint32_t skill_on_kill;
-        uint32_t sfx_max_chance;
-
-        vector<stat_component> stats;
-        vector<random_stat_component> random_stats;
-        vector<item_component> items;
-        vector<skill_component> skills;
-        //location_component location;
-    };
-
     struct user_component {
         string name;
         string email;
@@ -296,6 +322,11 @@ namespace lotr {
             : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), tilesets(move(tilesets)), npcs(), players() {}
     };
 
+    // helper functions
+
+    global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string &npc_id);
+    map_component* get_map_by_name(entt::registry &registry, string &name);
+
     // constants
 
     extern string const spawners_layer_name;
@@ -304,5 +335,44 @@ namespace lotr {
     extern string const object_layer_name;
     extern string const wall_layer_name;
     extern string const opaque_layer_name;
+
+    extern string const stat_str;
+    extern string const stat_dex;
+    extern string const stat_agi;
+    extern string const stat_int;
+    extern string const stat_wis;
+    extern string const stat_wil;
+    extern string const stat_luk;
+    extern string const stat_cha;
+    extern string const stat_con;
+    extern string const stat_move;
+    extern string const stat_hpregen;
+    extern string const stat_mpregen;
+    extern string const stat_hp;
+    extern string const stat_mp;
+    extern string const stat_hweapon_damage_rolls;
+    extern string const stat_weapon_armor_class;
+    extern string const stat_armor_class;
+    extern string const stat_accuracy;
+    extern string const stat_offense;
+    extern string const stat_defense;
+    extern string const stat_stealth;
+    extern string const stat_perception;
+    extern string const stat_physical_damage_boost;
+    extern string const stat_magical_damage_boost;
+    extern string const stat_healing_boost;
+    extern string const stat_physical_damage_reflect;
+    extern string const stat_magical_damage_reflect;
+    extern string const stat_mitigation;
+    extern string const stat_magical_resist;
+    extern string const stat_physical_resist;
+    extern string const stat_necrotic_resist;
+    extern string const stat_energy_resist;
+    extern string const stat_water_resist;
+    extern string const stat_fire_resist;
+    extern string const stat_ice_resist;
+    extern string const stat_poison_resist;
+    extern string const stat_disease_resist;
+    extern string const stat_action_speed;
 
 }

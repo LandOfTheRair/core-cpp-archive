@@ -20,10 +20,11 @@
 
 #include <optional>
 #include <ecs/components.h>
+#include <entt/entity/registry.hpp>
 
 using namespace std;
 
 namespace lotr {
     [[nodiscard]]
-    optional<map_component> load_map_from_file(const string &file);
+    optional<map_component> load_map_from_file(const string &file, entt::registry &registry);
 }

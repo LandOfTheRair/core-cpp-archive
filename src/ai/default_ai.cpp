@@ -67,7 +67,7 @@ void lotr::run_ai_on(npc_component &npc, map_component &m, lotr_player_location_
         }
     }
 
-    auto move_rate = npc.stats["move"];
+    auto move_rate = npc.stats[stat_move];
     auto num_steps = 0;
     if(move_rate > 0) {
         num_steps = lotr::random.generate_single(0, move_rate);

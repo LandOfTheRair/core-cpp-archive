@@ -73,7 +73,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
             continue;
         }
 
-        auto map = load_map_from_file(p.path().string());
+        auto map = load_map_from_file(p.path().string(), registry);
 
         if(!map) {
             continue;
@@ -91,6 +91,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
                 }
 
                 auto new_entity = registry.create();
+                spawner_script new_spawner;
                 global_npc_component gnpc{};
 
                 gnpc.name = npc.name;
@@ -138,19 +139,14 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
 
             for(uint32_t i = 0; i < spawner_object.script->initial_spawn; i++) {
                 spdlog::info("spawner_object {} has {} npc_ids", spawner_object.name, spawner_object.script->npc_ids.size());
-                auto random_npc_id = spawner_object.script->npc_ids[lotr::random.generate_single(0, spawner_object.script->npc_ids.size() - 1)].name;
-                registry.view<global_npc_component>().each([&](global_npc_component const &global_npc) noexcept {
-                    if(global_npc.npc_id != random_npc_id) {
-                        return;
-                    }
+                auto &random_npc_id = spawner_object.script->npc_ids[lotr::random.generate_single(0, spawner_object.script->npc_ids.size() - 1)];
 
-                    auto npc = create_npc(global_npc, m, &spawner_object.script.value());
+                auto npc = create_npc(random_npc_id, m, &spawner_object.script.value());
 
-                    if(npc) {
-                        m.npcs.emplace_back(move(*npc));
-                        entity_count++;
-                    }
-                });
+                if(npc) {
+                    m.npcs.emplace_back(move(*npc));
+                    entity_count++;
+                }
             }
         }
     });
@@ -175,19 +171,12 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
                 continue;
             }
 
-            spdlog::trace("Determining whether to create npc {} for map {}", npc_object.name, m.name);
-            registry.view<global_npc_component>().each([&](global_npc_component const &global_npc) noexcept {
-                if(global_npc.npc_id != npc_object.name) {
-                    return;
-                }
+            auto npc = create_npc(npc_object.script->npc_ids[0], m, &npc_object.script.value());
 
-                auto npc = create_npc(global_npc, m, &npc_object.script.value());
-
-                if(npc) {
-                    m.npcs.emplace_back(move(*npc));
-                    entity_count++;
-                }
-            });
+            if(npc) {
+                m.npcs.emplace_back(move(*npc));
+                entity_count++;
+            }
         }
     });
 
