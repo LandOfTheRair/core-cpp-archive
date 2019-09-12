@@ -1,5 +1,6 @@
+component_depth: 3
 languages:
-- cpp
+- name: cpp
   production:
     exclude:
       - /test/.*\.cpp
@@ -8,4 +9,3 @@ languages:
   test:
     include:
       - /test/.*\.cpp
-component_depth: 3
