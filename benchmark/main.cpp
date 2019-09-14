@@ -97,7 +97,7 @@ void bench_a_star(map_component const &m) {
     auto start_loc = make_tuple(10, 10);
     auto goal_loc = make_tuple(25, 25);
 
-    for(int i = 0; i < 1'000; i++) {
+    for(int i = 0; i < 100'000; i++) {
         a_star_path(m, start_loc, goal_loc);
     }
 

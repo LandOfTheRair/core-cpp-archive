@@ -47,7 +47,6 @@ TEST_CASE("a star tests") {
         auto start = make_tuple(1, 1);
         auto goal = make_tuple(9, 9);
 
-
         auto path = a_star_path(test_map, start, goal);
 
         auto &next = path[goal];
@@ -60,5 +59,45 @@ TEST_CASE("a star tests") {
         steps++;
 
         REQUIRE(steps == 8);
+    }
+
+    SECTION( "some objects" ) {
+        vector<map_layer> layers;
+        {
+            vector<map_object> objects;
+            vector<uint32_t> data;
+
+            for (uint32_t x = 0; x < 10; x++) {
+                for (uint32_t y = 0; y < 10; y++) {
+                    if((x == 4 || x == 5 || x == 6) && y == 5) {
+                        data.push_back(1);
+                    } else {
+                        data.push_back(0);
+                    }
+                    objects.emplace_back();
+                }
+            }
+
+            layers.emplace_back(0, 0, 10, 10, wall_layer_name, "", vector<map_object>{}, move(data));
+            layers.emplace_back(0, 0, 10, 10, opaque_layer_name, "", move(objects), vector<uint32_t>{});
+        }
+
+        map_component test_map(10, 10, "test", {}, move(layers), {});
+
+        auto start = make_tuple(1, 1);
+        auto goal = make_tuple(9, 9);
+
+        auto path = a_star_path(test_map, start, goal);
+
+        auto &next = path[goal];
+        int steps = 0;
+        while(next != start) {
+            REQUIRE(path.find(next) != end(path));
+            next = path[next];
+            steps++;
+        }
+        steps++;
+
+        REQUIRE(steps == 10);
     }
 }

@@ -70,6 +70,7 @@ array<location, 9> get_neighbours(map_component const &m, map_layer const *walls
             uint32_t c = x + y * walls_layer->width;
             if(walls_layer->data[c] == 0 && opaque_layer->objects[c].gid == 0) {
                 locs[counter] = make_tuple(x, y);
+                counter++;
             }
         }
     }
@@ -107,7 +108,7 @@ lotr_flat_map<location, location> lotr::a_star_path(map_component const &m, loca
             auto cost_so_far_it = cost_so_far.find(next);
             uint32_t new_cost = cost_so_far_it == end(cost_so_far) ? 1 : cost_so_far_it->second + 1;
 #ifdef EXTREME_A_STAR_LOGGING
-            spdlog::warn("[{}] next {}:{}:{}:{}", __FUNCTION__, get<0>(next), get<1>(next), no_cost_so_far, new_cost);
+            spdlog::warn("[{}] next {}:{}:{}:{}", __FUNCTION__, get<0>(next), get<1>(next), cost_so_far_it == end(cost_so_far), new_cost);
 #endif
             if (cost_so_far_it == end(cost_so_far) || new_cost < cost_so_far_it->second) {
                 cost_so_far[next] = new_cost;
