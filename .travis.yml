@@ -32,7 +32,7 @@ matrix:
     script:
       - gcc -v && g++ -v && cmake --version
       - ./compile_external_release.sh
-      - cmake -DCMAKE_BUILD_TYPE=Release .
+      - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo .
       - make
     after_script:
       - eval "$(ssh-agent -s)"
