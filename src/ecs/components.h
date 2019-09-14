@@ -240,8 +240,8 @@ namespace lotr {
         uint32_t y_before_interruption;
         bool is_path_interrupted;
 
-        lotr_flat_custom_map<string, uint64_t> stats;
-        lotr_flat_custom_map<string, item_component> items;
+        lotr_flat_map<string, uint64_t> stats;
+        lotr_flat_map<string, item_component> items;
         vector<skill_component> skills;
         //location_component location;
 

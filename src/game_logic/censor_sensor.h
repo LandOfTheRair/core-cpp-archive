@@ -45,7 +45,7 @@ namespace lotr {
         void disable_tier(uint32_t tier);
 
     private:
-        lotr_flat_custom_map<string, int> _word_tiers;
+        lotr_flat_map<string, int> _word_tiers;
         unordered_set<int> _enabled_tiers;
     };
 

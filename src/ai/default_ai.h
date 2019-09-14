@@ -24,7 +24,7 @@
 using namespace std;
 
 namespace lotr {
-    using lotr_player_location_map = lotr_flat_custom_map <tuple<uint64_t, uint64_t>, vector<pc_component*>>;
+    using lotr_player_location_map = lotr_flat_map <tuple<uint64_t, uint64_t>, vector<pc_component*>>;
 
     void run_ai_on(npc_component &npc, map_component &m, lotr_player_location_map const &player_location_map);
 }

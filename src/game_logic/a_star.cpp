@@ -58,9 +58,9 @@ uint32_t heuristic(location const &a, location const &b) noexcept {
     return abs(get<0>(a) - get<0>(b)) + abs(get<1>(a) - get<1>(b));
 }
 
-vector<location> get_neighbours(map_component const &m, map_layer const *walls_layer, map_layer const *opaque_layer, location const &loc) {
-    vector<location> locs;
-    locs.reserve(9);
+array<location, 9> get_neighbours(map_component const &m, map_layer const *walls_layer, map_layer const *opaque_layer, location const &loc) {
+    array<location, 9> locs{location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}};
+    uint32_t counter = 0;
 
     for(int32_t x = max(get<0>(loc) - 1, 0); x <= min(get<0>(loc) + 1, static_cast<int32_t >(m.width)); x++) {
         for(int32_t y = max(get<1>(loc) - 1, 0); y <= min(get<1>(loc) + 1, static_cast<int32_t >(m.height)); y++) {
@@ -69,7 +69,7 @@ vector<location> get_neighbours(map_component const &m, map_layer const *walls_l
 #endif
             uint32_t c = x + y * walls_layer->width;
             if(walls_layer->data[c] == 0 && opaque_layer->objects[c].gid == 0) {
-                locs.emplace_back(x, y);
+                locs[counter] = make_tuple(x, y);
             }
         }
     }
@@ -77,11 +77,11 @@ vector<location> get_neighbours(map_component const &m, map_layer const *walls_l
     return locs;
 }
 
-lotr_flat_custom_map<location, location> lotr::a_star_path(map_component const &m, location const &start, location const &goal) {
+lotr_flat_map<location, location> lotr::a_star_path(map_component const &m, location const &start, location const &goal) {
     uint32_t reserve_size = min(m.width, 8u) * min(m.height, 8u);
     a_star_priority_queue frontier(reserve_size);
-    lotr_flat_custom_map<location, location> came_from;
-    lotr_flat_custom_map<location, uint32_t> cost_so_far;
+    lotr_flat_map<location, location> came_from;
+    lotr_flat_map<location, uint32_t> cost_so_far;
     auto const walls_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == wall_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
     auto const opaque_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == opaque_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
 
@@ -100,6 +100,10 @@ lotr_flat_custom_map<location, location> lotr::a_star_path(map_component const &
         }
 
         for (auto next : get_neighbours(m, &*walls_layer, &*opaque_layer, current)) {
+            if(get<0>(next) == -1) {
+                break;
+            }
+
             auto cost_so_far_it = cost_so_far.find(next);
             uint32_t new_cost = cost_so_far_it == end(cost_so_far) ? 1 : cost_so_far_it->second + 1;
 #ifdef EXTREME_A_STAR_LOGGING

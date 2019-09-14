@@ -130,10 +130,10 @@ int main(int argc, char **argv) {
     entt::registry registry;
     auto m = load_map_from_file("assets/maps/antania/DedlaenMaze.json", registry).value();
 
-    //bench_censor_sensor();
-    //bench_fov(m);
-    //bench_hashing();
-    //bench_hash_verify();
+    bench_censor_sensor();
+    bench_fov(m);
+    bench_hashing();
+    bench_hash_verify();
     bench_a_star(m);
 
 }

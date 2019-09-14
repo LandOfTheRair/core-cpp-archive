@@ -32,7 +32,14 @@ namespace lotr {
     }
 
     template<class Key>
-    class xxhash_function;
+    class xxhash_function
+    {
+    public:
+        size_t operator()(Key t) const
+        {
+            return XXH3_64bits(&t, sizeof(t));
+        }
+    };
 
     template<>
     class xxhash_function<string>
@@ -70,7 +77,14 @@ namespace lotr {
     };
 
     template<class Key>
-    class custom_equalto;
+    class custom_equalto
+    {
+    public:
+        bool operator()(Key const &lhs, Key const &rhs) const
+        {
+            return lhs == rhs;
+        }
+    };
 
     template<>
     class custom_equalto<string>
@@ -113,7 +127,5 @@ namespace lotr {
     };
 
     template <typename Key, typename T>
-    using lotr_flat_custom_map = robin_hood::unordered_flat_map<Key, T, xxhash_function<Key>, custom_equalto<Key>>;
-    template <typename Key, typename T>
-    using lotr_flat_map = robin_hood::unordered_flat_map<Key, T>;
+    using lotr_flat_map = robin_hood::unordered_flat_map<Key, T, xxhash_function<Key>, custom_equalto<Key>>;
 }
