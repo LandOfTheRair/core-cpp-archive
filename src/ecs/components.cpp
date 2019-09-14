@@ -18,6 +18,11 @@
 
 #include "components.h"
 namespace  lotr {
+    string const north_direction = "N";
+    string const east_direction = "E";
+    string const south_direction = "S";
+    string const west_direction = "W";
+
     string const spawners_layer_name = "Spawners";
     string const npcs_layer_name = "NPCs";
     string const tile_layer_name = "tilelayer";

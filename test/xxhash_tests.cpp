@@ -1,6 +1,6 @@
 /*
     Land of the Rair
-    Copyright (C) 2019 Michael de Lang
+    Copyright (C) 2019  Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,28 +16,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <string>
-#include <optional>
-#include <rapidjson/document.h>
+#include <catch2/catch.hpp>
+#include <spdlog/spdlog.h>
+#include "test_helpers/startup_helper.h"
+#include "game_logic/fov.h"
+#include <ecs/components.h>
 
 using namespace std;
+using namespace lotr;
 
-namespace lotr {
-    struct register_request {
-        register_request(string username, string password, string email) noexcept;
+TEST_CASE("ensure xxhash has no collisions for map locations") {
+    lotr_flat_map <uint64_t, bool> hashes;
+    for(int x = -1000; x < 1000; x++) {
+        for(int y = -1000; y < 1000; y++) {
+            auto t = make_tuple(x, y);
+            auto hash = XXH3_64bits(&t, sizeof(uint64_t) * 2);
 
-        ~register_request() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<register_request> deserialize(rapidjson::Document const &d);
-
-        string username;
-        string password;
-        string email;
-
-        static string const type;
-    };
+            if(hashes.find(hash) != end(hashes)) {
+                spdlog::error("hash already found! {}", hash);
+            } else {
+                hashes[hash] = true;
+            }
+        }
+    }
 }

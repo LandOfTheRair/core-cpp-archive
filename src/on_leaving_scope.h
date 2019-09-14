@@ -43,7 +43,6 @@
  * limitations under the License.
  */
 
-
 #pragma once
 
 namespace lotr {

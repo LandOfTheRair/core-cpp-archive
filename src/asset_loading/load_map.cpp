@@ -22,8 +22,9 @@
 #include <yaml-cpp/yaml.h>
 #include <working_directory_manipulation.h>
 #include "spdlog/spdlog.h"
-#include <range/v3/view/remove_if.hpp>
+#include <range/v3/all.hpp>
 #include <entt/entity/registry.hpp>
+#include <charconv>
 
 using namespace std;
 using namespace rapidjson;
@@ -105,8 +106,37 @@ optional<spawner_script> get_spawner_script(string const &script_file, uint32_t 
     }
 
     for(auto const &kv : tree["paths"]) {
-        spdlog::trace("[{}] npc path {}", __FUNCTION__, kv.as<string>());
-        script.paths.push_back(kv.as<string>());
+        string path = kv.as<string>();
+        spdlog::trace("[{}] npc path {}", __FUNCTION__, path);
+        vector<string_view> split_path = path | ranges::views::split(' ') | ranges::views::transform([](auto &&rng){return string_view(&*rng.begin(), ranges::distance(rng));}) | ranges::to_vector;
+        vector<npc_path> spawn_paths;
+        for(auto split : split_path) {
+            vector<string_view> temp = split | ranges::views::split('-') | ranges::views::transform([](auto &&rng){return string_view(&*rng.begin(), ranges::distance(rng));}) | ranges::to_vector;
+            if(temp.size() != 2) {
+                spdlog::error("[{}] npc file {} path {} split {} temp size not equal to 2 but is {}", __FUNCTION__, actual_script_file, path, split, temp.size());
+                continue;
+            }
+            uint32_t value;
+            if(auto [p, ec] = from_chars(temp[0].data(), temp[0].data() + temp[0].size(), value); ec != errc()) {
+                spdlog::error("[{}] npc file {} path {} split {} couldn't convert to integer", __FUNCTION__, actual_script_file, path, split);
+                continue;
+            }
+            movement_direction dir;
+            if(temp[1] == north_direction) {
+                dir = movement_direction::North;
+            } else if(temp[1] == east_direction) {
+                dir = movement_direction::East;
+            } else if(temp[1] == south_direction) {
+                dir = movement_direction::South;
+            } else if(temp[1] == west_direction)  {
+                dir = movement_direction::West;
+            } else {
+                spdlog::error("[{}] npc file {} could not decode path {} split {} missing direction {}", __FUNCTION__, actual_script_file, path, split, temp[1]);
+                continue;
+            }
+            spawn_paths.emplace_back(dir, value);
+        }
+        script.paths.emplace_back(move(spawn_paths));
     }
 
     if(tree["npcAISettings"]) {

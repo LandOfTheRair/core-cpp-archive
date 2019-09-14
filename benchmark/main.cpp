@@ -28,6 +28,7 @@
 #include "../src/working_directory_manipulation.h"
 #include "game_logic/fov.h"
 #include "../src/asset_loading/load_map.h"
+#include <game_logic/a_star.h>
 
 using namespace std;
 using namespace lotr;
@@ -46,9 +47,7 @@ void bench_censor_sensor() {
     spdlog::info("is_profane {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
 }
 
-void bench_fov() {
-    auto m = load_map_from_file("assets/maps/antania/DedlaenMaze.json").value();
-
+void bench_fov(map_component const &m) {
     auto start = chrono::system_clock::now();
 
     for(int i = 0; i < 1'000'000; i++) {
@@ -93,6 +92,20 @@ void bench_hash_verify() {
     spdlog::info("hashing verify {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
 }
 
+void bench_a_star(map_component const &m) {
+    auto start = chrono::system_clock::now();
+    auto start_loc = make_tuple(10, 10);
+    auto goal_loc = make_tuple(25, 25);
+
+    for(int i = 0; i < 1'000; i++) {
+        a_star_path(m, start_loc, goal_loc);
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("a star {:n} µs", chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
 int main(int argc, char **argv) {
     set_cwd(get_selfpath());
 
@@ -113,9 +126,14 @@ int main(int argc, char **argv) {
         spdlog::error("sodium init failure");
         return 1;
     }
-    bench_censor_sensor();
-    bench_fov();
-    bench_hashing();
-    bench_hash_verify();
+
+    entt::registry registry;
+    auto m = load_map_from_file("assets/maps/antania/DedlaenMaze.json", registry).value();
+
+    //bench_censor_sensor();
+    //bench_fov(m);
+    //bench_hashing();
+    //bench_hash_verify();
+    bench_a_star(m);
 
 }

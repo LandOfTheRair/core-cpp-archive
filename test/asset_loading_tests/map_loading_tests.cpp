@@ -204,10 +204,26 @@ TEST_CASE("map_loading tests") {
     REQUIRE(object.script->leash_radius == 30);
 
     REQUIRE(object.script->paths.size() == 4);
-    REQUIRE(object.script->paths[0] == "23-E 16-S 23-W 16-N"s);
-    REQUIRE(object.script->paths[1] == "16-S 23-E 16-N 23-W"s);
-    REQUIRE(object.script->paths[2] == "8-S 23-E 8-S 23-W 8-N 23-E 8-N 23-W"s);
-    REQUIRE(object.script->paths[3] == "23-E 8-S 23-W 8-S 23-E 8-N 23-W 8-N"s);
+    REQUIRE(object.script->paths[0].size() == 4);
+    REQUIRE(object.script->paths[0][0].steps == 23);
+    REQUIRE(object.script->paths[0][1].steps == 16);
+    REQUIRE(object.script->paths[0][2].steps == 23);
+    REQUIRE(object.script->paths[0][3].steps == 16);
+    REQUIRE(object.script->paths[0][0].direction == movement_direction::East);
+    REQUIRE(object.script->paths[0][1].direction == movement_direction::South);
+    REQUIRE(object.script->paths[0][2].direction == movement_direction::West);
+    REQUIRE(object.script->paths[0][3].direction == movement_direction::North);
+    REQUIRE(object.script->paths[1].size() == 4);
+    REQUIRE(object.script->paths[1][0].steps == 16);
+    REQUIRE(object.script->paths[1][1].steps == 23);
+    REQUIRE(object.script->paths[1][2].steps == 16);
+    REQUIRE(object.script->paths[1][3].steps == 23);
+    REQUIRE(object.script->paths[1][0].direction == movement_direction::South);
+    REQUIRE(object.script->paths[1][1].direction == movement_direction::East);
+    REQUIRE(object.script->paths[1][2].direction == movement_direction::North);
+    REQUIRE(object.script->paths[1][3].direction == movement_direction::West);
+    REQUIRE(object.script->paths[2].size() == 8);
+    REQUIRE(object.script->paths[3].size() == 8);
 
     REQUIRE(map->properties.size() == 5);
     REQUIRE(map->properties[0].name == "itemExpirationHours"s);

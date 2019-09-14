@@ -166,6 +166,20 @@ namespace lotr {
         skills(npc.skills) {}
     };
 
+    enum movement_direction {
+        North,
+        East,
+        South,
+        West
+    };
+
+    struct npc_path {
+        movement_direction direction;
+        uint32_t steps;
+
+        npc_path(movement_direction direction, uint32_t steps) : direction(direction), steps(steps) {}
+    };
+
     struct spawner_script {
         uint32_t id;
         uint32_t respawn_rate;
@@ -187,7 +201,7 @@ namespace lotr {
         bool do_initial_spawn_immediately;
 
         vector<spawner_npc_id> npc_ids;
-        vector<string> paths;
+        vector<vector<npc_path>> paths;
         vector<string> npc_ai_settings;
     };
 
@@ -222,6 +236,10 @@ namespace lotr {
         uint32_t x;
         uint32_t y;
 
+        uint32_t x_before_interruption;
+        uint32_t y_before_interruption;
+        bool is_path_interrupted;
+
         lotr_flat_custom_map<string, uint64_t> stats;
         lotr_flat_custom_map<string, item_component> items;
         vector<skill_component> skills;
@@ -244,8 +262,9 @@ namespace lotr {
 
         spawner_script *spawner;
         npc_component *agro_target;
+        vector<npc_path> paths;
 
-        npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr) {}
+        npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr), paths() {}
     };
 
     struct user_component {
@@ -328,6 +347,11 @@ namespace lotr {
     map_component* get_map_by_name(entt::registry &registry, string &name);
 
     // constants
+
+    extern string const north_direction;
+    extern string const east_direction;
+    extern string const south_direction;
+    extern string const west_direction;
 
     extern string const spawners_layer_name;
     extern string const npcs_layer_name;

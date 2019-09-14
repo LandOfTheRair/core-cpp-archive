@@ -11,6 +11,7 @@
   "dependencies": {
     "censor-sensor": "^1.0.4",
     "mrpas": "^1.2.1",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "pathfinding": "^0.4.18"
   }
 }

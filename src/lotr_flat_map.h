@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include <robin_hood.h>
@@ -26,6 +25,12 @@
 using namespace std;
 
 namespace lotr {
+    template <typename ... Ts>
+    constexpr size_t tuple_sum_size(tuple<Ts...> const &)
+    {
+        return (sizeof(Ts) + ...);
+    }
+
     template<class Key>
     class xxhash_function;
 
@@ -50,7 +55,17 @@ namespace lotr {
     public:
         size_t operator()(tuple<uint64_t, uint64_t> t) const
         {
-            return XXH3_64bits(&get<0>(t), sizeof(uint64_t)) ^ XXH3_64bits(&get<1>(t), sizeof(uint64_t));
+            return XXH3_64bits(&t, tuple_sum_size(t));
+        }
+    };
+
+    template<>
+    class xxhash_function<tuple<int32_t, int32_t>>
+    {
+    public:
+        size_t operator()(tuple<int32_t, int32_t> t) const
+        {
+            return XXH3_64bits(&t, tuple_sum_size(t));
         }
     };
 
@@ -82,6 +97,16 @@ namespace lotr {
     {
     public:
         bool operator()(tuple<uint64_t, uint64_t> const &lhs, tuple<uint64_t, uint64_t> const &rhs) const
+        {
+            return lhs == rhs;
+        }
+    };
+
+    template<>
+    class custom_equalto<tuple<int32_t, int32_t>>
+    {
+    public:
+        bool operator()(tuple<int32_t, int32_t> const &lhs, tuple<int32_t, int32_t> const &rhs) const
         {
             return lhs == rhs;
         }

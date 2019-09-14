@@ -18,26 +18,12 @@
 
 #pragma once
 
-#include <string>
-#include <optional>
-#include <rapidjson/document.h>
+#include <ecs/components.h>
 
 using namespace std;
 
 namespace lotr {
-    struct register_request {
-        register_request(string username, string password, string email) noexcept;
-
-        ~register_request() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const;
-        static optional<register_request> deserialize(rapidjson::Document const &d);
-
-        string username;
-        string password;
-        string email;
-
-        static string const type;
-    };
+    using location = tuple<int32_t, int32_t>;
+    [[nodiscard]]
+    lotr_flat_custom_map<location, location> a_star_path(map_component const &m, location const &start, location const &goal);
 }

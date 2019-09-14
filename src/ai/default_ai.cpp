@@ -21,17 +21,18 @@
 #include <spdlog/spdlog.h>
 #include <random_helper.h>
 
+using namespace std;
 using namespace lotr;
 
 vector<pc_component*> get_players_in_range(character_component const &npc, map_component const &m, lotr_player_location_map const &player_location_map, int32_t radius) {
     vector<pc_component*> ret;
 
-    for(int32_t x_radius = -radius; x_radius < radius; x_radius++) {
+    for(int32_t x_radius = -radius; x_radius <= radius; x_radius++) {
         if(static_cast<int32_t>(npc.x) - x_radius < 0 || static_cast<int32_t>(npc.x) - x_radius >= static_cast<int32_t>(m.width)) {
             continue;
         }
 
-        for(int32_t y_radius = -radius; y_radius < radius; y_radius++) {
+        for(int32_t y_radius = -radius; y_radius <= radius; y_radius++) {
             if(static_cast<int32_t>(npc.y) - y_radius < 0 || static_cast<int32_t>(npc.y) - y_radius >= static_cast<int32_t>(m.height)) {
                 continue;
             }
@@ -69,8 +70,10 @@ void lotr::run_ai_on(npc_component &npc, map_component &m, lotr_player_location_
 
     auto move_rate = npc.stats[stat_move];
     auto num_steps = 0;
-    if(move_rate > 0) {
+    if(npc.paths.empty()) {
         num_steps = lotr::random.generate_single(0, move_rate);
+    } else {
+        num_steps = lotr::random.generate_single(0, min(move_rate, npc.paths.size()));
     }
 
     if(lotr::random.one_in_x(100)) {
@@ -79,7 +82,15 @@ void lotr::run_ai_on(npc_component &npc, map_component &m, lotr_player_location_
 
     if(current_target != nullptr) {
 
-    } else if(num_steps > 0) {
-
+    } else if(!npc.paths.empty()) {
+        if(npc.is_path_interrupted) {
+            if(npc.x == npc.x_before_interruption && npc.y == npc.y_before_interruption) {
+                npc.is_path_interrupted = false;
+            } else {
+                // move back to before interruption
+            }
+        } else {
+            //continue moving along path
+        }
     }
 }
