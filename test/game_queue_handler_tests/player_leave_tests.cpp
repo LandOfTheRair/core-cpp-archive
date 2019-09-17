@@ -32,14 +32,16 @@ TEST_CASE("player leave tests") {
         {
             map_component test_map(10, 10, "test", {}, {}, {});
             pc_component pc;
+            pc.connection_id = 1;
             pc.name = "test_player";
             test_map.players.emplace_back(move(pc));
 
             registry.assign<map_component>(new_entity, move(test_map));
         }
 
-        player_leave_message msg("test_player");
-        handle_player_leave_message(&msg, registry);
+        outward_queues q;
+        player_leave_message msg(1);
+        handle_player_leave_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);
 

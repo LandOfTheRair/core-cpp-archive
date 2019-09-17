@@ -28,7 +28,7 @@ TEST_CASE("a star tests") {
     uint32_t const map_size = 10;
 
     SECTION( "no objects" ) {
-        lotr_flat_map<map_layer_name, map_layer> layers;
+        array<map_layer, 15> layers;
         {
             vector<map_object> objects;
             vector<uint32_t> data;
@@ -40,8 +40,8 @@ TEST_CASE("a star tests") {
                 }
             }
 
-            layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, ""s, vector<map_object>{}, move(data));
-            layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, ""s, move(objects), vector<uint32_t>{});
+            layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", ""s, vector<map_object>{}, move(data));
+            layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", ""s, move(objects), vector<uint32_t>{});
         }
 
         map_component test_map(map_size, map_size, "test", {}, move(layers), {});
@@ -64,7 +64,7 @@ TEST_CASE("a star tests") {
     }
 
     SECTION( "some objects" ) {
-        lotr_flat_map<map_layer_name, map_layer> layers;
+        array<map_layer, 15> layers;
         {
             vector<map_object> objects;
             vector<uint32_t> data;
@@ -80,8 +80,8 @@ TEST_CASE("a star tests") {
                 }
             }
 
-            layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, ""s, vector<map_object>{}, move(data));
-            layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, ""s, move(objects), vector<uint32_t>{});
+            layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", ""s, vector<map_object>{}, move(data));
+            layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", ""s, move(objects), vector<uint32_t>{});
         }
 
         map_component test_map(map_size, map_size, "test", {}, move(layers), {});

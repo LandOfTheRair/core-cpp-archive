@@ -34,6 +34,7 @@ matrix:
       - ./compile_external_release.sh
       - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo .
       - make
+      - bin/lotr_test
     after_script:
       - eval "$(ssh-agent -s)"
       - echo "$SSH_KEY" | base64 -d > test.zip

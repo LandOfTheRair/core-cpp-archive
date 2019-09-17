@@ -121,17 +121,17 @@ TEST_CASE("map_loading tests") {
     map_file.close();
 
     entt::registry registry;
+    lotr_flat_map <string, optional<spawner_script>> spawner_script_cache;
     auto gnpc_entity = registry.create();
     global_npc_component gnpc;
     gnpc.npc_id = "Tutorial Townee";
     registry.assign<global_npc_component>(gnpc_entity, gnpc);
 
-    auto map = load_map_from_file("test_map.json", registry);
+    auto map = load_map_from_file("test_map.json", registry, spawner_script_cache);
     REQUIRE(map);
     REQUIRE(map->name == "test_map"s);
     REQUIRE(map->width == 48);
     REQUIRE(map->height == 48);
-    REQUIRE(map->layers.size() == 3);
     REQUIRE(map->layers[map_layer_name::Terrain].width == 48);
     REQUIRE(map->layers[map_layer_name::Terrain].height == 48);
     REQUIRE(map->layers[map_layer_name::Terrain].x == 0);

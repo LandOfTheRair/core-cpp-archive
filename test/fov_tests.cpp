@@ -28,7 +28,7 @@ using namespace lotr;
 TEST_CASE("fov tests") {
     SECTION("no obstacles") {
         const uint32_t map_size = 9;
-        lotr_flat_map<map_layer_name, map_layer> map_layers;
+        array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
@@ -37,19 +37,20 @@ TEST_CASE("fov tests") {
             object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
-        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
+        auto loc = make_tuple(4, 4);
 
-        auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
+        auto fov = compute_fov_restrictive_shadowcasting(m, loc, false);
 
         REQUIRE(fov.all());
     }
 
     SECTION("walls encage player") {
         const uint32_t map_size = 9;
-        lotr_flat_map<map_layer_name, map_layer> map_layers;
+        array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
@@ -67,12 +68,13 @@ TEST_CASE("fov tests") {
         wall_data[4+5*map_size] = 1;
         wall_data[5+5*map_size] = 1;
 
-        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
+        auto loc = make_tuple(4, 4);
 
-        auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
+        auto fov = compute_fov_restrictive_shadowcasting(m, loc, false);
 
         for(uint32_t y = 0; y < fov_diameter; y++) {
             for(uint32_t x = 0; x < fov_diameter; x++) {
@@ -87,7 +89,7 @@ TEST_CASE("fov tests") {
 
     SECTION("opaque encage player") {
         const uint32_t map_size = 9;
-        lotr_flat_map<map_layer_name, map_layer> map_layers;
+        array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
@@ -105,12 +107,13 @@ TEST_CASE("fov tests") {
         object_data[4+5*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
         object_data[5+5*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
 
-        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
+        auto loc = make_tuple(4, 4);
 
-        auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
+        auto fov = compute_fov_restrictive_shadowcasting(m, loc, false);
 
         for(uint32_t y = 0; y < fov_diameter; y++) {
             for(uint32_t x = 0; x < fov_diameter; x++) {
@@ -125,7 +128,7 @@ TEST_CASE("fov tests") {
 
     SECTION("single object") {
         const uint32_t map_size = 9;
-        lotr_flat_map<map_layer_name, map_layer> map_layers;
+        array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
@@ -136,12 +139,13 @@ TEST_CASE("fov tests") {
 
         wall_data[4+3*map_size] = 1;
 
-        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
+        auto loc = make_tuple(4, 4);
 
-        auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
+        auto fov = compute_fov_restrictive_shadowcasting(m, loc, false);
 
         bitset<power(fov_diameter)> check_fov("111111111111111111111111111111111111111111111111101111111101111111000111111000111"s);
 
@@ -150,7 +154,7 @@ TEST_CASE("fov tests") {
 
     SECTION("corners") {
         const uint32_t map_size = 9;
-        lotr_flat_map<map_layer_name, map_layer> map_layers;
+        array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
@@ -159,24 +163,28 @@ TEST_CASE("fov tests") {
             object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
-        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, "wall_layer_name", "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, "opaque_layer_name", "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
+        auto loc1 = make_tuple(0, 0);
+        auto loc2 = make_tuple(8, 0);
+        auto loc3 = make_tuple(0, 8);
+        auto loc4 = make_tuple(8, 8);
 
-        auto fov = compute_fov_restrictive_shadowcasting(m, 0, 0, false);
+        auto fov = compute_fov_restrictive_shadowcasting(m, loc1, false);
         bitset<power(fov_diameter)> check_fov("111110000111110000111110000111110000111110000000000000000000000000000000000000000"s);
         REQUIRE(fov == check_fov);
 
-        fov = compute_fov_restrictive_shadowcasting(m, 8, 0, false);
+        fov = compute_fov_restrictive_shadowcasting(m, loc2, false);
         check_fov = bitset<power(fov_diameter)>("000011111000011111000011111000011111000011111000000000000000000000000000000000000"s);
         REQUIRE(fov == check_fov);
 
-        fov = compute_fov_restrictive_shadowcasting(m, 0, 8, false);
+        fov = compute_fov_restrictive_shadowcasting(m, loc3, false);
         check_fov = bitset<power(fov_diameter)>("000000000000000000000000000000000000111110000111110000111110000111110000111110000"s);
         REQUIRE(fov == check_fov);
 
-        fov = compute_fov_restrictive_shadowcasting(m, 8, 8, false);
+        fov = compute_fov_restrictive_shadowcasting(m, loc4, false);
         check_fov = bitset<power(fov_diameter)>("000000000000000000000000000000000000000011111000011111000011111000011111000011111"s);
         REQUIRE(fov == check_fov);
     }

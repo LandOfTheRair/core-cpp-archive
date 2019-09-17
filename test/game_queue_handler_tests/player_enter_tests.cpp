@@ -25,6 +25,7 @@ using namespace std;
 using namespace lotr;
 
 TEST_CASE("player enter tests") {
+    outward_queues q;
     SECTION( "player enters world" ) {
         entt::registry registry;
 
@@ -36,7 +37,7 @@ TEST_CASE("player enter tests") {
         }
 
         player_enter_message msg("test_player",  "test", {}, 1, 2, 3);
-        handle_player_enter_message(&msg, registry);
+        handle_player_enter_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);
 
@@ -58,7 +59,7 @@ TEST_CASE("player enter tests") {
         }
 
         player_enter_message msg("test_player",  "wrong_map", {}, 1, 2, 3);
-        handle_player_enter_message(&msg, registry);
+        handle_player_enter_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);
 
@@ -76,7 +77,7 @@ TEST_CASE("player enter tests") {
         }
 
         player_enter_message msg("test_player",  "test", {}, 1, 20, 30);
-        handle_player_enter_message(&msg, registry);
+        handle_player_enter_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);
 
