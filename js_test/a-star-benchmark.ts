@@ -109,30 +109,30 @@ map = formatMapData(cloneDeep(require('../assets/maps/antania/DedlaenMaze.json')
 
 initFov();
 
-const x = 9;
-const y = 9;
-const playerx = 1;
-const playery = 1;
+const x = 25;
+const y = 25;
+const playerx = 10;
+const playery = 10;
 const start = performance.now();
 for(let i = 0; i < 10000; i++) {
     const denseTiles = map.layers[MapLayer.Walls].data;
 
-    const grid = new Pathfinder.Grid(19, 19);
+    const grid = new Pathfinder.Grid(31, 31);
 
-    for(let gx = -9; gx <= 9; gx++) {
-        for(let gy = -9; gy <= 9; gy++) {
+    for(let gx = -15; gx <= 15; gx++) {
+        for(let gy = -15; gy <= 15; gy++) {
 
             const nextTileLoc = ((playery + gy) * map.width) + (playerx + gx);
             const nextTile = denseTiles[nextTileLoc];
 
             // dense tiles get set to false
             if(nextTile !== 0) {
-                grid.setWalkableAt(gx + 9, gy + 9, false);
+                grid.setWalkableAt(gx + 15, gy + 15, false);
 
                 // non-dense tiles get checked for objects
             } else {
                 if(checkIfDenseObject(playerx + gx, playery + gy)) {
-                    grid.setWalkableAt(gx + 9, gy + 9, false);
+                    grid.setWalkableAt(gx + 15, gy + 15, false);
                 }
 
             }
@@ -140,14 +140,14 @@ for(let i = 0; i < 10000; i++) {
         }
     }
 
-    grid.setWalkableAt(x + 9, y + 9, true);
+    grid.setWalkableAt(15, 15, true);
 
     const astar = new Pathfinder.AStarFinder({
         diagonalMovement: Pathfinder.DiagonalMovement.Always,
         // dontCrossCorners: false
     });
 
-    const finalPath = astar.findPath(4, 4, 4 + x, 4 + y, grid);
+    const finalPath = astar.findPath(15, 15, 30, 30, grid);
 
 
 }
