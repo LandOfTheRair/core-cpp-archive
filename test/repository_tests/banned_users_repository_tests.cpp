@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef EXCLUDE_PSQL_TESTS
+
 #include <catch2/catch.hpp>
 #include "../test_helpers/startup_helper.h"
 #include "repositories/users_repository.h"
@@ -25,11 +27,8 @@ using namespace std;
 using namespace lotr;
 
 TEST_CASE("banned users repository tests") {
-    auto pool = make_shared<database_pool>();
-    pool->create_connections(config.connection_string, 1);
-
-    users_repository<database_pool, database_transaction> user_repo(pool);
-    banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
+    users_repository<database_pool, database_transaction> user_repo(db_pool);
+    banned_users_repository<database_pool, database_transaction> banned_user_repo(db_pool);
 
     SECTION( "banned user inserted correctly" ) {
         auto transaction = user_repo.create_transaction();
@@ -110,3 +109,5 @@ TEST_CASE("banned users repository tests") {
         REQUIRE(busr2->id == busr.id);
     }
 }
+
+#endif

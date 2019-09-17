@@ -45,8 +45,10 @@ int main(int argc, char **argv) {
 
     spdlog::set_level(spdlog::level::trace);
 
+#ifndef EXCLUDE_PSQL_TESTS
     db_pool = make_shared<database_pool>();
     db_pool->create_connections(config.connection_string, 2);
+#endif
 
     int result = Catch::Session().run( argc, argv );
     // global clean-up...

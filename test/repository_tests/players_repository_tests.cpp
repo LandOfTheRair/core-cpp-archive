@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef EXCLUDE_PSQL_TESTS
+
 #include <catch2/catch.hpp>
 #include "../test_helpers/startup_helper.h"
 #include "repositories/users_repository.h"
@@ -26,12 +28,9 @@ using namespace std;
 using namespace lotr;
 
 TEST_CASE("players repository tests") {
-    auto pool = make_shared<database_pool>();
-    pool->create_connections(config.connection_string, 1);
-
-    users_repository<database_pool, database_transaction> users_repo(pool);
-    players_repository<database_pool, database_transaction> players_repo(pool);
-    locations_repository<database_pool, database_transaction> locations_repo(pool);
+    users_repository<database_pool, database_transaction> users_repo(db_pool);
+    players_repository<database_pool, database_transaction> players_repo(db_pool);
+    locations_repository<database_pool, database_transaction> locations_repo(db_pool);
     auto transaction = players_repo.create_transaction();
 
 
@@ -120,3 +119,5 @@ TEST_CASE("players repository tests") {
         REQUIRE(players[0].stats.empty());
     }
 }
+
+#endif
