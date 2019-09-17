@@ -16,26 +16,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <bitset>
-#include <game_logic/location.h>
+#include <string>
+#include <optional>
+#include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    constexpr uint32_t fov_max_distance = 4;
-    constexpr uint32_t fov_diameter = fov_max_distance * 2 + 1;
+    struct move_request : public message {
+        move_request(uint32_t x, uint32_t y) noexcept;
 
-    constexpr uint32_t power(uint32_t x) noexcept {
-        return x * x;
-    }
+        ~move_request() noexcept = default;
 
-    struct map_component;
+        [[nodiscard]]
+        string serialize() const override;
+        static optional<move_request> deserialize(rapidjson::Document const &d);
 
-    [[nodiscard]]
-    bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting(map_component const &m, location &player_loc, bool const light_walls);
+        uint32_t x;
+        uint32_t y;
 
-    void log_fov(bitset<power(fov_diameter)> const &fov, string name);
+        static string const type;
+    };
 }

@@ -111,7 +111,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(string co
 
     auto ret = make_optional<player>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
                                      result[0][2].as(uint64_t{}), result[0][3].as(string{}),
-                                     optional<location>{}, vector<player_stat>{}, vector<player_item>{});
+                                     optional<db_location>{}, vector<player_stat>{}, vector<player_item>{});
 
     if(includes == included_tables::location) {
         ret->loc.emplace(result[0][4].as(uint64_t{}), result[0][5].as(string{}), result[0][6].as(uint32_t{}), result[0][7].as(uint32_t{}));
@@ -134,7 +134,7 @@ optional<player> players_repository<pool_T, transaction_T>::get_player(uint64_t 
 
     auto ret = make_optional<player>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
                                      result[0][2].as(uint64_t{}), result[0][3].as(string{}),
-                                     optional<location>{}, vector<player_stat>{}, vector<player_item>{});
+                                     optional<db_location>{}, vector<player_stat>{}, vector<player_item>{});
 
     spdlog::debug("[{}] found player by id {}", __FUNCTION__, id);
 

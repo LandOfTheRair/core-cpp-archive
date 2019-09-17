@@ -31,12 +31,7 @@ using namespace std;
 namespace lotr {
     void handle_play_character(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                          shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
-        DESERIALIZE_WITH_CHECK(play_character_request)
-
-        if(!user_data->current_character->empty()) {
-            SEND_ERROR("Already playing character", "", "", true);
-            return;
-        }
+        DESERIALIZE_WITH_NOT_LOGIN_CHECK(play_character_request)
 
         players_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
@@ -47,7 +42,7 @@ namespace lotr {
             return;
         }
 
-        *user_data->current_character = plyr->name;
+        user_data->playing_character = true;
 
         vector<stat_component> player_stats;
         for(auto &stat : stats) {

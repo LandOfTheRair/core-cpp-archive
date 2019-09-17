@@ -25,6 +25,9 @@ namespace lotr {
     public:
         random_helper();
 
+        uint64_t generate_single_fast(uint64_t end);
+        uint32_t generate_single_fast(uint32_t end);
+
         uint64_t generate_single(uint64_t from, uint64_t end);
         uint64_t generate_single_uint64();
         int64_t generate_single(int64_t from, int64_t end);
@@ -34,6 +37,7 @@ namespace lotr {
         bool one_in_x(uint32_t x);
     private:
         pcg64 _rng64;
+        pcg32 _rng32;
     };
 
     extern thread_local random_helper random;

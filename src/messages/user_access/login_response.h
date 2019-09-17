@@ -22,6 +22,7 @@
 #include <optional>
 #include <vector>
 #include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
@@ -36,13 +37,13 @@ namespace lotr {
             : name(move(name)), map_name(move(map_name)), x(x), y(y) {}
     };
 
-    struct login_response {
+    struct login_response : public message {
         explicit login_response(vector<message_player> players) noexcept;
 
         ~login_response() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<login_response> deserialize(rapidjson::Document const &d);
 
         vector<message_player> players;

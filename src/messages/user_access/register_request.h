@@ -21,17 +21,18 @@
 #include <string>
 #include <optional>
 #include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct register_request {
+    struct register_request : public message {
         register_request(string username, string password, string email) noexcept;
 
         ~register_request() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<register_request> deserialize(rapidjson::Document const &d);
 
         string username;

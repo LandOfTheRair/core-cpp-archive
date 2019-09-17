@@ -22,6 +22,7 @@
 #include <vector>
 #include <optional>
 #include <rapidjson/document.h>
+#include "message.h"
 
 using namespace std;
 
@@ -32,13 +33,13 @@ namespace lotr {
         string name;
     };
 
-    struct map_update_response {
+    struct map_update_response : public message {
         map_update_response(vector<character_component> npcs) noexcept;
 
         ~map_update_response() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<map_update_response> deserialize(rapidjson::Document const &d);
 
         vector<character_component> npcs;

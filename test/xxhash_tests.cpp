@@ -34,6 +34,7 @@ TEST_CASE("ensure xxhash has no collisions for map locations") {
 
             if(hashes.find(hash) != end(hashes)) {
                 spdlog::error("hash already found! {}", hash);
+                REQUIRE(hashes.find(hash) == end(hashes));
             } else {
                 hashes[hash] = true;
             }

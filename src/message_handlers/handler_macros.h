@@ -31,3 +31,25 @@
                                             ws->end(0); \
                                             return; \
                                         }
+
+#define DESERIALIZE_WITH_LOGIN_CHECK(type)  if(!user_data->playing_character) { \
+                                                SEND_ERROR("Not playing character", "", "", true); \
+                                                return; \
+                                            } \
+                                            auto msg = type::deserialize(d); \
+                                            if (!msg) { \
+                                                ws->send("Stop messing around", op_code, true); \
+                                                ws->end(0); \
+                                                return; \
+                                            }
+
+#define DESERIALIZE_WITH_NOT_LOGIN_CHECK(type)  if(user_data->playing_character) { \
+                                                SEND_ERROR("Already playing character", "", "", true); \
+                                                return; \
+                                            } \
+                                            auto msg = type::deserialize(d); \
+                                            if (!msg) { \
+                                                ws->send("Stop messing around", op_code, true); \
+                                                ws->end(0); \
+                                                return; \
+                                            }

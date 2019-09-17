@@ -21,17 +21,18 @@
 #include <string>
 #include <optional>
 #include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct create_character_request {
+    struct create_character_request : public message {
         create_character_request(string name, string sex, string allegiance, string baseclass) noexcept;
 
         ~create_character_request() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<create_character_request> deserialize(rapidjson::Document const &d);
 
         string name;

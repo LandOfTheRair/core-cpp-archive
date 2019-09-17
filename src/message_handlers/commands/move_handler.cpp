@@ -17,25 +17,20 @@
 */
 
 
-#pragma once
+#include "move_handler.h"
 
-#include <bitset>
-#include <game_logic/location.h>
+#include <spdlog/spdlog.h>
+
+#include <messages/commands/move_request.h>
+#include "message_handlers/handler_macros.h"
 
 using namespace std;
 
 namespace lotr {
-    constexpr uint32_t fov_max_distance = 4;
-    constexpr uint32_t fov_diameter = fov_max_distance * 2 + 1;
+    void handle_move(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                     shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
+        DESERIALIZE_WITH_LOGIN_CHECK(move_request)
 
-    constexpr uint32_t power(uint32_t x) noexcept {
-        return x * x;
+        q.enqueue(make_unique<player_move_message>(user_data->connection_id, msg->x, msg->y));
     }
-
-    struct map_component;
-
-    [[nodiscard]]
-    bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting(map_component const &m, location &player_loc, bool const light_walls);
-
-    void log_fov(bitset<power(fov_diameter)> const &fov, string name);
 }

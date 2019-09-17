@@ -28,17 +28,17 @@ using namespace lotr;
 TEST_CASE("fov tests") {
     SECTION("no obstacles") {
         const uint32_t map_size = 9;
-        vector<map_layer> map_layers;
+        lotr_flat_map<map_layer_name, map_layer> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
         for(uint32_t i = 0; i < map_size*map_size; i++) {
             wall_data.push_back(0);
-            object_data.emplace_back(0, 0, 0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
+            object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
-        map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
@@ -49,13 +49,13 @@ TEST_CASE("fov tests") {
 
     SECTION("walls encage player") {
         const uint32_t map_size = 9;
-        vector<map_layer> map_layers;
+        lotr_flat_map<map_layer_name, map_layer> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
         for(uint32_t i = 0; i < map_size*map_size; i++) {
             wall_data.push_back(0);
-            object_data.emplace_back(0, 0, 0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
+            object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
         wall_data[3+3*map_size] = 1;
@@ -67,15 +67,15 @@ TEST_CASE("fov tests") {
         wall_data[4+5*map_size] = 1;
         wall_data[5+5*map_size] = 1;
 
-        map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
         auto fov = compute_fov_restrictive_shadowcasting(m, 4, 4, false);
 
-        for(int y = 0; y < fov_diameter; y++) {
-            for(int x = 0; x < fov_diameter; x++) {
+        for(uint32_t y = 0; y < fov_diameter; y++) {
+            for(uint32_t x = 0; x < fov_diameter; x++) {
                 if(x == 4 && y == 4) {
                     REQUIRE(fov[x + y * fov_diameter] == true);
                 } else {
@@ -87,26 +87,26 @@ TEST_CASE("fov tests") {
 
     SECTION("opaque encage player") {
         const uint32_t map_size = 9;
-        vector<map_layer> map_layers;
+        lotr_flat_map<map_layer_name, map_layer> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
         for(uint32_t i = 0; i < map_size*map_size; i++) {
             wall_data.push_back(0);
-            object_data.emplace_back(0, 0, 0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
+            object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
-        object_data[3+3*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[4+3*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[5+3*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[3+4*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[5+4*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[3+5*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[4+5*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
-        object_data[5+5*map_size] = map_object(1, 0, 3, 3, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[3+3*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[4+3*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[5+3*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[3+4*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[5+4*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[3+5*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[4+5*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
+        object_data[5+5*map_size] = map_object(1, 0, 64, 64, "test"s, "test"s, vector<map_property>{}, nullopt);
 
-        map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
@@ -125,19 +125,19 @@ TEST_CASE("fov tests") {
 
     SECTION("single object") {
         const uint32_t map_size = 9;
-        vector<map_layer> map_layers;
+        lotr_flat_map<map_layer_name, map_layer> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
         for(uint32_t i = 0; i < map_size*map_size; i++) {
             wall_data.push_back(0);
-            object_data.emplace_back(0, 0, 0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
+            object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
         wall_data[4+3*map_size] = 1;
 
-        map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 
@@ -150,17 +150,17 @@ TEST_CASE("fov tests") {
 
     SECTION("corners") {
         const uint32_t map_size = 9;
-        vector<map_layer> map_layers;
+        lotr_flat_map<map_layer_name, map_layer> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
         vector<map_object> object_data(map_size*map_size);
 
         for(uint32_t i = 0; i < map_size*map_size; i++) {
             wall_data.push_back(0);
-            object_data.emplace_back(0, 0, 0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
+            object_data.emplace_back(0, 0, 0, 0, "", "", vector<map_property>{}, nullopt);
         }
 
-        map_layers.emplace_back(0, 0, map_size, map_size, "Walls"s, "tilelayer"s, vector<map_object>{}, wall_data);
-        map_layers.emplace_back(0, 0, map_size, map_size, "OpaqueDecor"s, "objectgroup"s, object_data, vector<uint32_t>{});
+        map_layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, "tilelayer"s, vector<map_object>{}, wall_data);
+        map_layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, "objectgroup"s, object_data, vector<uint32_t>{});
 
         map_component m(map_size, map_size, "test"s, {}, map_layers, {});
 

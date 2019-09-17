@@ -67,21 +67,22 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
         }
     }
 
+    lotr_flat_map <string, optional<spawner_script>> spawner_script_cache;
     auto maps_loading_start = chrono::system_clock::now();
     for(auto& p: filesystem::recursive_directory_iterator("assets/maps")) {
         if(!p.is_regular_file() || quit) {
             continue;
         }
 
-        auto map = load_map_from_file(p.path().string(), registry);
+        auto m = load_map_from_file(p.path().string(), registry, spawner_script_cache);
 
-        if(!map) {
+        if(!m) {
             continue;
         }
 
-        auto const npcs_layer = find_if(cbegin(map->layers), cend(map->layers), [](map_layer const &l) noexcept { return l.name == npcs_layer_name; }); // Case-sensitive. This will probably bite us in the ass later.
-        if(npcs_layer != cend(map->layers)) {
-            for(auto &npc : npcs_layer->objects) {
+        auto const &npcs_layer = m->layers[map_layer_name::NPCs];
+        if(!npcs_layer.name.empty()) {
+            for(auto &npc : npcs_layer.objects) {
                 if(npc.gid == 0 || !npc.script) {
                     continue;
                 }
@@ -96,7 +97,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
 
                 gnpc.name = npc.name;
                 gnpc.npc_id = npc.name;
-                gnpc.sprite.push_back(npc.gid - map->tilesets[3].firstgid);
+                gnpc.sprite.push_back(npc.gid - m->tilesets[3].firstgid);
 
                 for(auto &stat : stats) {
                     gnpc.stats.emplace_back(stat, 10);
@@ -112,7 +113,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
         }
 
         auto new_entity = registry.create();
-        registry.assign<map_component>(new_entity, move(map.value()));
+        registry.assign<map_component>(new_entity, move(m.value()));
         map_count++;
     }
 
@@ -122,13 +123,13 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
             return;
         }
 
-        auto spawners_layer = find_if(begin(m.layers), end(m.layers), [&](map_layer const &l) noexcept {return l.name == spawners_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
-        if(spawners_layer == end(m.layers)) {
+        auto &spawners_layer = m.layers[map_layer_name::Spawners];
+        if(spawners_layer.name.empty()) {
             spdlog::warn("No spawner layer found for map {}", m.name);
             return;
         }
 
-        for(auto &spawner_object : spawners_layer->objects) {
+        for(auto &spawner_object : spawners_layer.objects) {
             if(spawner_object.gid == 0 || !spawner_object.script) {
                 continue;
             }
@@ -138,7 +139,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
             }
 
             for(uint32_t i = 0; i < spawner_object.script->initial_spawn; i++) {
-                spdlog::info("spawner_object {} has {} npc_ids", spawner_object.name, spawner_object.script->npc_ids.size());
+                spdlog::trace("spawner_object {} has {} npc_ids", spawner_object.name, spawner_object.script->npc_ids.size());
                 auto &random_npc_id = spawner_object.script->npc_ids[lotr::random.generate_single(0, spawner_object.script->npc_ids.size() - 1)];
 
                 auto npc = create_npc(random_npc_id, m, &spawner_object.script.value());
@@ -156,13 +157,13 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
             return;
         }
 
-        auto npcs_layer = find_if(begin(m.layers), end(m.layers), [&](map_layer const &l) noexcept {return l.name == npcs_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
-        if(npcs_layer == end(m.layers)) {
+        auto &npcs_layer = m.layers[map_layer_name::NPCs];
+        if(npcs_layer.name.empty()) {
             spdlog::warn("No npc layer found for map {}", m.name);
             return;
         }
 
-        for(auto &npc_object : npcs_layer->objects) {
+        for(auto &npc_object : npcs_layer.objects) {
             if(npc_object.gid == 0 || !npc_object.script) {
                 continue;
             }

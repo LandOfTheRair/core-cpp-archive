@@ -20,16 +20,21 @@
 
 #include <string>
 #include <vector>
+#include <lotr_flat_map.h>
+#include <readerwriterqueue.h>
+#include <messages/message.h>
 
 using namespace std;
 
 namespace lotr {
     struct stat_component;
+    using outward_queues = lotr_flat_map<uint32_t, moodycamel::ReaderWriterQueue<unique_ptr<message>>>;
 
     struct queue_message {
         uint32_t type;
+        uint64_t connection_id;
 
-        queue_message(uint32_t type) : type(type) {}
+        queue_message(uint32_t type, uint64_t connection_id) : type(type), connection_id(connection_id) {}
         virtual ~queue_message() {}
     };
 
@@ -37,7 +42,6 @@ namespace lotr {
         string character_name;
         string map_name;
         vector<stat_component> player_stats;
-        uint64_t connection_id;
         uint32_t x;
         uint32_t y;
         static uint32_t const _type;
@@ -46,9 +50,16 @@ namespace lotr {
     };
 
     struct player_leave_message : public queue_message {
-        string character_name;
         static uint32_t const _type;
 
-        player_leave_message(string character_name);
+        player_leave_message(uint64_t connection_id);
+    };
+
+    struct player_move_message : public queue_message {
+        static uint32_t const _type;
+        uint32_t x;
+        uint32_t y;
+
+        player_move_message(uint64_t connection_id, uint32_t x, uint32_t y);
     };
 }

@@ -21,17 +21,18 @@
 #include <string>
 #include <optional>
 #include <rapidjson/document.h>
+#include "message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct generic_error_response {
+    struct generic_error_response : public message {
         generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
 
         ~generic_error_response() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<generic_error_response> deserialize(rapidjson::Document const &d);
 
         string error;

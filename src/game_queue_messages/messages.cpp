@@ -22,11 +22,14 @@
 namespace lotr {
     uint32_t const player_enter_message::_type = 1;
     uint32_t const player_leave_message::_type = 2;
+    uint32_t const player_move_message::_type  = 3;
 
     player_enter_message::player_enter_message(string character_name, string map_name, vector <stat_component> player_stats, uint64_t connection_id, uint32_t x, uint32_t y)
-            : queue_message(_type), character_name(move(character_name)), map_name(move(map_name)), player_stats(move(player_stats)), connection_id(connection_id),
-              x(x), y(y) {}
+            : queue_message(_type, connection_id), character_name(move(character_name)), map_name(move(map_name)), player_stats(move(player_stats)), x(x), y(y) {}
 
-    player_leave_message::player_leave_message(string character_name)
-            : queue_message(_type), character_name(move(character_name)) {}
+    player_leave_message::player_leave_message(uint64_t connection_id)
+            : queue_message(_type, connection_id) {}
+
+    player_move_message::player_move_message(uint64_t connection_id, uint32_t x, uint32_t y)
+            : queue_message(_type, connection_id), x(x), y(y) {}
 }

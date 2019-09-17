@@ -25,8 +25,10 @@ using namespace std;
 using namespace lotr;
 
 TEST_CASE("a star tests") {
+    uint32_t const map_size = 10;
+
     SECTION( "no objects" ) {
-        vector<map_layer> layers;
+        lotr_flat_map<map_layer_name, map_layer> layers;
         {
             vector<map_object> objects;
             vector<uint32_t> data;
@@ -38,11 +40,11 @@ TEST_CASE("a star tests") {
                 }
             }
 
-            layers.emplace_back(0, 0, 10, 10, wall_layer_name, "", vector<map_object>{}, move(data));
-            layers.emplace_back(0, 0, 10, 10, opaque_layer_name, "", move(objects), vector<uint32_t>{});
+            layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, ""s, vector<map_object>{}, move(data));
+            layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, ""s, move(objects), vector<uint32_t>{});
         }
 
-        map_component test_map(10, 10, "test", {}, move(layers), {});
+        map_component test_map(map_size, map_size, "test", {}, move(layers), {});
 
         auto start = make_tuple(1, 1);
         auto goal = make_tuple(9, 9);
@@ -62,7 +64,7 @@ TEST_CASE("a star tests") {
     }
 
     SECTION( "some objects" ) {
-        vector<map_layer> layers;
+        lotr_flat_map<map_layer_name, map_layer> layers;
         {
             vector<map_object> objects;
             vector<uint32_t> data;
@@ -78,11 +80,11 @@ TEST_CASE("a star tests") {
                 }
             }
 
-            layers.emplace_back(0, 0, 10, 10, wall_layer_name, "", vector<map_object>{}, move(data));
-            layers.emplace_back(0, 0, 10, 10, opaque_layer_name, "", move(objects), vector<uint32_t>{});
+            layers[map_layer_name::Walls] = map_layer(0, 0, map_size, map_size, wall_layer_name, ""s, vector<map_object>{}, move(data));
+            layers[map_layer_name::OpaqueDecor] = map_layer(0, 0, map_size, map_size, opaque_layer_name, ""s, move(objects), vector<uint32_t>{});
         }
 
-        map_component test_map(10, 10, "test", {}, move(layers), {});
+        map_component test_map(map_size, map_size, "test", {}, move(layers), {});
 
         auto start = make_tuple(1, 1);
         auto goal = make_tuple(9, 9);

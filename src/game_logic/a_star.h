@@ -23,7 +23,6 @@
 using namespace std;
 
 namespace lotr {
-    using location = tuple<int32_t, int32_t>;
     [[nodiscard]]
     lotr_flat_map<location, location> a_star_path(map_component const &m, location const &start, location const &goal);
 }

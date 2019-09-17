@@ -22,18 +22,19 @@
 #include <optional>
 #include <vector>
 #include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
     struct stat_component;
-    struct create_character_response {
+    struct create_character_response : public message {
         create_character_response(string name, vector<stat_component> stats) noexcept;
 
         ~create_character_response() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<create_character_response> deserialize(rapidjson::Document const &d);
 
         string name;

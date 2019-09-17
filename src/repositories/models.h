@@ -19,14 +19,14 @@
 #pragma once
 
 namespace lotr {
-    struct location {
+    struct db_location {
         uint64_t id;
         string map_name;
         uint32_t x;
         uint32_t y;
 
-        location() : id(), map_name(), x(), y() {}
-        location(uint64_t id, string map_name, uint32_t x, uint32_t y) : id(id), map_name(move(map_name)), x(x), y(y) {}
+        db_location() : id(), map_name(), x(), y() {}
+        db_location(uint64_t id, string map_name, uint32_t x, uint32_t y) : id(id), map_name(move(map_name)), x(x), y(y) {}
     };
 
     struct user {
@@ -77,12 +77,12 @@ namespace lotr {
         uint64_t user_id;
         uint64_t location_id;
         string name;
-        optional<location> loc;
+        optional<db_location> loc;
         vector<player_stat> stats;
         vector<player_item> items;
 
         player() : id(), user_id(), location_id(), name(), loc(), stats(), items() {}
-        player(uint64_t id, uint64_t user_id, uint64_t location_id, string name, optional<location> loc, vector<player_stat> stats, vector<player_item> items)
+        player(uint64_t id, uint64_t user_id, uint64_t location_id, string name, optional<db_location> loc, vector<player_stat> stats, vector<player_item> items)
         : id(id), user_id(user_id), location_id(location_id), name(move(name)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
     };
 }

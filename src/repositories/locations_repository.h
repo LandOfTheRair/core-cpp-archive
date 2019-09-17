@@ -33,10 +33,10 @@ namespace lotr {
 
         unique_ptr<transaction_T> create_transaction();
 
-        void insert(location &loc, unique_ptr<transaction_T> const &transaction) const;
-        void update(location const &loc, unique_ptr<transaction_T> const &transaction) const;
-        optional<location> get(uint64_t id, unique_ptr<transaction_T> const &transaction) const;
-        vector<location> get_by_map_name(string map_id, unique_ptr<transaction_T> const &transaction) const;
+        void insert(db_location &loc, unique_ptr<transaction_T> const &transaction) const;
+        void update(db_location const &loc, unique_ptr<transaction_T> const &transaction) const;
+        optional<db_location> get(uint64_t id, unique_ptr<transaction_T> const &transaction) const;
+        vector<db_location> get_by_map_name(string map_id, unique_ptr<transaction_T> const &transaction) const;
     private:
         shared_ptr<pool_T> _database_pool;
     };

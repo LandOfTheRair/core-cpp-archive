@@ -26,11 +26,45 @@
 #include <lotr_flat_map.h>
 #include <game_logic/fov.h>
 #include <entt/entity/registry.hpp>
+#include <game_logic/location.h>
 
 using namespace std;
 
 namespace lotr {
-    extern array<string const, 38> const stats;
+    extern array<string const, 40> const stats;
+
+    // enums
+
+    enum movement_direction {
+        North,
+        East,
+        South,
+        West,
+        NorthEast,
+        NorthWest,
+        SouthEast,
+        SouthWest
+    };
+
+    enum map_layer_name : uint32_t {
+        Terrain = 0,
+        Floors,
+        Fluids,
+        Foliage,
+        Walls,
+        Decor,
+        DenseDecor,
+        OpaqueDecor,
+        Interactables,
+        NPCs,
+        Spawners,
+        RegionDescriptions,
+        BackgroundMusic,
+        Succorport,
+        SpawnerZones
+    };
+
+    // components
 
     struct stat_component {
         string name;
@@ -166,13 +200,6 @@ namespace lotr {
         skills(npc.skills) {}
     };
 
-    enum movement_direction {
-        North,
-        East,
-        South,
-        West
-    };
-
     struct npc_path {
         movement_direction direction;
         uint32_t steps;
@@ -190,8 +217,7 @@ namespace lotr {
         uint32_t leash_radius;
         uint32_t elite_tick_cap;
         uint32_t max_spawn;
-        uint32_t x;
-        uint32_t y;
+        location loc;
 
         bool should_be_active;
         bool can_slow_down;
@@ -233,12 +259,7 @@ namespace lotr {
         uint32_t give_xp;
         uint32_t sfx_max_chance;
 
-        uint32_t x;
-        uint32_t y;
-
-        uint32_t x_before_interruption;
-        uint32_t y_before_interruption;
-        bool is_path_interrupted;
+        location loc;
 
         lotr_flat_map<string, uint64_t> stats;
         lotr_flat_map<string, item_component> items;
@@ -246,7 +267,7 @@ namespace lotr {
         //location_component location;
 
         character_component() : id(), name(), allegiance(), alignment(), sex(), dir(), hostility(), character_class(), monster_class(), spawn_message(),
-                          sfx(), level(), highest_level(), sprite(), skill_on_kill(), sfx_max_chance(), x(), y(), stats(), items(), skills() {}
+                          sfx(), level(), highest_level(), sprite(), skill_on_kill(), sfx_max_chance(), loc(), stats(), items(), skills() {}
     };
 
     struct pc_component : character_component {
@@ -263,8 +284,15 @@ namespace lotr {
         spawner_script *spawner;
         npc_component *agro_target;
         vector<npc_path> paths;
+        uint32_t current_path_index;
+        uint64_t steps_remaining_in_path;
 
-        npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr), paths() {}
+        location loc_before_interruption;
+        bool is_path_interrupted;
+
+
+        npc_component() : character_component(), npc_id(), spawner(nullptr), agro_target(nullptr), paths(), current_path_index(0),
+            steps_remaining_in_path(0), loc_before_interruption(0, 0), is_path_interrupted() {}
     };
 
     struct user_component {
@@ -291,8 +319,6 @@ namespace lotr {
     struct map_object {
         uint32_t gid;
         uint32_t id;
-        uint32_t x;
-        uint32_t y;
         uint32_t width;
         uint32_t height;
         string name;
@@ -300,9 +326,9 @@ namespace lotr {
         vector<map_property> properties;
         optional<spawner_script> script;
 
-        map_object() : gid(0), id(0), x(0), y(0), width(0), height(0), name(), type(), properties(), script() {}
-        map_object(uint32_t gid, uint32_t id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_property> properties, optional<spawner_script> script)
-            : gid(gid), id(id), x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), properties(move(properties)), script(move(script)) {}
+        map_object() : gid(0), id(0), width(0), height(0), name(), type(), properties(), script() {}
+        map_object(uint32_t gid, uint32_t id, uint32_t width, uint32_t height, string name, string type, vector<map_property> properties, optional<spawner_script> script)
+            : gid(gid), id(id), width(width), height(height), name(move(name)), type(move(type)), properties(move(properties)), script(move(script)) {}
     };
 
     struct map_layer {
@@ -316,6 +342,7 @@ namespace lotr {
         vector<map_object> objects;
         vector<uint32_t> data;
 
+        map_layer() : x(0), y(0), width(0), height(0), name(), type(), objects(), data() {}
         map_layer(uint32_t x, uint32_t y, uint32_t width, uint32_t height, string name, string type, vector<map_object> objects, vector<uint32_t> data)
             : x(x), y(y), width(width), height(height), name(move(name)), type(move(type)), objects(move(objects)), data(move(data)) {}
     };
@@ -337,8 +364,8 @@ namespace lotr {
         vector<npc_component> npcs;
         vector<pc_component> players;
 
-        map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, vector<map_layer> layers, vector<map_tileset> tilesets)
-            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), tilesets(move(tilesets)), npcs(), players() {}
+        map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, array<map_layer, 15> layers, vector<map_tileset> tilesets)
+            : width(width), height(height), name(move(name)), properties(move(properties)), layers(begin(layers), end(layers)), tilesets(move(tilesets)), npcs(), players() {}
     };
 
     // helper functions
@@ -352,13 +379,10 @@ namespace lotr {
     extern string const east_direction;
     extern string const south_direction;
     extern string const west_direction;
-
-    extern string const spawners_layer_name;
-    extern string const npcs_layer_name;
-    extern string const tile_layer_name;
-    extern string const object_layer_name;
-    extern string const wall_layer_name;
-    extern string const opaque_layer_name;
+    extern string const north_east_direction;
+    extern string const north_west_direction;
+    extern string const south_east_direction;
+    extern string const south_west_direction;
 
     extern string const stat_str;
     extern string const stat_dex;
@@ -373,7 +397,9 @@ namespace lotr {
     extern string const stat_hpregen;
     extern string const stat_mpregen;
     extern string const stat_hp;
+    extern string const stat_max_hp;
     extern string const stat_mp;
+    extern string const stat_max_mp;
     extern string const stat_hweapon_damage_rolls;
     extern string const stat_weapon_armor_class;
     extern string const stat_armor_class;
@@ -399,4 +425,23 @@ namespace lotr {
     extern string const stat_disease_resist;
     extern string const stat_action_speed;
 
+    extern string const hostility_never;
+    extern string const hostility_on_hit;
+    extern string const hostility_faction;
+    extern string const hostility_always;
+
+    extern string const gear_slot_right_hand;
+    extern string const gear_slot_left_hand;
+    extern string const gear_slot_armor;
+    extern string const gear_slot_robe1;
+    extern string const gear_slot_robe2;
+    extern string const gear_slot_ring1;
+    extern string const gear_slot_ring2;
+    extern string const gear_slot_head;
+    extern string const gear_slot_next;
+    extern string const gear_slot_waist;
+    extern string const gear_slot_wrist;
+    extern string const gear_slot_hands;
+    extern string const gear_slot_feet;
+    extern string const gear_slot_ear;
 }

@@ -28,8 +28,7 @@ TEST_CASE("default ai tests") {
     lotr_player_location_map locations;
     pc_component pc;
     npc_component npc;
-    npc.x = 3;
-    npc.y = 3;
+    npc.loc = make_tuple(3, 3);
     map_component m(10, 10, "test", {}, {}, {});
     locations[make_tuple(1,1)].push_back(&pc);
 

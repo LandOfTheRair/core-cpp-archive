@@ -18,7 +18,7 @@
 
 #include <catch2/catch.hpp>
 #include "../test_helpers/startup_helper.h"
-#include <game_queue_message_handlers/player_enter_message_handler.h>
+#include <game_queue_message_handlers/player_enter_handler.h>
 #include <ecs/components.h>
 
 using namespace std;
@@ -43,8 +43,8 @@ TEST_CASE("player enter tests") {
         REQUIRE(test_map.players.size() == 1);
         REQUIRE(test_map.players[0].name == "test_player");
         REQUIRE(test_map.players[0].connection_id == 1);
-        REQUIRE(test_map.players[0].x == 2);
-        REQUIRE(test_map.players[0].y == 3);
+        REQUIRE(get<0>(test_map.players[0].loc) == 2);
+        REQUIRE(get<1>(test_map.players[0].loc) == 3);
     }
 
     SECTION( "player does not enter non-existing world" ) {

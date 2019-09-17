@@ -34,7 +34,7 @@ unique_ptr<transaction_T> locations_repository<pool_T, transaction_T>::create_tr
 }
 
 template<typename pool_T, typename transaction_T>
-void locations_repository<pool_T, transaction_T>::insert(location &loc, unique_ptr<transaction_T> const &transaction) const {
+void locations_repository<pool_T, transaction_T>::insert(db_location &loc, unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("INSERT INTO locations (map_name, x, y) VALUES ('{}', {}, {}) RETURNING id", loc.map_name, loc.x, loc.y));
 
     if(result.empty()) {
@@ -48,14 +48,14 @@ void locations_repository<pool_T, transaction_T>::insert(location &loc, unique_p
 }
 
 template<typename pool_T, typename transaction_T>
-void locations_repository<pool_T, transaction_T>::update(location const &loc, unique_ptr<transaction_T> const &transaction) const {
+void locations_repository<pool_T, transaction_T>::update(db_location const &loc, unique_ptr<transaction_T> const &transaction) const {
     transaction->execute(fmt::format("UPDATE locations SET map_name = '{}', x = {}, y = {} WHERE id = {}", loc.map_name, loc.x, loc.y, loc.id));
 
     spdlog::debug("[{}] updated location {}", __FUNCTION__, loc.id);
 }
 
 template<typename pool_T, typename transaction_T>
-optional<location> locations_repository<pool_T, transaction_T>::get(uint64_t id, unique_ptr<transaction_T> const &transaction) const {
+optional<db_location> locations_repository<pool_T, transaction_T>::get(uint64_t id, unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("SELECT l.id, l.map_name, l.x, l.y FROM locations l WHERE id = {}" , id));
 
     if(result.empty()) {
@@ -63,7 +63,7 @@ optional<location> locations_repository<pool_T, transaction_T>::get(uint64_t id,
         return {};
     }
 
-    auto ret = make_optional<location>(result[0][0].as(uint64_t{}), result[0][1].as(string{}),
+    auto ret = make_optional<db_location>(result[0][0].as(uint64_t{}), result[0][1].as(string{}),
                                        result[0][2].as(uint32_t{}), result[0][3].as(uint32_t{}));
 
     spdlog::trace("[{}] found location by id {}", __FUNCTION__, id);
@@ -72,12 +72,12 @@ optional<location> locations_repository<pool_T, transaction_T>::get(uint64_t id,
 }
 
 template<typename pool_T, typename transaction_T>
-vector<location> locations_repository<pool_T, transaction_T>::get_by_map_name(string map_name, unique_ptr<transaction_T> const &transaction) const {
+vector<db_location> locations_repository<pool_T, transaction_T>::get_by_map_name(string map_name, unique_ptr<transaction_T> const &transaction) const {
     auto result = transaction->execute(fmt::format("SELECT l.id, l.map_name, l.x, l.y FROM locations l WHERE map_name = '{}'", transaction->escape(map_name)));
 
     spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
-    vector<location> locations;
+    vector<db_location> locations;
     locations.reserve(result.size());
 
     for(auto const & res : result) {

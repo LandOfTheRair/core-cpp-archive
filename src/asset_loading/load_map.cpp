@@ -36,6 +36,7 @@ using namespace lotr;
 
 uint32_t spawner_id_counter = 0;
 
+[[nodiscard]]
 optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current_object, uint32_t x, uint32_t y, uint32_t first_gid) {
     spawner_script script;
 
@@ -44,8 +45,7 @@ optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current
     script.initial_spawn = 1;
     script.max_creatures = 1;
     script.spawn_radius = 0;
-    script.x = x;
-    script.y = y;
+    script.loc = make_tuple(x, y);
 
     script.npc_ids.emplace_back(1, current_object["name"].GetString());
     script.npc_ids[0].sprite.push_back(current_object["gid"].GetUint() - first_gid);
@@ -56,6 +56,7 @@ optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current
     return script;
 }
 
+[[nodiscard]]
 optional<spawner_script> get_spawner_script(string const &script_file, uint32_t x, uint32_t y, entt::registry &registry) {
     string actual_script_file = fmt::format("assets/scripts/spawners/{}.yml", script_file);
     spawner_script script;
@@ -77,8 +78,7 @@ optional<spawner_script> get_spawner_script(string const &script_file, uint32_t 
     script.spawn_radius = tree["spawnRadius"].as<uint32_t>();
     script.random_walk_radius = tree["randomWalkRadius"].as<uint32_t>();
     script.leash_radius = tree["leashRadius"].as<uint32_t>();
-    script.x = x;
-    script.y = y;
+    script.loc = make_tuple(x, y);
 
     SPAWN_UINT_FIELD(elite_tick_cap)
     SPAWN_UINT_FIELD(max_spawn)
@@ -130,6 +130,14 @@ optional<spawner_script> get_spawner_script(string const &script_file, uint32_t 
                 dir = movement_direction::South;
             } else if(temp[1] == west_direction)  {
                 dir = movement_direction::West;
+            } else if(temp[1] == north_east_direction)  {
+                dir = movement_direction::NorthEast;
+            } else if(temp[1] == north_west_direction)  {
+                dir = movement_direction::NorthWest;
+            } else if(temp[1] == south_east_direction)  {
+                dir = movement_direction::SouthEast;
+            } else if(temp[1] == south_west_direction)  {
+                dir = movement_direction::SouthWest;
             } else {
                 spdlog::error("[{}] npc file {} could not decode path {} split {} missing direction {}", __FUNCTION__, actual_script_file, path, split, temp[1]);
                 continue;
@@ -149,6 +157,7 @@ optional<spawner_script> get_spawner_script(string const &script_file, uint32_t 
     return script;
 }
 
+[[nodiscard]]
 vector<map_property> get_properties(Value const &properties) {
     vector<map_property> object_properties;
 
@@ -166,7 +175,45 @@ vector<map_property> get_properties(Value const &properties) {
     return object_properties;
 }
 
-optional<map_component> lotr::load_map_from_file(const string &file, entt::registry &registry) {
+[[nodiscard]]
+map_layer_name layer_name_to_enum(string const &name) {
+    if(name == "Terrain") {
+        return map_layer_name::Terrain;
+    } else if(name == "Floors") {
+        return map_layer_name::Floors;
+    } else if(name == "Fluids") {
+        return map_layer_name::Fluids;
+    } else if(name == "Foliage") {
+        return map_layer_name::Foliage;
+    } else if(name == "Walls") {
+        return map_layer_name::Walls;
+    } else if(name == "Decor") {
+        return map_layer_name::Decor;
+    } else if(name == "DenseDecor") {
+        return map_layer_name::DenseDecor;
+    } else if(name == "OpaqueDecor") {
+        return map_layer_name::OpaqueDecor;
+    } else if(name == "Interactables") {
+        return map_layer_name::Interactables;
+    } else if(name == "NPCs") {
+        return map_layer_name::NPCs;
+    } else if(name == "Spawners") {
+        return map_layer_name::Spawners;
+    } else if(name == "RegionDescriptions") {
+        return map_layer_name::RegionDescriptions;
+    } else if(name == "BackgroundMusic") {
+        return map_layer_name::BackgroundMusic;
+    } else if(name == "Succorport") {
+        return map_layer_name::Succorport;
+    } else if(name == "SpawnerZones") {
+        return map_layer_name::SpawnerZones;
+    }
+
+    spdlog::error("[{}] code path should never be hit", __FUNCTION__);
+    return map_layer_name::SpawnerZones;
+}
+
+optional<map_component> lotr::load_map_from_file(const string &file, entt::registry &registry, lotr_flat_map <string, optional<spawner_script>> &spawner_script_cache) {
     spdlog::debug("[{}] Loading load_map {}", __FUNCTION__, file);
     auto env_contents = read_whole_file(file);
 
@@ -199,30 +246,31 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
         map_tilesets.emplace_back(current_tileset["firstgid"].GetUint(), current_tileset["name"].GetString());
     }
 
-    vector<map_layer> map_layers;
+    array<map_layer, 15> map_layers;
     auto& json_layers = d["layers"];
 
     for(SizeType i = 0; i < json_layers.Size(); i++) {
         auto& current_layer = json_layers[i];
-        spdlog::trace("[{}] layer {}: {}", __FUNCTION__, i, current_layer["name"].GetString());
-
+        string current_layer_name = current_layer["name"].GetString();
+        spdlog::trace("[{}] layer {}: {}", __FUNCTION__, i, current_layer_name);
+        auto current_layer_enum = layer_name_to_enum(current_layer_name);
 
         if (!current_layer.IsObject()) {
             spdlog::warn("[{}] deserialize failed", __FUNCTION__);
             return nullopt;
         }
 
-        if(current_layer["type"].GetString() == tile_layer_name) {
+        if(current_layer["type"].GetString() == "tilelayer"s) {
             vector<uint32_t> data;
             for (SizeType j = 0; j < current_layer["data"].Size(); j++) {
                 data.push_back(current_layer["data"][j].GetUint());
             }
-            map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), current_layer["width"].GetInt(),
-                                    current_layer["height"].GetInt(), current_layer["name"].GetString(), current_layer["type"].GetString(), vector<map_object>{}, data);
+            map_layers[current_layer_enum] = map_layer(current_layer["x"].GetInt(), current_layer["y"].GetInt(), current_layer["width"].GetInt(),
+                                                   current_layer["height"].GetInt(), current_layer_name, current_layer["type"].GetString(), vector<map_object>{}, data);
         }
 
-        string current_layer_name = current_layer["name"].GetString();
-        if(current_layer["type"].GetString() == object_layer_name) {
+
+        if(current_layer["type"].GetString() == "objectgroup"s) {
             vector<map_object> objects;
             objects.reserve(width*height);
 
@@ -248,8 +296,14 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
                 uint32_t x = current_object["x"].GetUint() / tilewidth;
                 uint32_t y = (current_object["y"].GetUint() - tileheight) / tileheight; // something weird about tiled putting an object at offset Y coords
                 auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "script";});
-                if((current_layer_name == spawners_layer_name) && object_script_property != end(object_properties)) {
-                    spawn_script = get_spawner_script(get<string>(object_script_property->value), x, y, registry);
+                if((current_layer_enum == map_layer_name::Spawners) && object_script_property != end(object_properties)) {
+                    auto cache_it = spawner_script_cache.find(get<string>(object_script_property->value));
+                    if(cache_it == end(spawner_script_cache)) {
+                        spawn_script = get_spawner_script(get<string>(object_script_property->value), x, y, registry);
+                        spawner_script_cache[get<string>(object_script_property->value)] = spawn_script;
+                    } else {
+                        spawn_script = cache_it->second;
+                    }
 
                     auto object_resource_name_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "resourceName";});
                     if(object_resource_name_property != end(object_properties)) {
@@ -263,19 +317,18 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
                     }
                 }
 
-                if(current_layer_name == npcs_layer_name) {
+                if(current_layer_enum == map_layer_name::NPCs) {
                     auto test = map_tilesets | ranges::views::remove_if([&](map_tileset const &t){ return t.firstgid > current_object["gid"].GetUint(); });
 
                     spawn_script = create_spawner_script_for_npc(current_object, x, y, test.back().firstgid);
                     spdlog::trace("[{}] npc {} assigned spawner", __FUNCTION__, current_object["name"].GetString());
                 }
 
-                objects[x + y * width] = map_object(gid, current_object["id"].GetUint(),
-                        x, y, current_object["width"].GetUint(),
+                objects[x + y * width] = map_object(gid, current_object["id"].GetUint(), current_object["width"].GetUint(),
                         current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script);
             }
-            map_layers.emplace_back(current_layer["x"].GetInt(), current_layer["y"].GetInt(), 0, 0, current_layer["name"].GetString(), current_layer["type"].GetString(),
-                                    move(objects), vector<uint32_t>{});
+            // for some reason, width/height are not present in the json files?
+            map_layers[current_layer_enum] = map_layer(current_layer["x"].GetInt(), current_layer["y"].GetInt(), width, height, current_layer_name, current_layer["type"].GetString(), move(objects), vector<uint32_t>{});
         }
     }
 

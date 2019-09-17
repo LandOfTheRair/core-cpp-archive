@@ -26,5 +26,5 @@ using namespace std;
 
 namespace lotr {
     [[nodiscard]]
-    optional<map_component> load_map_from_file(const string &file, entt::registry &registry);
+    optional<map_component> load_map_from_file(const string &file, entt::registry &registry, lotr_flat_map <string, optional<spawner_script>> &spawner_script_cache);
 }

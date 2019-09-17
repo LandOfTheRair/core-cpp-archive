@@ -16,26 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <bitset>
-#include <game_logic/location.h>
+#include <App.h>
+#include <rapidjson/document.h>
+#include <database/database_pool.h>
+#include <per_socket_data.h>
+#include <readerwriterqueue.h>
+#include <game_queue_messages/messages.h>
 
 using namespace std;
 
 namespace lotr {
-    constexpr uint32_t fov_max_distance = 4;
-    constexpr uint32_t fov_diameter = fov_max_distance * 2 + 1;
-
-    constexpr uint32_t power(uint32_t x) noexcept {
-        return x * x;
-    }
-
-    struct map_component;
-
-    [[nodiscard]]
-    bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting(map_component const &m, location &player_loc, bool const light_walls);
-
-    void log_fov(bitset<power(fov_diameter)> const &fov, string name);
+    void handle_move(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                     per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

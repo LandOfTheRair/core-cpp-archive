@@ -18,7 +18,7 @@
 
 #include <catch2/catch.hpp>
 #include "../test_helpers/startup_helper.h"
-#include <game_queue_message_handlers/player_leave_message_handler.h>
+#include <game_queue_message_handlers/player_leave_handler.h>
 #include <ecs/components.h>
 
 using namespace std;

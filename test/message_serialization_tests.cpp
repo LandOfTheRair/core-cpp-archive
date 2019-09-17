@@ -23,6 +23,7 @@
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
 #include <messages/user_access/create_character_response.h>
+#include <messages/commands/move_request.h>
 #include <messages/map_update_response.h>
 #include <messages/generic_error_response.h>
 
@@ -38,6 +39,9 @@ using namespace lotr;
             auto msg2 = type::deserialize(d);
 
 TEST_CASE("message serialization tests") {
+
+    // user access control
+
     SECTION("login request") {
         SERDE(login_request, "user", "pass");
         REQUIRE(msg.username == msg2->username);
@@ -97,19 +101,27 @@ TEST_CASE("message serialization tests") {
         }
     }
 
+    // commands
+
+    SECTION("move request") {
+        SERDE(move_request, 2, 4);
+        REQUIRE(msg.x == msg2->x);
+        REQUIRE(msg.y == msg2->y);
+    }
+
+    // misc
+
     SECTION("map update response") {
         vector<character_component> npcs;
         character_component one;
         one.name = "test";
         one.sprite = 1;
-        one.x = 2;
-        one.y = 3;
+        one.loc = make_tuple(2, 3);
 
         character_component two;
         two.name = "test2";
         two.sprite = 4;
-        two.x = 5;
-        two.y = 6;
+        one.loc = make_tuple(5, 6);
         npcs.push_back(one);
         npcs.push_back(two);
         SERDE(map_update_response, npcs)
@@ -117,8 +129,7 @@ TEST_CASE("message serialization tests") {
         for(uint32_t i = 0; i < msg.npcs.size(); i++) {
             REQUIRE(msg.npcs[i].name == msg2->npcs[i].name);
             REQUIRE(msg.npcs[i].sprite == msg2->npcs[i].sprite);
-            REQUIRE(msg.npcs[i].x == msg2->npcs[i].x);
-            REQUIRE(msg.npcs[i].y == msg2->npcs[i].y);
+            REQUIRE(msg.npcs[i].loc == msg2->npcs[i].loc);
         }
     }
 

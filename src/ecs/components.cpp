@@ -22,13 +22,10 @@ namespace  lotr {
     string const east_direction = "E";
     string const south_direction = "S";
     string const west_direction = "W";
-
-    string const spawners_layer_name = "Spawners";
-    string const npcs_layer_name = "NPCs";
-    string const tile_layer_name = "tilelayer";
-    string const object_layer_name = "objectgroup";
-    string const wall_layer_name = "Walls"s;
-    string const opaque_layer_name = "OpaqueDecor"s;
+    string const north_east_direction = "NE";
+    string const north_west_direction = "NW";
+    string const south_east_direction = "SE";
+    string const south_west_direction = "SW";
 
     string const stat_str = "str";
     string const stat_dex = "dex";
@@ -43,7 +40,9 @@ namespace  lotr {
     string const stat_hpregen = "hpregen";
     string const stat_mpregen = "mpregen";
     string const stat_hp = "hp";
+    string const stat_max_hp = "maxhp";
     string const stat_mp = "mp";
+    string const stat_max_mp = "maxmp";
     string const stat_hweapon_damage_rolls = "weaponDamageRolls";
     string const stat_weapon_armor_class = "weaponArmorClass";
     string const stat_armor_class = "armorClass";
@@ -70,8 +69,28 @@ namespace  lotr {
     string const stat_action_speed = "actionSpeed";
     /*, "damageFactor"s TODO damage factor is a double :< */
 
-    array<string const, 38> const stats = {stat_str,  stat_dex,  stat_agi,  stat_int,  stat_wis,  stat_wil,  stat_luk,  stat_cha,  stat_con,  stat_move,
-                                           stat_hpregen,  stat_mpregen,  stat_hp,  stat_mp,  stat_hweapon_damage_rolls,  stat_weapon_armor_class,  stat_armor_class,
+    string const hostility_never = "always";
+    string const hostility_on_hit = "onHit";
+    string const hostility_faction = "faction";
+    string const hostility_always = "always";
+
+    extern string const gear_slot_right_hand = "rightHand";
+    extern string const gear_slot_left_hand = "leftHand";
+    extern string const gear_slot_armor = "armor";
+    extern string const gear_slot_robe1 = "robe1";
+    extern string const gear_slot_robe2 = "robe2";
+    extern string const gear_slot_ring1 = "ring1";
+    extern string const gear_slot_ring2 = "ring2";
+    extern string const gear_slot_head = "head";
+    extern string const gear_slot_next = "next";
+    extern string const gear_slot_waist = "waist";
+    extern string const gear_slot_wrist = "wrist";
+    extern string const gear_slot_hands = "hands";
+    extern string const gear_slot_feet = "feet";
+    extern string const gear_slot_ear = "ear";
+
+    array<string const, 40> const stats = {stat_str,  stat_dex,  stat_agi,  stat_int,  stat_wis,  stat_wil,  stat_luk,  stat_cha,  stat_con,  stat_move,
+                                           stat_hpregen,  stat_mpregen,  stat_hp,  stat_mp,  stat_max_hp,  stat_max_mp,  stat_hweapon_damage_rolls,  stat_weapon_armor_class,  stat_armor_class,
                                            stat_accuracy,  stat_offense,  stat_defense, stat_stealth,  stat_perception,  stat_physical_damage_boost,  stat_magical_damage_boost,
                                            stat_healing_boost,  stat_physical_damage_reflect,  stat_magical_damage_reflect,  stat_mitigation,  stat_magical_resist,
                                            stat_physical_resist,  stat_necrotic_resist,  stat_energy_resist,  stat_water_resist,  stat_fire_resist,  stat_ice_resist,

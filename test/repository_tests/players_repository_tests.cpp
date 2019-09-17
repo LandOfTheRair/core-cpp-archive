@@ -36,7 +36,7 @@ TEST_CASE("players repository tests") {
 
 
     SECTION( "player inserted correctly" ) {
-        location loc{0, "test", 0, 0};
+        db_location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
@@ -54,8 +54,8 @@ TEST_CASE("players repository tests") {
     }
 
     SECTION( "player updated correctly" ) {
-        location loc{0, "test", 0, 0};
-        location loc2{0, "test2", 0, 0};
+        db_location loc{0, "test", 0, 0};
+        db_location loc2{0, "test2", 0, 0};
         locations_repo.insert(loc, transaction);
         locations_repo.insert(loc2, transaction);
 
@@ -78,7 +78,7 @@ TEST_CASE("players repository tests") {
     }
 
     SECTION( "Can't insert player twice" ) {
-        location loc{0, "test", 0, 0};
+        db_location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
@@ -93,7 +93,7 @@ TEST_CASE("players repository tests") {
     }
 
     SECTION( "multiple players retrieved correctly" ) {
-        location loc{0, "test", 0, 0};
+        db_location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};

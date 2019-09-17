@@ -30,8 +30,9 @@
 #include <readerwriterqueue.h>
 #include <sodium.h>
 #include <messages/map_update_response.h>
-#include <game_queue_message_handlers/player_enter_message_handler.h>
-#include <game_queue_message_handlers/player_leave_message_handler.h>
+#include <game_queue_message_handlers/player_enter_handler.h>
+#include <game_queue_message_handlers/player_leave_handler.h>
+#include <game_queue_message_handlers/commands/player_move_handler.h>
 #include <range/v3/all.hpp>
 
 #include "config.h"
@@ -100,15 +101,16 @@ int main() {
 
     load_assets(registry, quit);
 
-    lotr_flat_map<uint32_t, moodycamel::ReaderWriterQueue<map_update_response>> per_player_map_update_queue;
+    outward_queues per_player_outward_queue;
     vector<uint64_t> frame_times;
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);
     auto next_log_tick_times = chrono::system_clock::now() + chrono::seconds(1);
     uint32_t tick_counter = 0;
 
-    lotr_flat_map<uint32_t, function<void(queue_message*, entt::registry&)>> game_queue_message_router;
+    lotr_flat_map<uint32_t, function<void(queue_message*, entt::registry&, outward_queues&)>> game_queue_message_router;
     game_queue_message_router.emplace(player_enter_message::_type, handle_player_enter_message);
     game_queue_message_router.emplace(player_leave_message::_type, handle_player_leave_message);
+    game_queue_message_router.emplace(player_move_message::_type, handle_player_move_message);
 
     while (!quit) {
         auto now = chrono::system_clock::now();
@@ -124,7 +126,7 @@ int main() {
             unique_ptr<queue_message> msg;
             while (game_loop_queue.try_dequeue(msg)) {
                 spdlog::trace("[{}] got game loop msg with type {}", __FUNCTION__, msg->type);
-                game_queue_message_router[msg->type](msg.get(), registry);
+                game_queue_message_router[msg->type](msg.get(), registry, per_player_outward_queue);
             }
         }
 
@@ -134,36 +136,43 @@ int main() {
             lotr_player_location_map player_location_map;
 
             for (auto &player : m.players) {
-                auto loc_tuple = make_tuple(player.x, player.y);
-                auto existing_players = player_location_map.find(loc_tuple);
+                auto existing_players = player_location_map.find(player.loc);
 
                 if (existing_players == end(player_location_map)) {
-                    player_location_map[loc_tuple] = vector<pc_component *>{&player};
+                    player_location_map[player.loc] = vector<pc_component *>{&player};
                 } else {
                     existing_players->second.push_back(&player);
                 }
 
-                player.fov = compute_fov_restrictive_shadowcasting(m, player.x, player.y, true);
+                player.fov = compute_fov_restrictive_shadowcasting(m, player.loc, true);
 
-                auto min_x = max(0u, player.x - fov_max_distance);
-                auto min_y = max(0u, player.y - fov_max_distance);
-                auto max_x = min(m.width, player.x + fov_max_distance);
-                auto max_y = min(m.height, player.y + fov_max_distance);
-                // TODO fov?
-                auto visible_npcs = m.npcs | ranges::views::filter([&](npc_component const &npc){ return npc.x >= min_x && npc.x <= max_x && npc.y >= min_y && npc.y <= max_y && player.fov[player.x - npc.x + fov_max_distance + ((npc.y - player.y + fov_max_distance) * fov_diameter)] == true; });
-                auto visible_pcs = m.players | ranges::views::filter([&](pc_component const &pc){ return pc.x >= min_x && pc.x <= max_x && pc.y >= min_y && pc.y <= max_y && player.fov[player.x - pc.x + fov_max_distance + ((pc.y - player.y + fov_max_distance) * fov_diameter)] == true; });
+                auto min_x = max(0u, get<0>(player.loc) - fov_max_distance);
+                auto min_y = max(0u, get<1>(player.loc) - fov_max_distance);
+                auto max_x = min(m.width, get<0>(player.loc) + fov_max_distance);
+                auto max_y = min(m.height, get<1>(player.loc) + fov_max_distance);
+
+                auto visible_npcs = m.npcs | ranges::views::filter([&](npc_component const &npc){ return is_visible(player.loc, npc.loc, player.fov, min_x, max_x, min_y, max_y); });
+                auto visible_pcs = m.players | ranges::views::filter([&](pc_component const &pc){ return is_visible(player.loc, pc.loc, player.fov, min_x, max_x, min_y, max_y) && player.connection_id != pc.connection_id; });
                 vector<character_component> cs;
 
                 for(auto &npc : visible_npcs) {
                     cs.push_back(npc);
                 }
 
+                for(auto &pc : visible_pcs) {
+                    cs.push_back(pc);
+                }
+
                 spdlog::trace("[{}] Enqueued map update response with {} visible npcs", __FUNCTION__, cs.size());
-                per_player_map_update_queue[player.connection_id].enqueue(map_update_response{cs});
+                per_player_outward_queue[player.connection_id].enqueue(make_unique<map_update_response>(cs));
             }
 
             remove_dead_npcs(m.npcs);
             fill_spawners(m, m.npcs, registry);
+
+            for(auto &npc : m.npcs) {
+                run_ai_on(npc, m, player_location_map);
+            }
         }
 
         auto tick_end = chrono::system_clock::now();
@@ -172,13 +181,12 @@ int main() {
         tick_counter++;
 
         shit_uws.loop->defer([&] {
-            for(auto &[conn_id, q] : per_player_map_update_queue) {
+            for(auto &[conn_id, q] : per_player_outward_queue) {
                 auto conn = user_connections.find(conn_id);
                 if(conn != end(user_connections)) {
-                    map_update_response msg({});
+                    unique_ptr<message> msg;
                     while(q.try_dequeue(msg)) {
-                        spdlog::trace("[main] sending map update response with {} visible npcs", msg.npcs.size());
-                        conn->second->send(msg.serialize());
+                        conn->second->send(msg->serialize());
                     }
                 }
             }

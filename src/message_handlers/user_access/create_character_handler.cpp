@@ -34,7 +34,7 @@ using namespace std;
 namespace lotr {
     void handle_create_character(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                                shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
-        DESERIALIZE_WITH_CHECK(create_character_request)
+        DESERIALIZE_WITH_NOT_LOGIN_CHECK(create_character_request)
 
         locations_repository<database_pool, database_transaction> location_repo(pool);
         players_repository<database_pool, database_transaction> player_repo(pool);
@@ -54,7 +54,7 @@ namespace lotr {
         player new_player;
         new_player.name = msg->name;
         new_player.user_id = user_data->user_id;
-        location loc(0, "Tutorial", 14, 14);
+        db_location loc(0, "Tutorial", 14, 14);
         location_repo.insert(loc, transaction);
         new_player.loc = loc;
         new_player.location_id = loc.id;

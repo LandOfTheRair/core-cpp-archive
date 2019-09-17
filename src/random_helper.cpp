@@ -25,7 +25,15 @@ using namespace lotr;
 
 //#define EXTREME_RANDOM_LOGGING
 
-random_helper::random_helper() : _rng64(pcg_extras::seed_seq_from<random_device>()) { }
+random_helper::random_helper() : _rng64(pcg_extras::seed_seq_from<random_device>()), _rng32(pcg_extras::seed_seq_from<random_device>()) { }
+
+uint64_t random_helper::generate_single_fast(uint64_t end) {
+    return _rng64(end);
+}
+
+uint32_t random_helper::generate_single_fast(uint32_t end) {
+    return _rng32(end);
+}
 
 uint64_t random_helper::generate_single(uint64_t from, uint64_t end) {
     uniform_int_distribution<decltype(from)> uniform_dist(from, end);

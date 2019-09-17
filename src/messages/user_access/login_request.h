@@ -21,17 +21,18 @@
 #include <string>
 #include <optional>
 #include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct login_request {
+    struct login_request : public message {
         login_request(string username, string password) noexcept;
 
         ~login_request() noexcept = default;
 
         [[nodiscard]]
-        string serialize() const;
+        string serialize() const override;
         static optional<login_request> deserialize(rapidjson::Document const &d);
 
         string username;

@@ -52,10 +52,10 @@ string map_update_response::serialize() const {
         writer.Uint(npc.sprite);
 
         writer.String("x");
-        writer.Uint(npc.x);
+        writer.Uint(get<0>(npc.loc));
 
         writer.String("y");
-        writer.Uint(npc.y);
+        writer.Uint(get<1>(npc.loc));
 
         writer.EndObject();
     }
@@ -96,8 +96,7 @@ optional<map_update_response> map_update_response::deserialize(rapidjson::Docume
         npc_component npc;
         npc.name = npcs_array[i]["name"].GetString();
         npc.sprite = npcs_array[i]["sprite"].GetInt();
-        npc.x = npcs_array[i]["x"].GetInt();
-        npc.y = npcs_array[i]["y"].GetInt();
+        npc.loc = make_tuple(npcs_array[i]["x"].GetInt(), npcs_array[i]["y"].GetInt());
 
         players.push_back(npc);
     }

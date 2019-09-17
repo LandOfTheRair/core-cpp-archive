@@ -25,10 +25,12 @@
 #include <message_handlers/user_access/register_handler.h>
 #include <message_handlers/user_access/play_character_handler.h>
 #include <message_handlers/user_access/create_character_handler.h>
+#include <message_handlers/commands/move_handler.h>
 #include <messages/user_access/login_request.h>
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
+#include <messages/commands/move_request.h>
 #include "per_socket_data.h"
 
 using namespace std;
@@ -51,6 +53,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
     message_router.emplace(register_request::type, handle_register);
     message_router.emplace(play_character_request::type, handle_play_character);
     message_router.emplace(create_character_request::type, handle_create_character);
+    message_router.emplace(move_request::type, handle_move);
 
     uWS::TemplatedApp<false>().
                     ws<per_socket_data>("/*", {
@@ -68,7 +71,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         auto *user_data = (per_socket_data *) ws->getUserData();
                         user_data->connection_id = connection_id_counter++;
                         user_data->user_id = 0;
-                        user_data->current_character = new string;
+                        user_data->playing_character = false;
                         user_connections[user_data->connection_id] = ws;
                         spdlog::debug("[uws] open connection {} {}", req->getUrl(), user_data->connection_id);
                     },
@@ -115,17 +118,16 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         //only called on close
                         auto *user_data = (per_socket_data *) ws->getUserData();
                         user_connections.erase(user_data->connection_id);
-                        if(!user_data->current_character->empty()) {
-                            game_loop_queue.enqueue(make_unique<player_leave_message>(*user_data->current_character));
+                        if(user_data->playing_character) {
+                            game_loop_queue.enqueue(make_unique<player_leave_message>(user_data->connection_id));
                         }
-                        spdlog::debug("[uws] close connection {} {} {} {} {}", code, message, user_data->connection_id, user_data->user_id, *(user_data->current_character));
-                        delete user_data->current_character;
+                        spdlog::debug("[uws] close connection {} {} {} {}", code, message, user_data->connection_id, user_data->user_id);
                     }
             })
 
             .listen(config.port, [&](us_listen_socket_t *token) {
                 if (token) {
-                    spdlog::info("[main] listening on \"{}:{}\"", config.address, config.port);
+                    spdlog::info("[uws] listening on \"{}:{}\"", config.address, config.port);
                     shit_uws.socket = token;
                 }
             }).run();

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "player_leave_message_handler.h"
+#include "player_leave_handler.h"
 
 #include <spdlog/spdlog.h>
 #include <ecs/components.h>
@@ -24,11 +24,11 @@
 using namespace std;
 
 namespace lotr {
-    void handle_player_leave_message(queue_message* msg, entt::registry& registry) {
+    void handle_player_leave_message(queue_message* msg, entt::registry& registry, outward_queues&) {
         auto *leave_message = dynamic_cast<player_leave_message*>(msg);
 
         if(leave_message == nullptr) {
-            spdlog::error("[{}] leave_message nullptr", __FUNCTION__);
+            spdlog::error("[{}] player_leave_message nullptr", __FUNCTION__);
             return;
         }
 
@@ -36,9 +36,13 @@ namespace lotr {
 
         for(auto m_entity : map_view) {
             map_component &m = map_view.get(m_entity);
-            m.players.erase(remove_if(begin(m.players), end(m.players), [&](pc_component const &pc) { return pc.name == leave_message->character_name; }), end(m.players));
+            m.players.erase(remove_if(begin(m.players), end(m.players), [&](pc_component const &pc) {
+                if(pc.connection_id == leave_message->connection_id) {
+                    spdlog::info("[{}] player {} left game {}", __FUNCTION__, pc.name, leave_message->connection_id);
+                    return true;
+                }
+                return false;
+            }), end(m.players));
         }
-
-        spdlog::info("[{}] player {} left game", __FUNCTION__, leave_message->character_name);
     }
 }

@@ -265,7 +265,7 @@ bitset<power(fov_diameter)> compute_fov_restrictive_shadowcasting_quadrant (map_
     return fov_array;
 }
 
-bitset<power(fov_diameter)> lotr::compute_fov_restrictive_shadowcasting(map_component const &m, int32_t const player_x, int32_t const player_y, bool const light_walls) {
+bitset<power(fov_diameter)> lotr::compute_fov_restrictive_shadowcasting(map_component const &m, location &player_loc, bool const light_walls) {
     int max_obstacles;
 
     /* calculate an approximated (excessive, just in case) maximum number of obstacles per octant */
@@ -278,19 +278,19 @@ bitset<power(fov_diameter)> lotr::compute_fov_restrictive_shadowcasting(map_comp
         end_angle = make_unique<double[]>(max_obstacles);
     }
 
-    auto const walls_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == wall_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
-    auto const opaque_layer = find_if(cbegin(m.layers), cend(m.layers), [](map_layer const &l) noexcept {return l.name == opaque_layer_name;}); // Case-sensitive. This will probably bite us in the ass later.
+    auto const &walls_layer = m.layers[map_layer_name::Walls];
+    auto const &opaque_layer = m.layers[map_layer_name::OpaqueDecor];
 
-    if(walls_layer == cend(m.layers) || opaque_layer == cend(m.layers)) {
+    if(walls_layer.name.empty() || opaque_layer.name.empty()) {
         spdlog::error("[{}] missing walls or opaque layer for map {}", m.name);
         return {};
     }
 
     /* compute the 4 quadrants of the map */
-    auto q1_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &*walls_layer, &*opaque_layer, player_x, player_y, light_walls, 1, 1);
-    auto q2_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &*walls_layer, &*opaque_layer, player_x, player_y, light_walls, 1, -1);
-    auto q3_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &*walls_layer, &*opaque_layer, player_x, player_y, light_walls, -1, 1);
-    auto q4_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &*walls_layer, &*opaque_layer, player_x, player_y, light_walls, -1, -1);
+    auto q1_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &walls_layer, &opaque_layer, get<0>(player_loc), get<1>(player_loc), light_walls, 1, 1);
+    auto q2_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &walls_layer, &opaque_layer, get<0>(player_loc), get<1>(player_loc), light_walls, 1, -1);
+    auto q3_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &walls_layer, &opaque_layer, get<0>(player_loc), get<1>(player_loc), light_walls, -1, 1);
+    auto q4_fov = compute_fov_restrictive_shadowcasting_quadrant(m, &walls_layer, &opaque_layer, get<0>(player_loc), get<1>(player_loc), light_walls, -1, -1);
 
 #ifdef LOG_FOV_EXTREME
     log_fov(q1_fov | q2_fov | q3_fov | q4_fov, "fov");
