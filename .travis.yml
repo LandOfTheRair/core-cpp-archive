@@ -34,7 +34,7 @@ matrix:
       - ./compile_external_release.sh
       - CMAKE_CXX_FLAGS="-DEXCLUDE_PSQL_TESTS" cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo .
       - make
-      - echo '{ "ADDRESS": "localhost", "PORT": 8080, "DEBUG_LEVEL": "trace", "CONNECTION_STRING": "postgres://lotr:lotr@localhost/lotr", "TICK_LENGTH": 100, "LOG_TICK_TIMES": true }' &> bin/config.json
+      - echo '{ "ADDRESS":"localhost", "PORT":8080, "DEBUG_LEVEL":"trace", "CONNECTION_STRING":"postgres://@localhost/", "TICK_LENGTH":100, "LOG_TICK_TIMES":true }' &> bin/config.json
       - bin/lotr_test
     after_script:
       - eval "$(ssh-agent -s)"
