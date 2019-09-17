@@ -27,6 +27,8 @@ if res_msg['type'] == 'error_response':
     res_msg = json.loads(res)
     if res_msg['type'] == 'error_response':
         sys.exit(1)
+
+ws.send("{\"type\": \"Game:move\", \"x\": 12, \"y\": 12}")
 while 1:
     res = ws.recv()
     print(f'res: {res}')
