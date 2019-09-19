@@ -37,11 +37,11 @@ namespace lotr {
         uint16_t login_attempts;
         string verification_code;
         uint16_t no_of_players;
-        uint16_t admin;
+        uint16_t is_game_master;
 
-        user() : id(), username(), password(), email(), login_attempts(), verification_code(), no_of_players(), admin() {}
+        user() : id(), username(), password(), email(), login_attempts(), verification_code(), no_of_players(), is_game_master() {}
         user(uint64_t id, string username, string password, string email, uint16_t login_attempts, string verification_code, uint16_t no_of_players, uint16_t admin)
-        : id(id), username(move(username)), password(move(password)), email(move(email)), login_attempts(login_attempts), verification_code(move(verification_code)), no_of_players(no_of_players), admin(admin) {}
+        : id(id), username(move(username)), password(move(password)), email(move(email)), login_attempts(login_attempts), verification_code(move(verification_code)), no_of_players(no_of_players), is_game_master(admin) {}
     };
 
     struct banned_user {

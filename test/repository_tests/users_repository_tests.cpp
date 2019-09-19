@@ -41,7 +41,7 @@ TEST_CASE("users repository tests") {
         REQUIRE(usr2->password == usr.password);
         REQUIRE(usr2->email == usr.email);
         REQUIRE(usr2->login_attempts == usr.login_attempts);
-        REQUIRE(usr2->admin == usr.admin);
+        REQUIRE(usr2->is_game_master == usr.is_game_master);
         REQUIRE(usr2->no_of_players == usr.no_of_players);
         REQUIRE(usr2->verification_code == usr.verification_code);
         
@@ -60,7 +60,7 @@ TEST_CASE("users repository tests") {
         usr.password = "pass2";
         usr.email = "email2";
         usr.login_attempts = 5;
-        usr.admin = 6;
+        usr.is_game_master = 6;
         usr.no_of_players = 7;
         user_repo.update(usr, transaction);
         
@@ -71,7 +71,7 @@ TEST_CASE("users repository tests") {
         REQUIRE(usr2->password == usr.password);
         REQUIRE(usr2->email == usr.email);
         REQUIRE(usr2->login_attempts == usr.login_attempts);
-        REQUIRE(usr2->admin == usr.admin);
+        REQUIRE(usr2->is_game_master == usr.is_game_master);
         REQUIRE(usr2->no_of_players == usr.no_of_players);
     }
 }
