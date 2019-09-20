@@ -142,7 +142,7 @@ void bench_default_ai(map_component &m) {
     }
 
     auto start = chrono::system_clock::now();
-    lotr_player_location_map player_locs;
+    lotr_player_location_map player_locs{};
 
     for(int i = 0; i < 10'000; i++) {
         for(auto &npc : m.npcs) {

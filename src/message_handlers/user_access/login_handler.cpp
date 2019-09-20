@@ -77,7 +77,7 @@ namespace lotr {
 
             login_response response(message_players, usr->username, usr->email);
             auto response_msg = response.serialize();
-            ws->send(response_msg);
+            ws->send(response_msg, op_code, true);
             user_data->user_id = usr->id;
         }
     }
