@@ -95,7 +95,7 @@ namespace lotr {
 
             transaction->commit();
 
-            login_response response({});
+            login_response response({}, new_usr.username, new_usr.email);
             auto response_msg = response.serialize();
             if (!ws->send(response_msg, op_code, true)) {
                 ws->end(0);

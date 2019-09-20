@@ -50,16 +50,20 @@ TEST_CASE("message serialization tests") {
 
     SECTION("empty login response") {
         vector<message_player> players;
-        SERDE(login_response, players);
+        SERDE(login_response, players, "username", "email");
         REQUIRE(msg.players.size() == msg2->players.size());
+        REQUIRE(msg.username == msg2->username);
+        REQUIRE(msg.email == msg2->email);
     }
 
     SECTION("login response") {
         vector<message_player> players;
         players.emplace_back("name", "map", 1, 2);
         players.emplace_back("name2", "map2", 3, 4);
-        SERDE(login_response, players);
+        SERDE(login_response, players, "username", "email");
         REQUIRE(msg.players.size() == msg2->players.size());
+        REQUIRE(msg.username == msg2->username);
+        REQUIRE(msg.email == msg2->email);
         for(uint32_t i = 0; i < msg.players.size(); i++) {
             REQUIRE(msg.players[i].name == msg2->players[i].name);
             REQUIRE(msg.players[i].map_name == msg2->players[i].map_name);

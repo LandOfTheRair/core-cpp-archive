@@ -25,7 +25,7 @@ using namespace rapidjson;
 
 string const login_response::type = "Auth:login_response";
 
-login_response::login_response(vector<message_player> players) noexcept : players(move(players)) {
+login_response::login_response(vector<message_player> players, string username, string email) noexcept : players(move(players)), username(move(username)), email(move(email)) {
 
 }
 
@@ -37,6 +37,12 @@ string login_response::serialize() const {
 
     writer.String("type");
     writer.String(type.c_str(), type.size());
+
+    writer.String("username");
+    writer.String(username.c_str(), username.size());
+
+    writer.String("email");
+    writer.String(email.c_str(), email.size());
 
     writer.String("players");
     writer.StartArray();
@@ -65,7 +71,7 @@ string login_response::serialize() const {
 }
 
 optional<login_response> login_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("players")) {
+    if (!d.HasMember("type") || !d.HasMember("players") || !d.HasMember("username") || !d.HasMember("email")) {
         spdlog::warn("[login_response] deserialize failed");
         return nullopt;
     }
@@ -94,5 +100,5 @@ optional<login_response> login_response::deserialize(rapidjson::Document const &
         players.emplace_back(players_array[i]["name"].GetString(), players_array[i]["map_name"].GetString(), players_array[i]["x"].GetInt(), players_array[i]["y"].GetInt());
     }
 
-    return login_response(players);
+    return login_response(players, d["username"].GetString(), d["email"].GetString());
 }

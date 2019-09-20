@@ -75,7 +75,7 @@ namespace lotr {
                 message_players.emplace_back(player.name, player.loc->map_name, player.loc->x, player.loc->y);
             }
 
-            login_response response(message_players);
+            login_response response(message_players, usr->username, usr->email);
             auto response_msg = response.serialize();
             ws->send(response_msg);
             user_data->user_id = usr->id;
