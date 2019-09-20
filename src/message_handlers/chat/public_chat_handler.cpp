@@ -17,20 +17,27 @@
 */
 
 
-#include "move_handler.h"
+#include "public_chat_handler.h"
 
 #include <spdlog/spdlog.h>
 
-#include <messages/commands/move_request.h>
+#include <messages/chat/message_request.h>
+#include <messages/chat/message_response.h>
+#include <uws_thread.h>
 #include "message_handlers/handler_macros.h"
+#include <game_logic/censor_sensor.h>
 
 using namespace std;
 
 namespace lotr {
-    void handle_move(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+    void handle_public_chat(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                      shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
-        DESERIALIZE_WITH_PLAYING_CHECK(move_request)
+        DESERIALIZE_WITH_LOGIN_CHECK(message_request)
 
-        q.enqueue(make_unique<player_move_message>(user_data->connection_id, msg->x, msg->y));
+        auto chat_msg = message_response(*user_data->username, sensor.clean_profanity_ish(msg->content)).serialize();
+
+        for(auto &[conn_id, conn_ws] : user_connections) {
+            conn_ws->send(chat_msg, op_code, true);
+        }
     }
 }

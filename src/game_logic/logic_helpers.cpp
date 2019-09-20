@@ -70,7 +70,7 @@ optional<npc_component> lotr::create_npc(spawner_npc_id const &spawner_npc_id, m
         npc.loc = script->loc;
     }
 
-    for (auto const &stat : stats) {
+    for (auto const &stat : stat_names) {
         auto const random_stat_it = find_if(cbegin(spawner_npc_id.random_stats), cend(spawner_npc_id.random_stats),
                                             [&](random_stat_component const &rs) noexcept { return rs.name == stat; });
 

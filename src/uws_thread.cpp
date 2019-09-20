@@ -26,11 +26,14 @@
 #include <message_handlers/user_access/play_character_handler.h>
 #include <message_handlers/user_access/create_character_handler.h>
 #include <message_handlers/commands/move_handler.h>
+#include <message_handlers/chat/public_chat_handler.h>
 #include <messages/user_access/login_request.h>
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
 #include <messages/commands/move_request.h>
+#include <messages/chat/message_request.h>
+#include <message_handlers/handler_macros.h>
 #include "per_socket_data.h"
 
 using namespace std;
@@ -54,6 +57,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
     message_router.emplace(play_character_request::type, handle_play_character);
     message_router.emplace(create_character_request::type, handle_create_character);
     message_router.emplace(move_request::type, handle_move);
+    message_router.emplace(message_request::type, handle_public_chat);
 
     uWS::TemplatedApp<false>().
                     ws<per_socket_data>("/*", {
@@ -72,6 +76,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         user_data->connection_id = connection_id_counter++;
                         user_data->user_id = 0;
                         user_data->playing_character = false;
+                        user_data->username = nullptr;
                         user_connections[user_data->connection_id] = ws;
                         spdlog::debug("[uws] open connection {} {}", req->getUrl(), user_data->connection_id);
                     },
@@ -88,7 +93,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
 
                         if (d.HasParseError() || !d.IsObject() || !d.HasMember("type") || !d["type"].IsString()) {
                             spdlog::warn("[uws] deserialize failed");
-                            ws->end(0);
+                            SEND_ERROR("Unrecognized message", "", "", true);
                             return;
                         }
 
@@ -120,6 +125,9 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         user_connections.erase(user_data->connection_id);
                         if(user_data->playing_character) {
                             game_loop_queue.enqueue(make_unique<player_leave_message>(user_data->connection_id));
+                        }
+                        if(user_data->username != nullptr) {
+                            delete user_data->username;
                         }
                         spdlog::debug("[uws] close connection {} {} {} {}", code, message, user_data->connection_id, user_data->user_id);
                     }

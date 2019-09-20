@@ -49,7 +49,7 @@ optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current
 
     script.npc_ids.emplace_back(1, current_object["name"].GetString());
     script.npc_ids[0].sprite.push_back(current_object["gid"].GetUint() - first_gid);
-    for(auto &stat : stats) {
+    for(auto &stat : stat_names) {
         script.npc_ids[0].stats.emplace_back(stat, 10);
     }
 

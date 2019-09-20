@@ -31,24 +31,24 @@ using namespace std;
 namespace lotr {
     void handle_play_character(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                          shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
-        DESERIALIZE_WITH_NOT_LOGIN_CHECK(play_character_request)
+        DESERIALIZE_WITH_NOT_PLAYING_CHECK(play_character_request)
 
         characters_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
         auto plyr = player_repo.get_player(msg->name, included_tables::location, transaction);
 
         if(!plyr) {
-            SEND_ERROR("Couldn't find db_character by name", "", "", true);
+            SEND_ERROR("Couldn't find character by name", "", "", true);
             return;
         }
 
         user_data->playing_character = true;
 
         vector<stat_component> player_stats;
-        for(auto &stat : stats) {
+        for(auto &stat : stat_names) {
             player_stats.emplace_back(stat, 10);
         }
-        spdlog::debug("[{}] enqueing db_character {}", __FUNCTION__, plyr->name);
+        spdlog::debug("[{}] enqueing character {}", __FUNCTION__, plyr->name);
         q.enqueue(make_unique<player_enter_message>(plyr->name, plyr->loc->map_name, player_stats, user_data->connection_id, plyr->loc->x, plyr->loc->y));
     }
 }

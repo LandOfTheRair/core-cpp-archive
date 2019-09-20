@@ -18,13 +18,16 @@
 
 #pragma once
 
-namespace lotr {
-    struct per_socket_data {
-        uint64_t connection_id;
-        uint64_t user_id;
-        bool playing_character;
-        string *username;
+#include <App.h>
+#include <rapidjson/document.h>
+#include <database/database_pool.h>
+#include <per_socket_data.h>
+#include <readerwriterqueue.h>
+#include <game_queue_messages/messages.h>
 
-        per_socket_data() : connection_id(0), user_id(0), playing_character(), username(nullptr) {}
-    };
+using namespace std;
+
+namespace lotr {
+    void handle_public_chat(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                     per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

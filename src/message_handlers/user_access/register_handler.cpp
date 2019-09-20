@@ -101,6 +101,7 @@ namespace lotr {
                 ws->end(0);
             }
             user_data->user_id = new_usr.id;
+            user_data->username = new string(new_usr.username);
         }
     }
 }

@@ -24,8 +24,8 @@
 using namespace std;
 using namespace lotr;
 
-TEST_CASE("db_character leave tests") {
-    SECTION( "db_character leaves world" ) {
+TEST_CASE("character leave tests") {
+    SECTION( "character leaves world" ) {
         entt::registry registry;
 
         auto new_entity = registry.create();

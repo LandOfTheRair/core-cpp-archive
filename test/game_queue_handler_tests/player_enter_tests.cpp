@@ -24,9 +24,9 @@
 using namespace std;
 using namespace lotr;
 
-TEST_CASE("db_character enter tests") {
+TEST_CASE("character enter tests") {
     outward_queues q;
-    SECTION( "db_character enters world" ) {
+    SECTION( "character enters world" ) {
         entt::registry registry;
 
         auto new_entity = registry.create();
@@ -48,7 +48,7 @@ TEST_CASE("db_character enter tests") {
         REQUIRE(get<1>(test_map.players[0].loc) == 3);
     }
 
-    SECTION( "db_character does not enter non-existing world" ) {
+    SECTION( "character does not enter non-existing world" ) {
         entt::registry registry;
 
         auto new_entity = registry.create();
@@ -66,7 +66,7 @@ TEST_CASE("db_character enter tests") {
         REQUIRE(test_map.players.size() == 0);
     }
 
-    SECTION( "db_character does not enter world with wrong coordinates" ) {
+    SECTION( "character does not enter world with wrong coordinates" ) {
         entt::registry registry;
 
         auto new_entity = registry.create();

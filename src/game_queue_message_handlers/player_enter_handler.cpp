@@ -72,7 +72,7 @@ namespace lotr {
 
             m.players.emplace_back(pc);
 
-            spdlog::info("[{}] db_character {} entered game {}", __FUNCTION__, pc.name, enter_msg->connection_id);
+            spdlog::info("[{}] character {} entered game {}", __FUNCTION__, pc.name, enter_msg->connection_id);
             break;
         }
     }

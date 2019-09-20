@@ -99,7 +99,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
                 gnpc.npc_id = npc.name;
                 gnpc.sprite.push_back(npc.gid - m->tilesets[3].firstgid);
 
-                for(auto &stat : stats) {
+                for(auto &stat : stat_names) {
                     gnpc.stats.emplace_back(stat, 10);
                 }
 

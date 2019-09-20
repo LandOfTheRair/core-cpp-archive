@@ -79,6 +79,7 @@ namespace lotr {
             auto response_msg = response.serialize();
             ws->send(response_msg, op_code, true);
             user_data->user_id = usr->id;
+            user_data->username = new string(usr->username);
         }
     }
 }

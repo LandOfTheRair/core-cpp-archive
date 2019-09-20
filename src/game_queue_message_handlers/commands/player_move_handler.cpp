@@ -55,7 +55,7 @@ namespace lotr {
 
             player.back().loc = make_tuple(move_msg->x, move_msg->y);
 
-            spdlog::info("[{}] {} db_character {} moved to {} {}", __FUNCTION__, move_msg->connection_id, player.back().name, move_msg->x, move_msg->y);
+            spdlog::info("[{}] {} character {} moved to {} {}", __FUNCTION__, move_msg->connection_id, player.back().name, move_msg->x, move_msg->y);
             break;
         }
     }

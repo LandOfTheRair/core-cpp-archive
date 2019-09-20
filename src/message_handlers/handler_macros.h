@@ -27,29 +27,53 @@
 
 #define DESERIALIZE_WITH_CHECK(type)    auto msg = type::deserialize(d); \
                                         if (!msg) { \
-                                            ws->send("Stop messing around", op_code, true); \
-                                            ws->end(0); \
+                                            spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                            SEND_ERROR("Unrecognized message", "", "", true); \
                                             return; \
                                         }
 
-#define DESERIALIZE_WITH_LOGIN_CHECK(type)  if(!user_data->playing_character) { \
-                                                SEND_ERROR("Not playing character", "", "", true); \
+#define DESERIALIZE_WITH_LOGIN_CHECK(type)  if(user_data->username == nullptr) { \
                                                 return; \
                                             } \
                                             auto msg = type::deserialize(d); \
                                             if (!msg) { \
-                                                ws->send("Stop messing around", op_code, true); \
-                                                ws->end(0); \
+                                                spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                SEND_ERROR("Unrecognized message", "", "", true); \
                                                 return; \
                                             }
 
-#define DESERIALIZE_WITH_NOT_LOGIN_CHECK(type)  if(user_data->playing_character) { \
-                                                SEND_ERROR("Already playing character", "", "", true); \
-                                                return; \
-                                            } \
-                                            auto msg = type::deserialize(d); \
-                                            if (!msg) { \
-                                                ws->send("Stop messing around", op_code, true); \
-                                                ws->end(0); \
-                                                return; \
-                                            }
+#define DESERIALIZE_WITH_NOT_LOGIN_CHECK(type) if(user_data->username != nullptr) { \
+                                                    return; \
+                                                } \
+                                                auto msg = type::deserialize(d); \
+                                                if (!msg) { \
+                                                    spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                    SEND_ERROR("Unrecognized message", "", "", true); \
+                                                    return; \
+                                                }
+
+#define DESERIALIZE_WITH_PLAYING_CHECK(type)    if(!user_data->playing_character) { \
+                                                    SEND_ERROR("Not playing character", "", "", true); \
+                                                    return; \
+                                                } \
+                                                auto msg = type::deserialize(d); \
+                                                if (!msg) { \
+                                                    spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                    SEND_ERROR("Unrecognized message", "", "", true); \
+                                                    return; \
+                                                }
+
+#define DESERIALIZE_WITH_NOT_PLAYING_CHECK(type) if(user_data->username == nullptr) { \
+                                                    SEND_ERROR("Not logged in", "", "", true); \
+                                                    return; \
+                                                } \
+                                                if(user_data->playing_character) { \
+                                                    SEND_ERROR("Already playing character", "", "", true); \
+                                                    return; \
+                                                } \
+                                                auto msg = type::deserialize(d); \
+                                                if (!msg) { \
+                                                    spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                    SEND_ERROR("Unrecognized message", "", "", true); \
+                                                    return; \
+                                                }

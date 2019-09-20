@@ -48,7 +48,7 @@ string create_character_response::serialize() const {
     for(auto &stat : stats) {
         writer.StartObject();
         writer.String("name");
-        writer.String(stat.name.c_str(), name.size());
+        writer.String(stat.name.c_str(), stat.name.size());
 
         writer.String("value");
         writer.Int64(stat.value);

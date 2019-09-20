@@ -52,7 +52,7 @@ vector<global_item_component> lotr::load_global_items_from_file(string const &fi
 
         spdlog::debug("[{}] loading item {}", __FUNCTION__, item.name);
 
-        for (auto const &stat : stats) {
+        for (auto const &stat : stat_names) {
             if (item_node["stats"] && item_node["stats"][stat]) {
                 spdlog::trace("[{}] loading stat {}:{}", __FUNCTION__, stat, item_node["stats"][stat].as<int64_t>());
                 item.stats.emplace_back(stat, item_node["stats"][stat].as<int64_t>());
@@ -103,7 +103,7 @@ vector<global_item_component> lotr::load_global_items_from_file(string const &fi
             EFFECT_BOOL_FIELD(autocast)
             EFFECT_BOOL_FIELD(can_apply)
 
-            for (auto const &stat : stats) {
+            for (auto const &stat : stat_names) {
                 if (item_node["effect"]["stats"] && item_node["effect"]["stats"][stat]) {
                     spdlog::trace("[{}] loading effect stat {}:{}", __FUNCTION__, stat, item_node["effect"]["stats"][stat].as<int64_t>());
                     effect.stats.emplace_back(stat, item_node["effect"]["stats"][stat].as<int64_t>());

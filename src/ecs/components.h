@@ -31,7 +31,7 @@
 using namespace std;
 
 namespace lotr {
-    extern array<string const, 40> const stats;
+    extern array<string const, 40> const stat_names;
 
     // enums
 

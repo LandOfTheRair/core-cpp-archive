@@ -89,12 +89,12 @@ namespace  lotr {
     extern string const gear_slot_feet = "feet";
     extern string const gear_slot_ear = "ear";
 
-    array<string const, 40> const stats = {stat_str,  stat_dex,  stat_agi,  stat_int,  stat_wis,  stat_wil,  stat_luk,  stat_cha,  stat_con,  stat_move,
-                                           stat_hpregen,  stat_mpregen,  stat_hp,  stat_mp,  stat_max_hp,  stat_max_mp,  stat_hweapon_damage_rolls,  stat_weapon_armor_class,  stat_armor_class,
-                                           stat_accuracy,  stat_offense,  stat_defense, stat_stealth,  stat_perception,  stat_physical_damage_boost,  stat_magical_damage_boost,
-                                           stat_healing_boost,  stat_physical_damage_reflect,  stat_magical_damage_reflect,  stat_mitigation,  stat_magical_resist,
-                                           stat_physical_resist,  stat_necrotic_resist,  stat_energy_resist,  stat_water_resist,  stat_fire_resist,  stat_ice_resist,
-                                           stat_poison_resist,  stat_disease_resist,  stat_action_speed };
+    array<string const, 40> const stat_names = {stat_str, stat_dex, stat_agi, stat_int, stat_wis, stat_wil, stat_luk, stat_cha, stat_con, stat_move,
+                                                stat_hpregen, stat_mpregen, stat_hp, stat_mp, stat_max_hp, stat_max_mp, stat_hweapon_damage_rolls, stat_weapon_armor_class, stat_armor_class,
+                                                stat_accuracy, stat_offense, stat_defense, stat_stealth, stat_perception, stat_physical_damage_boost, stat_magical_damage_boost,
+                                                stat_healing_boost, stat_physical_damage_reflect, stat_magical_damage_reflect, stat_mitigation, stat_magical_resist,
+                                                stat_physical_resist, stat_necrotic_resist, stat_energy_resist, stat_water_resist, stat_fire_resist, stat_ice_resist,
+                                                stat_poison_resist, stat_disease_resist, stat_action_speed };
 
 
     global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string &npc_id) {
