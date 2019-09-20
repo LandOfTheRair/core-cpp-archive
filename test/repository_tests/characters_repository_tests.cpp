@@ -21,7 +21,7 @@
 #include <catch2/catch.hpp>
 #include "../test_helpers/startup_helper.h"
 #include "repositories/users_repository.h"
-#include "repositories/players_repository.h"
+#include "repositories/characters_repository.h"
 #include "repositories/locations_repository.h"
 
 using namespace std;
@@ -29,19 +29,19 @@ using namespace lotr;
 
 TEST_CASE("players repository tests") {
     users_repository<database_pool, database_transaction> users_repo(db_pool);
-    players_repository<database_pool, database_transaction> players_repo(db_pool);
+    characters_repository<database_pool, database_transaction> players_repo(db_pool);
     locations_repository<database_pool, database_transaction> locations_repo(db_pool);
     auto transaction = players_repo.create_transaction();
 
 
-    SECTION( "player inserted correctly" ) {
+    SECTION( "db_character inserted correctly" ) {
         db_location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        player plyr{0, usr.id, loc.id, "john doe"s, {}, {}, {}};
+        db_character plyr{0, usr.id, loc.id, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto inserted = players_repo.insert_or_update_player(plyr, transaction);
         REQUIRE(inserted == true);
 
@@ -50,9 +50,13 @@ TEST_CASE("players repository tests") {
         REQUIRE(plyr2->location_id == plyr.location_id);
         REQUIRE(plyr2->user_id == plyr.user_id);
         REQUIRE(plyr2->name == plyr.name);
+        REQUIRE(plyr2->allegiance == plyr.allegiance);
+        REQUIRE(plyr2->gender == plyr.gender);
+        REQUIRE(plyr2->alignment == plyr.alignment);
+        REQUIRE(plyr2->_class == plyr._class);
     }
 
-    SECTION( "player updated correctly" ) {
+    SECTION( "db_character updated correctly" ) {
         db_location loc{0, "test", 0, 0};
         db_location loc2{0, "test2", 0, 0};
         locations_repo.insert(loc, transaction);
@@ -61,11 +65,15 @@ TEST_CASE("players repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        player plyr{0, usr.id, loc.id, "john doe"s, {}, {}, {}};
+        db_character plyr{0, usr.id, loc.id, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto inserted = players_repo.insert_or_update_player(plyr, transaction);
         REQUIRE(inserted == true);
 
         plyr.loc = loc2;
+        plyr.allegiance = "allegiance2";
+        plyr.gender = "gender2";
+        plyr.alignment = "alignment2";
+        plyr._class = "class2";
         inserted = players_repo.insert_or_update_player(plyr, transaction);
         REQUIRE(inserted == false);
 
@@ -74,21 +82,35 @@ TEST_CASE("players repository tests") {
         REQUIRE(plyr2->location_id == plyr.location_id);
         REQUIRE(plyr2->user_id == plyr.user_id);
         REQUIRE(plyr2->name == plyr.name);
+        REQUIRE(plyr2->allegiance == plyr.allegiance);
+        REQUIRE(plyr2->gender == plyr.gender);
+        REQUIRE(plyr2->alignment == plyr.alignment);
+        REQUIRE(plyr2->_class == plyr._class);
     }
 
-    SECTION( "Can't insert player twice" ) {
+    SECTION( "Can't insert db_character twice" ) {
         db_location loc{0, "test", 0, 0};
         locations_repo.insert(loc, transaction);
 
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        player plyr{0, usr.id, loc.id, "john doe"s, {}, {}, {}};
+        db_character plyr{0, usr.id, loc.id, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto ret = players_repo.insert(plyr, transaction);
         REQUIRE(ret == true);
 
         ret = players_repo.insert(plyr, transaction);
         REQUIRE(ret == false);
+
+        auto plyr2 = players_repo.get_player(plyr.id, included_tables::none, transaction);
+        REQUIRE(plyr2);
+        REQUIRE(plyr2->location_id == plyr.location_id);
+        REQUIRE(plyr2->user_id == plyr.user_id);
+        REQUIRE(plyr2->name == plyr.name);
+        REQUIRE(plyr2->allegiance == plyr.allegiance);
+        REQUIRE(plyr2->gender == plyr.gender);
+        REQUIRE(plyr2->alignment == plyr.alignment);
+        REQUIRE(plyr2->_class == plyr._class);
     }
 
     SECTION( "multiple players retrieved correctly" ) {
@@ -98,8 +120,8 @@ TEST_CASE("players repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        player plyr{0, usr.id, loc.id, "john doe"s, {}, {}, {}};
-        player plyr2{0, usr.id, loc.id, "john doe2"s, {}, {}, {}};
+        db_character plyr{0, usr.id, loc.id, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character plyr2{0, usr.id, loc.id, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         players_repo.insert_or_update_player(plyr, transaction);
         players_repo.insert_or_update_player(plyr2, transaction);
 

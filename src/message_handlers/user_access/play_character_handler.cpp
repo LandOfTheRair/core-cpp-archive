@@ -22,7 +22,7 @@
 #include <spdlog/spdlog.h>
 
 #include <messages/user_access/play_character_request.h>
-#include <repositories/players_repository.h>
+#include <repositories/characters_repository.h>
 #include "message_handlers/handler_macros.h"
 #include <ecs/components.h>
 
@@ -33,12 +33,12 @@ namespace lotr {
                          shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
         DESERIALIZE_WITH_NOT_LOGIN_CHECK(play_character_request)
 
-        players_repository<database_pool, database_transaction> player_repo(pool);
+        characters_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
         auto plyr = player_repo.get_player(msg->name, included_tables::location, transaction);
 
         if(!plyr) {
-            SEND_ERROR("Couldn't find player by name", "", "", true);
+            SEND_ERROR("Couldn't find db_character by name", "", "", true);
             return;
         }
 
@@ -48,7 +48,7 @@ namespace lotr {
         for(auto &stat : stats) {
             player_stats.emplace_back(stat, 10);
         }
-        spdlog::debug("[{}] enqueing player {}", __FUNCTION__, plyr->name);
+        spdlog::debug("[{}] enqueing db_character {}", __FUNCTION__, plyr->name);
         q.enqueue(make_unique<player_enter_message>(plyr->name, plyr->loc->map_name, player_stats, user_data->connection_id, plyr->loc->x, plyr->loc->y));
     }
 }

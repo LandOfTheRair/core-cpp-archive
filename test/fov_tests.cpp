@@ -48,7 +48,7 @@ TEST_CASE("fov tests") {
         REQUIRE(fov.all());
     }
 
-    SECTION("walls encage player") {
+    SECTION("walls encage db_character") {
         const uint32_t map_size = 9;
         array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);
@@ -87,7 +87,7 @@ TEST_CASE("fov tests") {
         }
     }
 
-    SECTION("opaque encage player") {
+    SECTION("opaque encage db_character") {
         const uint32_t map_size = 9;
         array<map_layer, 15> map_layers;
         vector<uint32_t> wall_data(map_size*map_size);

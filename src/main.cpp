@@ -41,7 +41,7 @@
 
 #include "repositories/users_repository.h"
 #include "repositories/banned_users_repository.h"
-#include "repositories/players_repository.h"
+#include "repositories/characters_repository.h"
 #include "working_directory_manipulation.h"
 
 #include "ai/default_ai.h"
@@ -90,7 +90,7 @@ int main() {
 
     users_repository<database_pool, database_transaction> user_repo(pool);
     banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
-    players_repository<database_pool, database_transaction> player_repo(pool);
+    characters_repository<database_pool, database_transaction> player_repo(pool);
     uws_is_shit_struct shit_uws{}; // The documentation in uWS is appalling and the attitude the guy has is impossible to deal with. Had to search the issues of the github to find a method to close/stop uWS.
 
     auto uws_thread = thread([&config, pool, &shit_uws] {

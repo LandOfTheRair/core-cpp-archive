@@ -38,18 +38,18 @@ namespace lotr {
     };
 
     template<typename pool_T, typename transaction_T>
-    class players_repository {
+    class characters_repository {
     public:
-        explicit players_repository(shared_ptr<pool_T> database_pool);
+        explicit characters_repository(shared_ptr<pool_T> database_pool);
 
         unique_ptr<transaction_T> create_transaction();
 
-        bool insert(player &plyr, unique_ptr<transaction_T> const &transaction) const;
-        bool insert_or_update_player(player &plyr, unique_ptr<transaction_T> const &transaction) const;
-        void update_player(player const &plyr, unique_ptr<transaction_T> const &transaction) const;
-        optional<player> get_player(string const &name, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
-        optional<player> get_player(uint64_t id, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
-        vector<player> get_by_user_id(uint64_t user_id, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
+        bool insert(db_character &plyr, unique_ptr<transaction_T> const &transaction) const;
+        bool insert_or_update_player(db_character &plyr, unique_ptr<transaction_T> const &transaction) const;
+        void update_player(db_character const &plyr, unique_ptr<transaction_T> const &transaction) const;
+        optional<db_character> get_player(string const &name, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
+        optional<db_character> get_player(uint64_t id, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
+        vector<db_character> get_by_user_id(uint64_t user_id, included_tables includes, unique_ptr<transaction_T> const &transaction) const;
     private:
         shared_ptr<pool_T> _database_pool;
     };

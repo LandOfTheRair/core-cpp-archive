@@ -36,12 +36,12 @@ namespace lotr {
         string email;
         uint16_t login_attempts;
         string verification_code;
-        uint16_t no_of_players;
+        uint16_t max_characters;
         uint16_t is_game_master;
 
-        user() : id(), username(), password(), email(), login_attempts(), verification_code(), no_of_players(), is_game_master() {}
+        user() : id(), username(), password(), email(), login_attempts(), verification_code(), max_characters(), is_game_master() {}
         user(uint64_t id, string username, string password, string email, uint16_t login_attempts, string verification_code, uint16_t no_of_players, uint16_t admin)
-        : id(id), username(move(username)), password(move(password)), email(move(email)), login_attempts(login_attempts), verification_code(move(verification_code)), no_of_players(no_of_players), is_game_master(admin) {}
+        : id(id), username(move(username)), password(move(password)), email(move(email)), login_attempts(login_attempts), verification_code(move(verification_code)), max_characters(no_of_players), is_game_master(admin) {}
     };
 
     struct banned_user {
@@ -72,18 +72,22 @@ namespace lotr {
         player_item(uint64_t id, string name) : id(id), name(move(name)) {}
     };
 
-    struct player {
+    struct db_character {
         uint64_t id;
         uint64_t user_id;
         uint64_t location_id;
         string name;
+        string allegiance;
+        string gender;
+        string alignment;
+        string _class;
         optional<db_location> loc;
         vector<player_stat> stats;
         vector<player_item> items;
 
-        player() : id(), user_id(), location_id(), name(), loc(), stats(), items() {}
-        player(uint64_t id, uint64_t user_id, uint64_t location_id, string name, optional<db_location> loc, vector<player_stat> stats, vector<player_item> items)
-        : id(id), user_id(user_id), location_id(location_id), name(move(name)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
+        db_character() : id(), user_id(), location_id(), name(), loc(), stats(), items() {}
+        db_character(uint64_t id, uint64_t user_id, uint64_t location_id, string name, string allegiance, string gender, string alignment, string _class, optional<db_location> loc, vector<player_stat> stats, vector<player_item> items)
+        : id(id), user_id(user_id), location_id(location_id), name(move(name)), allegiance(move(allegiance)), gender(move(gender)), alignment(move(alignment)), _class(move(_class)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
     };
 }
 

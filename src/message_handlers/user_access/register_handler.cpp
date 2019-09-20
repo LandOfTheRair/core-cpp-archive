@@ -25,7 +25,7 @@
 #include <messages/user_access/register_request.h>
 #include <repositories/users_repository.h>
 #include <repositories/banned_users_repository.h>
-#include <repositories/players_repository.h>
+#include <repositories/characters_repository.h>
 #include <on_leaving_scope.h>
 #include <messages/user_access/login_response.h>
 #include <game_logic/censor_sensor.h>
@@ -41,7 +41,7 @@ namespace lotr {
 
         users_repository<database_pool, database_transaction> user_repo(pool);
         banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
-        players_repository<database_pool, database_transaction> player_repo(pool);
+        characters_repository<database_pool, database_transaction> player_repo(pool);
 
         if(sensor.is_profane_ish(msg->username)) {
             SEND_ERROR("Usernames cannot contain profanities", "", "", true);

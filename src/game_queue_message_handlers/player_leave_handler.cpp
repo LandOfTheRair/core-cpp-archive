@@ -38,7 +38,7 @@ namespace lotr {
             map_component &m = map_view.get(m_entity);
             m.players.erase(remove_if(begin(m.players), end(m.players), [&](pc_component const &pc) {
                 if(pc.connection_id == leave_message->connection_id) {
-                    spdlog::info("[{}] player {} left game {}", __FUNCTION__, pc.name, leave_message->connection_id);
+                    spdlog::info("[{}] db_character {} left game {}", __FUNCTION__, pc.name, leave_message->connection_id);
                     return true;
                 }
                 return false;

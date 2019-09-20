@@ -42,7 +42,7 @@ TEST_CASE("users repository tests") {
         REQUIRE(usr2->email == usr.email);
         REQUIRE(usr2->login_attempts == usr.login_attempts);
         REQUIRE(usr2->is_game_master == usr.is_game_master);
-        REQUIRE(usr2->no_of_players == usr.no_of_players);
+        REQUIRE(usr2->max_characters == usr.max_characters);
         REQUIRE(usr2->verification_code == usr.verification_code);
         
         uint64_t old_id = usr.id;
@@ -61,7 +61,7 @@ TEST_CASE("users repository tests") {
         usr.email = "email2";
         usr.login_attempts = 5;
         usr.is_game_master = 6;
-        usr.no_of_players = 7;
+        usr.max_characters = 7;
         user_repo.update(usr, transaction);
         
         auto usr2 = user_repo.get(usr.username, transaction);
@@ -72,7 +72,7 @@ TEST_CASE("users repository tests") {
         REQUIRE(usr2->email == usr.email);
         REQUIRE(usr2->login_attempts == usr.login_attempts);
         REQUIRE(usr2->is_game_master == usr.is_game_master);
-        REQUIRE(usr2->no_of_players == usr.no_of_players);
+        REQUIRE(usr2->max_characters == usr.max_characters);
     }
 }
 

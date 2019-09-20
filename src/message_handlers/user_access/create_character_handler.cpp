@@ -23,7 +23,7 @@
 
 #include <messages/user_access/create_character_request.h>
 #include <repositories/locations_repository.h>
-#include <repositories/players_repository.h>
+#include <repositories/characters_repository.h>
 #include <game_logic/censor_sensor.h>
 #include <messages/user_access/create_character_response.h>
 #include "message_handlers/handler_macros.h"
@@ -37,7 +37,7 @@ namespace lotr {
         DESERIALIZE_WITH_NOT_LOGIN_CHECK(create_character_request)
 
         locations_repository<database_pool, database_transaction> location_repo(pool);
-        players_repository<database_pool, database_transaction> player_repo(pool);
+        characters_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
         auto plyr = player_repo.get_player(msg->name, included_tables::location, transaction);
 
@@ -51,7 +51,7 @@ namespace lotr {
             return;
         }
 
-        player new_player;
+        db_character new_player;
         new_player.name = msg->name;
         new_player.user_id = user_data->user_id;
         db_location loc(0, "Tutorial", 14, 14);
