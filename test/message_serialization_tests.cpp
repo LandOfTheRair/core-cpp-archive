@@ -24,6 +24,8 @@
 #include <messages/user_access/create_character_request.h>
 #include <messages/user_access/create_character_response.h>
 #include <messages/commands/move_request.h>
+#include <messages/chat/message_request.h>
+#include <messages/chat/message_response.h>
 #include <messages/map_update_response.h>
 #include <messages/generic_error_response.h>
 
@@ -111,6 +113,19 @@ TEST_CASE("message serialization tests") {
         SERDE(move_request, 2, 4);
         REQUIRE(msg.x == msg2->x);
         REQUIRE(msg.y == msg2->y);
+    }
+
+    // chat
+
+    SECTION("message request") {
+        SERDE(message_request, "content");
+        REQUIRE(msg.content == msg2->content);
+    }
+
+    SECTION("message response") {
+        SERDE(message_response, "user", "content");
+        REQUIRE(msg.user == msg2->user);
+        REQUIRE(msg.content == msg2->content);
     }
 
     // misc
