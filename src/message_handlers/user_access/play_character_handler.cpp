@@ -29,7 +29,8 @@
 using namespace std;
 
 namespace lotr {
-    void handle_play_character(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+    template <bool UseSsl>
+    void handle_play_character(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                          shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(play_character_request)
 
@@ -51,4 +52,9 @@ namespace lotr {
         spdlog::debug("[{}] enqueing character {}", __FUNCTION__, plyr->name);
         q.enqueue(make_unique<player_enter_message>(plyr->name, plyr->loc->map_name, player_stats, user_data->connection_id, plyr->loc->x, plyr->loc->y));
     }
+
+    template void handle_play_character<true>(uWS::WebSocket<true, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template void handle_play_character<false>(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                            shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

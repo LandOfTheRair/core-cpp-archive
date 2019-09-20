@@ -32,7 +32,8 @@
 using namespace std;
 
 namespace lotr {
-    void handle_create_character(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+    template <bool UseSsl>
+    void handle_create_character(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                                shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(create_character_request)
 
@@ -77,4 +78,9 @@ namespace lotr {
             ws->end(0);
         }
     }
+
+    template void handle_create_character<true>(uWS::WebSocket<true, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template void handle_create_character<false>(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                            shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

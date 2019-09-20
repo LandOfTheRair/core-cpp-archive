@@ -27,10 +27,16 @@
 using namespace std;
 
 namespace lotr {
-    void handle_move(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+    template <bool UseSsl>
+    void handle_move(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                      shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
         DESERIALIZE_WITH_PLAYING_CHECK(move_request)
 
         q.enqueue(make_unique<player_move_message>(user_data->connection_id, msg->x, msg->y));
     }
+
+    template void handle_move<true>(uWS::WebSocket<true, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template void handle_move<false>(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                            shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

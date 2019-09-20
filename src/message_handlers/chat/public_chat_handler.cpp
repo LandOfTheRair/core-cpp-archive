@@ -30,14 +30,26 @@
 using namespace std;
 
 namespace lotr {
-    void handle_public_chat(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+    template <bool UseSsl>
+    void handle_public_chat(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
                      shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
         DESERIALIZE_WITH_LOGIN_CHECK(message_request)
 
         auto chat_msg = message_response(*user_data->username, sensor.clean_profanity_ish(msg->content)).serialize();
 
-        for(auto &[conn_id, conn_ws] : user_connections) {
-            conn_ws->send(chat_msg, op_code, true);
+        if constexpr (UseSsl) {
+            for (auto &[conn_id, conn_ws] : user_ssl_connections) {
+                conn_ws->send(chat_msg, op_code, true);
+            }
+        } else {
+            for (auto &[conn_id, conn_ws] : user_connections) {
+                conn_ws->send(chat_msg, op_code, true);
+            }
         }
     }
+
+    template void handle_public_chat<true>(uWS::WebSocket<true, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template void handle_public_chat<false>(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
+                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
 }

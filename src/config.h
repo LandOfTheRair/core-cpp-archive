@@ -30,5 +30,6 @@ namespace lotr {
         string connection_string;
         uint32_t tick_length;
         bool log_tick_times;
+        bool use_ssl;
     };
 }

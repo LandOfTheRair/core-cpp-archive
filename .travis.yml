@@ -30,11 +30,10 @@ matrix:
     before_script:
       - eval "${MATRIX_EVAL}"
     script:
-      - gcc -v && g++ -v && cmake --version
       - ./compile_external_release.sh
       - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-DEXCLUDE_PSQL_TESTS" .
       - make
-      - echo '{ "ADDRESS":"localhost", "PORT":8080, "DEBUG_LEVEL":"trace", "CONNECTION_STRING":"postgres://@localhost/", "TICK_LENGTH":100, "LOG_TICK_TIMES":true }' &> bin/config.json
+      - echo '{ "USE_SSL":false, "ADDRESS":"localhost", "PORT":8080, "DEBUG_LEVEL":"trace", "CONNECTION_STRING":"postgres://@localhost/", "TICK_LENGTH":100, "LOG_TICK_TIMES":true }' &> bin/config.json
       - bin/lotr_test
     after_script:
       - eval "$(ssh-agent -s)"
@@ -43,5 +42,6 @@ matrix:
       - export TEMPFILE=$(mktemp)
       - echo "$SSH_KNOWN_HOSTS" > $TEMPFILE
       - scp -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
+      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'cp lotr_backend builds/${TRAVIS_COMMIT}'
       - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux kill-session -t "myTempSession"'
       - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'

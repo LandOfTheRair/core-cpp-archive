@@ -55,6 +55,15 @@ void on_sigint(int sig) {
     quit = true;
 }
 
+template <bool UseSsl>
+bool process_outward_queues(uint32_t conn_id, moodycamel::ReaderWriterQueue<unique_ptr<message>> &q) {
+    if constexpr(UseSsl) {
+
+    } else {
+
+    }
+}
+
 int main() {
     set_cwd(get_selfpath());
     ::signal(SIGINT, on_sigint);
@@ -180,17 +189,32 @@ int main() {
         next_tick += chrono::milliseconds(config.tick_length);
         tick_counter++;
 
-        shit_uws.loop->defer([&] {
-            for(auto &[conn_id, q] : per_player_outward_queue) {
-                auto conn = user_connections.find(conn_id);
-                if(conn != end(user_connections)) {
-                    unique_ptr<message> msg;
-                    while(q.try_dequeue(msg)) {
-                        conn->second->send(msg->serialize());
+        if(config.use_ssl) {
+            shit_uws.loop->defer([&] {
+                for(auto &[conn_id, q] : per_player_outward_queue) {
+                    auto conn = user_ssl_connections.find(conn_id);
+                    if (conn != end(user_ssl_connections)) {
+                        unique_ptr<message> msg;
+                        while (q.try_dequeue(msg)) {
+                            conn->second->send(msg->serialize(), uWS::OpCode::TEXT, true);
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            shit_uws.loop->defer([&] {
+                for(auto &[conn_id, q] : per_player_outward_queue) {
+                    auto conn = user_connections.find(conn_id);
+                    if (conn != end(user_connections)) {
+                        unique_ptr<message> msg;
+                        while (q.try_dequeue(msg)) {
+                            conn->second->send(msg->serialize(), uWS::OpCode::TEXT, true);
+                        }
+                    }
+                }
+            });
+        }
+
 
         if(config.log_tick_times && tick_end > next_log_tick_times) {
             spdlog::info("[{}] ticks {} - frame times max/avg/min: {} / {} / {} µs", __FUNCTION__, tick_counter,
@@ -203,13 +227,23 @@ int main() {
     }
 
     spdlog::warn("[{}] quitting program", __FUNCTION__);
-    shit_uws.loop->defer([&shit_uws] {
-        for(auto &[conn_id, ws] : user_connections) {
-            ws->end(0);
-        }
+    if(config.use_ssl) {
+        shit_uws.loop->defer([&shit_uws] {
+            for (auto &[conn_id, ws] : user_ssl_connections) {
+                ws->end(0);
+            }
 
-        us_listen_socket_close(0, shit_uws.socket);
-    });
+            us_listen_socket_close(1, shit_uws.socket);
+        });
+    } else {
+        shit_uws.loop->defer([&shit_uws] {
+            for (auto &[conn_id, ws] : user_connections) {
+                ws->end(0);
+            }
+
+            us_listen_socket_close(0, shit_uws.socket);
+        });
+    }
     uws_thread.join();
     spdlog::warn("[{}] uws thread stopped", __FUNCTION__);
 

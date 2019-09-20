@@ -1,8 +1,10 @@
 import websocket
+import ssl
 import json
 import sys
-ws = websocket.WebSocket()
-ws.connect("ws://localhost:8080/")
+
+ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
+ws.connect("wss://localhost:8080/")
 #ws.connect("ws://62.210.141.213:8080/")
 ws.send("{\"type\": \"Auth:register\", \"username\": \"oipo\", \"password\": \"test\", \"email\": \"test@test.nl\"}")
 res = ws.recv()

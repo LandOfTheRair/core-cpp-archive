@@ -72,6 +72,11 @@ optional<config> lotr::parse_env_file() {
         return {};
     }
 
+    if(!d.HasMember("USE_SSL")) {
+        spdlog::error("[{}] deserialize config.json missing USE_SSL", __FUNCTION__);
+        return {};
+    }
+
     config config;
     config.debug_level = d["DEBUG_LEVEL"].GetString();
     config.address = d["ADDRESS"].GetString();
@@ -79,6 +84,7 @@ optional<config> lotr::parse_env_file() {
     config.connection_string = d["CONNECTION_STRING"].GetString();
     config.tick_length = d["TICK_LENGTH"].GetUint();
     config.log_tick_times = d["LOG_TICK_TIMES"].GetBool();
+    config.use_ssl = d["USE_SSL"].GetBool();
 
     return config;
 }
