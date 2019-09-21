@@ -122,4 +122,38 @@ TEST_CASE("register handler tests") {
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Password needs to be at least 8 characters");
     }
+
+    SECTION("Prohibit password equal to username") {
+        string message = register_request("okay_p$ssword", "okay_p$ssword", "an_email").serialize();
+        per_socket_data user_data;
+        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        custom_websocket ws;
+
+        rapidjson::Document d;
+        d.Parse(&message[0], message.size());
+
+        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+
+        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        auto new_msg = generic_error_response::deserialize(d);
+        REQUIRE(new_msg);
+        REQUIRE(new_msg->error == "Password cannot equal username");
+    }
+
+    SECTION("Prohibit password equal to email") {
+        string message = register_request("ab", "an_email", "an_email").serialize();
+        per_socket_data user_data;
+        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        custom_websocket ws;
+
+        rapidjson::Document d;
+        d.Parse(&message[0], message.size());
+
+        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+
+        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        auto new_msg = generic_error_response::deserialize(d);
+        REQUIRE(new_msg);
+        REQUIRE(new_msg->error == "Password cannot equal email");
+    }
 }

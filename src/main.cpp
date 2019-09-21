@@ -55,15 +55,6 @@ void on_sigint(int sig) {
     quit = true;
 }
 
-template <bool UseSsl>
-bool process_outward_queues(uint32_t conn_id, moodycamel::ReaderWriterQueue<unique_ptr<message>> &q) {
-    if constexpr(UseSsl) {
-
-    } else {
-
-    }
-}
-
 int main() {
     set_cwd(get_selfpath());
     ::signal(SIGINT, on_sigint);

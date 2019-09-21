@@ -69,6 +69,16 @@ namespace lotr {
             return;
         }
 
+        if(msg->password == msg->username) {
+            SEND_ERROR("Password cannot equal username", "", "", true);
+            return;
+        }
+
+        if(msg->password == msg->email) {
+            SEND_ERROR("Password cannot equal email", "", "", true);
+            return;
+        }
+
         auto transaction = user_repo.create_transaction();
         // TODO modify uwebsockets to include ip address
         auto banned_usr = banned_user_repo.is_username_or_ip_banned(msg->username, {}, transaction);

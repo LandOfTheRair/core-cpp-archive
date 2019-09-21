@@ -154,8 +154,8 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         }).
                         ws<per_socket_data>("/*", {
                         .compression = uWS::SHARED_COMPRESSOR,
-                        .maxPayloadLength = 16 * 1024,
-                        .idleTimeout = 300,
+                        .maxPayloadLength = ws_max_payload,
+                        .idleTimeout = ws_timeout,
                         .open = [&](auto *ws, uWS::HttpRequest *req) {
                             on_open(quit, ws, req);
                         },
@@ -192,8 +192,8 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
         uWS::TemplatedApp<false>().
                         ws<per_socket_data>("/*", {
                         .compression = uWS::SHARED_COMPRESSOR,
-                        .maxPayloadLength = 16 * 1024,
-                        .idleTimeout = 300,
+                        .maxPayloadLength = ws_max_payload,
+                        .idleTimeout = ws_timeout,
                         .open = [&](auto *ws, uWS::HttpRequest *req) {
                             on_open(quit, ws, req);
                         },
