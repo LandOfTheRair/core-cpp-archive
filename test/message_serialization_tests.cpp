@@ -123,9 +123,11 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("message response") {
-        SERDE(message_response, "user", "content");
+        SERDE(message_response, "user", "content", "source", 1234);
         REQUIRE(msg.user == msg2->user);
         REQUIRE(msg.content == msg2->content);
+        REQUIRE(msg.source == msg2->source);
+        REQUIRE(msg.unix_timestamp == msg2->unix_timestamp);
     }
 
     // misc

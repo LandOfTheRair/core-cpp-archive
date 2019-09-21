@@ -28,6 +28,7 @@
 #include <game_logic/censor_sensor.h>
 
 using namespace std;
+using namespace chrono;
 
 namespace lotr {
     template <bool UseSsl>
@@ -35,7 +36,8 @@ namespace lotr {
                      shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
         DESERIALIZE_WITH_LOGIN_CHECK(message_request)
 
-        auto chat_msg = message_response(*user_data->username, sensor.clean_profanity_ish(msg->content)).serialize();
+        auto now = system_clock::now();
+        auto chat_msg = message_response(*user_data->username, sensor.clean_profanity_ish(msg->content), "game", duration_cast<milliseconds>(now.time_since_epoch()).count()).serialize();
 
         if constexpr (UseSsl) {
             for (auto &[conn_id, conn_ws] : user_ssl_connections) {

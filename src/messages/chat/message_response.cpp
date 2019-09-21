@@ -25,7 +25,7 @@ using namespace rapidjson;
 
 string const message_response::type = "Chat:receive";
 
-message_response::message_response(string user, string content) noexcept : user(move(user)), content(move(content)) {
+message_response::message_response(string user, string content, string source, uint64_t unix_timestamp) noexcept : user(move(user)), content(move(content)), source(move(source)), unix_timestamp(unix_timestamp) {
 
 }
 
@@ -44,12 +44,18 @@ string message_response::serialize() const {
     writer.String("content");
     writer.String(content.c_str(), content.size());
 
+    writer.String("source");
+    writer.String(source.c_str(), source.size());
+
+    writer.String("unix_timestamp");
+    writer.Uint64(unix_timestamp);
+
     writer.EndObject();
     return sb.GetString();
 }
 
 optional<message_response> message_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("user") || !d.HasMember("content")) {
+    if (!d.HasMember("type") || !d.HasMember("user") || !d.HasMember("content") || !d.HasMember("source") || !d.HasMember("unix_timestamp")) {
         spdlog::warn("[message_response] deserialize failed");
         return nullopt;
     }
@@ -59,5 +65,5 @@ optional<message_response> message_response::deserialize(rapidjson::Document con
         return nullopt;
     }
 
-    return message_response(d["user"].GetString(), d["content"].GetString());
+    return message_response(d["user"].GetString(), d["content"].GetString(), d["source"].GetString(), d["unix_timestamp"].GetUint64());
 }

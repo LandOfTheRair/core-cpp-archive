@@ -27,7 +27,7 @@ using namespace std;
 
 namespace lotr {
     struct message_response : public message {
-        message_response(string user, string content) noexcept;
+        message_response(string user, string content, string source, uint64_t unix_timestamp) noexcept;
 
         ~message_response() noexcept = default;
 
@@ -37,6 +37,8 @@ namespace lotr {
 
         string user;
         string content;
+        string source;
+        uint64_t unix_timestamp;
 
         static string const type;
     };

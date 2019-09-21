@@ -189,6 +189,7 @@ int main() {
         next_tick += chrono::milliseconds(config.tick_length);
         tick_counter++;
 
+        // TODO if moving inner loop to function, we get a double free. I don't understand why.
         if(config.use_ssl) {
             shit_uws.loop->defer([&] {
                 for(auto &[conn_id, q] : per_player_outward_queue) {

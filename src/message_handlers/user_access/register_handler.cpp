@@ -21,6 +21,9 @@
 
 #include <spdlog/spdlog.h>
 #include <sodium.h>
+#include <string>
+#include <locale>
+#include <codecvt>
 
 #include <messages/user_access/register_request.h>
 #include <repositories/users_repository.h>
@@ -34,6 +37,13 @@
 #define crypto_pwhash_argon2id_MEMLIMIT_rair 33554432U
 
 using namespace std;
+
+u32string To_UTF16(const string &s)
+{
+    wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
+    return conv.from_bytes(s);
+}
+
 namespace lotr {
     template <bool UseSsl>
     void handle_register(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
@@ -46,6 +56,16 @@ namespace lotr {
 
         if(sensor.is_profane_ish(msg->username)) {
             SEND_ERROR("Usernames cannot contain profanities", "", "", true);
+            return;
+        }
+
+        if(To_UTF16(msg->username).size() < 2 || To_UTF16(msg->username).size() > 20) {
+            SEND_ERROR("Usernames needs to be at least 2 characters and at most 20 characters", "", "", true);
+            return;
+        }
+
+        if(To_UTF16(msg->password).size() < 8) {
+            SEND_ERROR("Password needs to be at least 8 characters", "", "", true);
             return;
         }
 
@@ -77,7 +97,7 @@ namespace lotr {
             if (crypto_pwhash_str(hashed_password,
                                   msg->password.c_str(),
                                   msg->password.length(),
-                                  crypto_pwhash_argon2id_OPSLIMIT_MODERATE,
+                                  crypto_pwhash_argon2id_OPSLIMIT_SENSITIVE,
                                   crypto_pwhash_argon2id_MEMLIMIT_rair) != 0) {
                 spdlog::error("Registering user, but out of memory?");
                 if (!ws->send("Server error", op_code, true)) {

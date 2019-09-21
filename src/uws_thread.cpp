@@ -181,7 +181,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
 
                 .listen(config.port, [&](us_listen_socket_t *token) {
                     if (token) {
-                        spdlog::info("[uws] listening on \"{}:{}\"", config.address, config.port);
+                        spdlog::info("[uws] listening_ssl on \"{}:{}\"", config.address, config.port);
                         shit_uws.socket = token;
                     }
                 }).run();

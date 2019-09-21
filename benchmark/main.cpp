@@ -91,7 +91,7 @@ void bench_hashing() {
     if (crypto_pwhash_str(hashed_password,
                           test_pass.c_str(),
                           test_pass.length(),
-                          crypto_pwhash_argon2id_OPSLIMIT_MODERATE,
+                          crypto_pwhash_argon2id_OPSLIMIT_SENSITIVE,
                           crypto_pwhash_argon2id_MEMLIMIT_rair) != 0) {
         spdlog::error("out of memory?");
         return;
