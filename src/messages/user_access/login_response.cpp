@@ -25,8 +25,8 @@ using namespace rapidjson;
 
 string const login_response::type = "Auth:login_response";
 
-login_response::login_response(vector<message_player> players, vector<string> online_users, string username, string email) noexcept : players(move(players)), online_users(move(online_users)), username(move(username)), email(move(email)) {
-
+login_response::login_response(vector<message_player> players, vector<string> online_users, string username, string email, string motd) noexcept :
+    players(move(players)), online_users(move(online_users)), username(move(username)), email(move(email)), motd(move(motd)) {
 }
 
 string login_response::serialize() const {
@@ -43,6 +43,9 @@ string login_response::serialize() const {
 
     writer.String("email");
     writer.String(email.c_str(), email.size());
+
+    writer.String("motd");
+    writer.String(motd.c_str(), motd.size());
 
     writer.String("players");
     writer.StartArray();
@@ -81,7 +84,7 @@ string login_response::serialize() const {
 }
 
 optional<login_response> login_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("players") || !d.HasMember("username") || !d.HasMember("email")) {
+    if (!d.HasMember("type") || !d.HasMember("players") || !d.HasMember("username") || !d.HasMember("email") || !d.HasMember("motd")) {
         spdlog::warn("[login_response] deserialize failed");
         return nullopt;
     }
@@ -121,5 +124,5 @@ optional<login_response> login_response::deserialize(rapidjson::Document const &
         players.emplace_back(players_array[i]["name"].GetString(), players_array[i]["map_name"].GetString(), players_array[i]["x"].GetInt(), players_array[i]["y"].GetInt());
     }
 
-    return login_response(players, online_users, d["username"].GetString(), d["email"].GetString());
+    return login_response(players, online_users, d["username"].GetString(), d["email"].GetString(), d["motd"].GetString());
 }

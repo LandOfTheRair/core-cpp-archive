@@ -27,12 +27,14 @@
 #include <message_handlers/user_access/create_character_handler.h>
 #include <message_handlers/commands/move_handler.h>
 #include <message_handlers/chat/public_chat_handler.h>
+#include <message_handlers/moderator/set_motd_handler.h>
 #include <messages/user_access/login_request.h>
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
+#include <messages/moderator/set_motd_request.h>
 #include <message_handlers/handler_macros.h>
 #include <messages/user_access/user_left_response.h>
 #include "per_socket_data.h"
@@ -55,6 +57,7 @@ uint32_t const ws_max_payload = 16 * 1024;
 lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> lotr::user_connections;
 lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> lotr::user_ssl_connections;
 moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
+string lotr::motd;
 
 template <bool UseSsl>
 void on_open(atomic<bool> &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequest *req) {
@@ -159,11 +162,13 @@ void add_routes(message_router_type<UseSsl> &message_router) {
     message_router.emplace(create_character_request::type, handle_create_character<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(move_request::type, handle_move<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(message_request::type, handle_public_chat<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(set_motd_request::type, set_motd_handler<uWS::WebSocket<UseSsl, true>>);
 }
 
 void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> &quit) {
     connection_id_counter = 0;
     shit_uws.loop = uWS::Loop::get();
+    motd = "";
 
     if(config.use_ssl) {
         message_router_type<true> message_router;

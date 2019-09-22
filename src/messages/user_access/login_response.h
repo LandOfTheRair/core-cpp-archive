@@ -38,7 +38,7 @@ namespace lotr {
     };
 
     struct login_response : public message {
-        explicit login_response(vector<message_player> players, vector<string> online_users, string username, string email) noexcept;
+        explicit login_response(vector<message_player> players, vector<string> online_users, string username, string email, string motd) noexcept;
 
         ~login_response() noexcept = default;
 
@@ -50,6 +50,7 @@ namespace lotr {
         vector<string> online_users;
         string username;
         string email;
+        string motd;
 
         static string const type;
     };

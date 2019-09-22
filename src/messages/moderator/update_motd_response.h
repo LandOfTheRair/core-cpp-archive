@@ -18,18 +18,25 @@
 
 #pragma once
 
-namespace lotr {
-    template <class WebSocket>
-    struct per_socket_data {
-        uint64_t connection_id;
-        uint64_t user_id;
-        uint32_t subscription_tier;
-        bool is_tester;
-        bool is_game_master;
-        bool playing_character;
-        string *username;
-        WebSocket *ws;
+#include <string>
+#include <optional>
+#include <rapidjson/document.h>
+#include "../message.h"
 
-        per_socket_data() : connection_id(0), user_id(0), subscription_tier(0), is_tester(), is_game_master(), playing_character(), username(nullptr), ws(nullptr) {}
+using namespace std;
+
+namespace lotr {
+    struct update_motd_response : public message {
+        update_motd_response(string motd) noexcept;
+
+        ~update_motd_response() noexcept = default;
+
+        [[nodiscard]]
+        string serialize() const override;
+        static optional<update_motd_response> deserialize(rapidjson::Document const &d);
+
+        string motd;
+
+        static string const type;
     };
 }

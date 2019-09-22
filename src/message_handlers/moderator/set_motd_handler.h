@@ -18,18 +18,17 @@
 
 #pragma once
 
+#include <App.h>
+#include <rapidjson/document.h>
+#include <database/database_pool.h>
+#include <per_socket_data.h>
+#include <readerwriterqueue.h>
+#include <game_queue_messages/messages.h>
+
+using namespace std;
+
 namespace lotr {
     template <class WebSocket>
-    struct per_socket_data {
-        uint64_t connection_id;
-        uint64_t user_id;
-        uint32_t subscription_tier;
-        bool is_tester;
-        bool is_game_master;
-        bool playing_character;
-        string *username;
-        WebSocket *ws;
-
-        per_socket_data() : connection_id(0), user_id(0), subscription_tier(0), is_tester(), is_game_master(), playing_character(), username(nullptr), ws(nullptr) {}
-    };
+    void set_motd_handler(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                     per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections);
 }

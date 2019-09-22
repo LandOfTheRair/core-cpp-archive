@@ -27,6 +27,8 @@
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
 #include <messages/chat/message_response.h>
+#include <messages/moderator/set_motd_request.h>
+#include <messages/moderator/update_motd_response.h>
 #include <messages/map_update_response.h>
 #include <messages/generic_error_response.h>
 
@@ -54,10 +56,11 @@ TEST_CASE("message serialization tests") {
     SECTION("empty login response") {
         vector<message_player> players;
         vector<string> users;
-        SERDE(login_response, players, users, "username", "email");
+        SERDE(login_response, players, users, "username", "email", "motd");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.username == msg2->username);
         REQUIRE(msg.email == msg2->email);
+        REQUIRE(msg.motd == msg2->motd);
     }
 
     SECTION("login response") {
@@ -67,11 +70,12 @@ TEST_CASE("message serialization tests") {
         vector<string> users;
         users.emplace_back("user1");
         users.emplace_back("user2");
-        SERDE(login_response, players, users, "username", "email");
+        SERDE(login_response, players, users, "username", "email", "motd");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.online_users.size() == msg2->online_users.size());
         REQUIRE(msg.username == msg2->username);
         REQUIRE(msg.email == msg2->email);
+        REQUIRE(msg.motd == msg2->motd);
 
         for(uint32_t i = 0; i < msg.players.size(); i++) {
             REQUIRE(msg.players[i].name == msg2->players[i].name);
@@ -144,6 +148,18 @@ TEST_CASE("message serialization tests") {
         REQUIRE(msg.content == msg2->content);
         REQUIRE(msg.source == msg2->source);
         REQUIRE(msg.unix_timestamp == msg2->unix_timestamp);
+    }
+
+    // moderator
+
+    SECTION("set motd request") {
+        SERDE(set_motd_request, "motd");
+        REQUIRE(msg.motd == msg2->motd);
+    }
+
+    SECTION("update motd response") {
+        SERDE(update_motd_response, "motd");
+        REQUIRE(msg.motd == msg2->motd);
     }
 
     // misc

@@ -29,6 +29,7 @@
 #include <repositories/characters_repository.h>
 #include <on_leaving_scope.h>
 #include <messages/user_access/user_joined_response.h>
+#include <uws_thread.h>
 #include "message_handlers/handler_macros.h"
 
 
@@ -73,6 +74,7 @@ namespace lotr {
 
         user_data->user_id = usr->id;
         user_data->username = new string(usr->username);
+        user_data->is_game_master = usr->is_game_master;
 
         vector<message_player> message_players;
         auto players = player_repo.get_by_user_id(usr->id, included_tables::location, transaction);
@@ -93,7 +95,7 @@ namespace lotr {
             }
         }
 
-        login_response response({}, online_users, usr->username, usr->email);
+        login_response response({}, online_users, usr->username, usr->email, motd);
         auto response_msg = response.serialize();
         if (!user_data->ws->send(response_msg, op_code, true)) {
             user_data->ws->end(0);
