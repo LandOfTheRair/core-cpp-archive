@@ -1,9 +1,0 @@
-npcIds:
-  - name: Tower Orc Warlord
-    chance: 1
-respawnRate: 180
-initialSpawn: 1
-maxCreatures: 1
-spawnRadius: 1
-randomWalkRadius: 10
-leashRadius: 20

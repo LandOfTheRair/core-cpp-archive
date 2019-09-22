@@ -1,9 +1,0 @@
-npcIds:
-  - name: Rylt Deer
-    chance: 1
-respawnRate: 10
-initialSpawn: 2
-maxCreatures: 3
-spawnRadius: 2
-randomWalkRadius: 20
-leashRadius: 25

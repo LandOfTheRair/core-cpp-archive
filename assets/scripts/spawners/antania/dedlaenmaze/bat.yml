@@ -1,9 +1,0 @@
-npcIds:
-  - name: Dedlaen Vampire Bat
-    chance: 1
-respawnRate: 15
-initialSpawn: 2
-maxCreatures: 6
-spawnRadius: 4
-randomWalkRadius: 15
-leashRadius: 20

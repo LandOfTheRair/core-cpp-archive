@@ -1,9 +1,0 @@
-npcIds:
-  - name: Dedlaen Spectre
-    chance: 1
-respawnRate: 30
-initialSpawn: 1
-maxCreatures: 3
-spawnRadius: 0
-randomWalkRadius: 15
-leashRadius: 20

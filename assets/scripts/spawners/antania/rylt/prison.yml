@@ -1,9 +1,0 @@
-npcIds:
-  - name: Rylt Renegade Prisoner
-    chance: 1
-respawnRate: 20
-initialSpawn: 2
-maxCreatures: 4
-spawnRadius: 0
-randomWalkRadius: 15
-leashRadius: 25

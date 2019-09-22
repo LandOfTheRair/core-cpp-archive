@@ -1,9 +1,0 @@
-npcIds:
-  - name: Tower Hobgoblin
-    chance: 1
-respawnRate: 90
-initialSpawn: 1
-maxCreatures: 3
-spawnRadius: 1
-randomWalkRadius: 10
-leashRadius: 20
