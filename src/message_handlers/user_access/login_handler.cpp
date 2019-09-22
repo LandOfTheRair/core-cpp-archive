@@ -28,14 +28,15 @@
 #include <repositories/banned_users_repository.h>
 #include <repositories/characters_repository.h>
 #include <on_leaving_scope.h>
+#include <messages/user_access/user_joined_response.h>
 #include "message_handlers/handler_macros.h"
 
 
 using namespace std;
 namespace lotr {
-    template <bool UseSsl>
-    void handle_login(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                      per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
+    template <class WebSocket>
+    void handle_login(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                      per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
         DESERIALIZE_WITH_NOT_LOGIN_CHECK(login_request)
 
         users_repository<database_pool, database_transaction> user_repo(pool);
@@ -46,8 +47,8 @@ namespace lotr {
         auto banned_usr = banned_user_repo.is_username_or_ip_banned(msg->username, {}, transaction);
 
         if (banned_usr) {
-            ws->send("You are banned", op_code, true);
-            ws->end(0);
+            user_data->ws->send("You are banned", op_code, true);
+            user_data->ws->end(0);
             return;
         }
 
@@ -68,24 +69,39 @@ namespace lotr {
                 SEND_ERROR("Password incorrect", "", "", true);
                 return;
             }
+        }
 
-            vector<message_player> message_players;
-            auto players = player_repo.get_by_user_id(usr->id, included_tables::location, transaction);
+        user_data->user_id = usr->id;
+        user_data->username = new string(usr->username);
 
-            for (auto &player : players) {
-                message_players.emplace_back(player.name, player.loc->map_name, player.loc->x, player.loc->y);
+        vector<message_player> message_players;
+        auto players = player_repo.get_by_user_id(usr->id, included_tables::location, transaction);
+
+        for (auto &player : players) {
+            message_players.emplace_back(player.name, player.loc->map_name, player.loc->x, player.loc->y);
+        }
+
+        vector<string> online_users;
+        user_joined_response join_msg(usr->username);
+        auto join_msg_str = join_msg.serialize();
+        for (auto &[conn_id, other_user_data] : user_connections) {
+            if(other_user_data->user_id != user_data->user_id) {
+                other_user_data->ws->send(join_msg_str, op_code, true);
+                if(other_user_data->username != nullptr) {
+                    online_users.push_back(*other_user_data->username);
+                }
             }
+        }
 
-            login_response response(message_players, usr->username, usr->email);
-            auto response_msg = response.serialize();
-            ws->send(response_msg, op_code, true);
-            user_data->user_id = usr->id;
-            user_data->username = new string(usr->username);
+        login_response response({}, online_users, usr->username, usr->email);
+        auto response_msg = response.serialize();
+        if (!user_data->ws->send(response_msg, op_code, true)) {
+            user_data->ws->end(0);
         }
     }
 
-    template void handle_login<true>(uWS::WebSocket<true, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
-                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
-    template void handle_login<false>(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
-                                            shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template void handle_login<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<uWS::WebSocket<true, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
+    template void handle_login<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<uWS::WebSocket<false, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
 }

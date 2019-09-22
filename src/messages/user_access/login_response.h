@@ -38,7 +38,7 @@ namespace lotr {
     };
 
     struct login_response : public message {
-        explicit login_response(vector<message_player> players, string username, string email) noexcept;
+        explicit login_response(vector<message_player> players, vector<string> online_users, string username, string email) noexcept;
 
         ~login_response() noexcept = default;
 
@@ -47,6 +47,7 @@ namespace lotr {
         static optional<login_response> deserialize(rapidjson::Document const &d);
 
         vector<message_player> players;
+        vector<string> online_users;
         string username;
         string email;
 

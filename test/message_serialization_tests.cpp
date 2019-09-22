@@ -23,6 +23,7 @@
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
 #include <messages/user_access/create_character_response.h>
+#include <messages/user_access/user_joined_response.h>
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
 #include <messages/chat/message_response.h>
@@ -52,7 +53,8 @@ TEST_CASE("message serialization tests") {
 
     SECTION("empty login response") {
         vector<message_player> players;
-        SERDE(login_response, players, "username", "email");
+        vector<string> users;
+        SERDE(login_response, players, users, "username", "email");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.username == msg2->username);
         REQUIRE(msg.email == msg2->email);
@@ -62,15 +64,24 @@ TEST_CASE("message serialization tests") {
         vector<message_player> players;
         players.emplace_back("name", "map", 1, 2);
         players.emplace_back("name2", "map2", 3, 4);
-        SERDE(login_response, players, "username", "email");
+        vector<string> users;
+        users.emplace_back("user1");
+        users.emplace_back("user2");
+        SERDE(login_response, players, users, "username", "email");
         REQUIRE(msg.players.size() == msg2->players.size());
+        REQUIRE(msg.online_users.size() == msg2->online_users.size());
         REQUIRE(msg.username == msg2->username);
         REQUIRE(msg.email == msg2->email);
+
         for(uint32_t i = 0; i < msg.players.size(); i++) {
             REQUIRE(msg.players[i].name == msg2->players[i].name);
             REQUIRE(msg.players[i].map_name == msg2->players[i].map_name);
             REQUIRE(msg.players[i].x == msg2->players[i].x);
             REQUIRE(msg.players[i].y == msg2->players[i].y);
+        }
+
+        for(uint32_t i = 0; i < msg.online_users.size(); i++) {
+            REQUIRE(msg.online_users[i] == msg2->online_users[i]);
         }
     }
 
@@ -105,6 +116,11 @@ TEST_CASE("message serialization tests") {
             REQUIRE(msg.stats[i].name == msg2->stats[i].name);
             REQUIRE(msg.stats[i].value == msg2->stats[i].value);
         }
+    }
+
+    SECTION("user joined response") {
+        SERDE(user_joined_response, "username");
+        REQUIRE(msg.username == msg2->username);
     }
 
     // commands

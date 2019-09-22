@@ -23,7 +23,6 @@
 
 #include <messages/chat/message_request.h>
 #include <messages/chat/message_response.h>
-#include <uws_thread.h>
 #include "message_handlers/handler_macros.h"
 #include <game_logic/censor_sensor.h>
 
@@ -31,27 +30,21 @@ using namespace std;
 using namespace chrono;
 
 namespace lotr {
-    template <bool UseSsl>
-    void handle_public_chat(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
-                     shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q) {
+    template <class WebSocket>
+    void handle_public_chat(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data,
+            moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
         DESERIALIZE_WITH_LOGIN_CHECK(message_request)
 
         auto now = system_clock::now();
         auto chat_msg = message_response(*user_data->username, sensor.clean_profanity_ish(msg->content), "game", duration_cast<milliseconds>(now.time_since_epoch()).count()).serialize();
 
-        if constexpr (UseSsl) {
-            for (auto &[conn_id, conn_ws] : user_ssl_connections) {
-                conn_ws->send(chat_msg, op_code, true);
-            }
-        } else {
-            for (auto &[conn_id, conn_ws] : user_connections) {
-                conn_ws->send(chat_msg, op_code, true);
-            }
+        for (auto &[conn_id, other_user_data] : user_connections) {
+            other_user_data->ws->send(chat_msg, op_code, true);
         }
     }
 
-    template void handle_public_chat<true>(uWS::WebSocket<true, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
-                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
-    template void handle_public_chat<false>(uWS::WebSocket<false, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d,
-                                           shared_ptr<database_pool> pool, per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template void handle_public_chat<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<uWS::WebSocket<true, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
+    template void handle_public_chat<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<uWS::WebSocket<false, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
 }

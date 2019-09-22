@@ -40,6 +40,8 @@ list(REMOVE_ITEM PROJECT_SOURCES_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/main.cp
 file(GLOB PROJECT_BENCHMARK_SOURCES ${PROJECT_SOURCE_DIR}/benchmark/*.cpp ${PROJECT_SOURCE_DIR}/benchmark/benchmark_helpers/*.cpp)
 add_executable(lotr_benchmark ${SPDLOG_SOURCE} ${USOCKETS_SOURCE} ${PROJECT_SOURCES_WITHOUT_MAIN} ${PROJECT_BENCHMARK_SOURCES})
 
+target_compile_definitions(lotr_test PRIVATE TEST_CODE=1)
+
 find_library(PQXX_LIBRARY pqxx HINTS ${EXTERNAL_DIR}/libpqxx/src/.libs)
 find_library(SODIUM_LIBRARY sodium HINTS ${EXTERNAL_DIR}/libsodium/src/libsodium/.libs)
 find_library(XXHASH_LIBRARY xxhash HINTS ${EXTERNAL_DIR}/xxHash)

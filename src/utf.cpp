@@ -16,19 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "utf.h"
 
-#include <App.h>
-#include <rapidjson/document.h>
-#include <database/database_pool.h>
-#include <per_socket_data.h>
-#include <readerwriterqueue.h>
-#include <game_queue_messages/messages.h>
-
-using namespace std;
-
-namespace lotr {
-    template <class WebSocket>
-    void handle_play_character(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                         per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections);
+u32string lotr::To_UTF16(const string &s) {
+    wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
+    return conv.from_bytes(s);
 }

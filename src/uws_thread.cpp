@@ -34,6 +34,7 @@
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
 #include <message_handlers/handler_macros.h>
+#include <messages/user_access/user_left_response.h>
 #include "per_socket_data.h"
 
 using namespace std;
@@ -43,15 +44,16 @@ using namespace lotr;
 #pragma clang diagnostic ignored "-Wc99-extensions"
 
 template <bool UseSsl>
-using message_router_type = lotr_flat_map<string, function<void(uWS::WebSocket<UseSsl, true> *, uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data*, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &)>>;
+using message_router_type = lotr_flat_map<string, function<void(uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data<uWS::WebSocket<UseSsl, true>>*,
+        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<UseSsl, true>> *> user_connections)>>;
 
 atomic<uint64_t> connection_id_counter = 0;
 uint32_t const ws_timeout = 300;
 uint32_t const ws_max_payload = 16 * 1024;
 
 
-lotr_flat_map<uint64_t, uWS::WebSocket<false, true> *> lotr::user_connections;
-lotr_flat_map<uint64_t, uWS::WebSocket<true, true> *> lotr::user_ssl_connections;
+lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> lotr::user_connections;
+lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> lotr::user_ssl_connections;
 moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
 
 template <bool UseSsl>
@@ -63,15 +65,16 @@ void on_open(atomic<bool> &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequ
     }
 
     //only called on connect
-    auto *user_data = (per_socket_data *) ws->getUserData();
+    auto *user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
     user_data->connection_id = connection_id_counter++;
     user_data->user_id = 0;
     user_data->playing_character = false;
     user_data->username = nullptr;
+    user_data->ws = ws;
     if constexpr(UseSsl) {
-        user_ssl_connections[user_data->connection_id] = ws;
+        user_ssl_connections[user_data->connection_id] = user_data;
     } else {
-        user_connections[user_data->connection_id] = ws;
+        user_connections[user_data->connection_id] = user_data;
     }
     spdlog::debug("[{}] open connection {} {}", __FUNCTION__, req->getUrl(), user_data->connection_id);
 }
@@ -85,6 +88,8 @@ void on_message(shared_ptr<database_pool> pool, message_router_type<UseSsl> &mes
         return;
     }
 
+    auto user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
+
     rapidjson::Document d;
     d.Parse(&message[0], message.size());
 
@@ -95,11 +100,14 @@ void on_message(shared_ptr<database_pool> pool, message_router_type<UseSsl> &mes
     }
 
     string type = d["type"].GetString();
-    auto user_data = (per_socket_data *) ws->getUserData();
 
     auto handler = message_router.find(type);
     if (handler != message_router.end()) {
-        handler->second(ws, op_code, d, pool, user_data, game_loop_queue);
+        if constexpr (UseSsl){
+            handler->second(op_code, d, pool, user_data, game_loop_queue, user_ssl_connections);
+        } else {
+            handler->second(op_code, d, pool, user_data, game_loop_queue, user_connections);
+        }
     } else {
         spdlog::trace("[{}] no handler for type {}", __FUNCTION__, type);
     }
@@ -107,7 +115,7 @@ void on_message(shared_ptr<database_pool> pool, message_router_type<UseSsl> &mes
 
 template <bool UseSsl>
 void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view message) {
-    auto *user_data = (per_socket_data *) ws->getUserData();
+    auto *user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
     if constexpr(UseSsl) {
         user_ssl_connections.erase(user_data->connection_id);
     } else {
@@ -117,6 +125,27 @@ void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view messa
         game_loop_queue.enqueue(make_unique<player_leave_message>(user_data->connection_id));
     }
     if(user_data->username != nullptr) {
+        if constexpr(UseSsl) {
+            user_left_response join_msg(*user_data->username);
+            auto join_msg_str = join_msg.serialize();
+            for (auto &[conn_id, other_user_data] : user_ssl_connections) {
+                if(other_user_data->user_id != user_data->user_id) {
+                    other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+                }
+            }
+
+            user_ssl_connections.erase(user_data->connection_id);
+        } else {
+            user_left_response join_msg(*user_data->username);
+            auto join_msg_str = join_msg.serialize();
+            for (auto &[conn_id, other_user_data] : user_connections) {
+                if(other_user_data->user_id != user_data->user_id) {
+                    other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+                }
+            }
+
+            user_connections.erase(user_data->connection_id);
+        }
         delete user_data->username;
     }
     spdlog::debug("[{}] close connection {} {} {} {}", __FUNCTION__, code, message, user_data->connection_id, user_data->user_id);
@@ -124,12 +153,12 @@ void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view messa
 
 template <bool UseSsl>
 void add_routes(message_router_type<UseSsl> &message_router) {
-    message_router.emplace(login_request::type, handle_login<UseSsl>);
-    message_router.emplace(register_request::type, handle_register<UseSsl>);
-    message_router.emplace(play_character_request::type, handle_play_character<UseSsl>);
-    message_router.emplace(create_character_request::type, handle_create_character<UseSsl>);
-    message_router.emplace(move_request::type, handle_move<UseSsl>);
-    message_router.emplace(message_request::type, handle_public_chat<UseSsl>);
+    message_router.emplace(login_request::type, handle_login<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(register_request::type, handle_register<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(play_character_request::type, handle_play_character<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(create_character_request::type, handle_create_character<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(move_request::type, handle_move<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(message_request::type, handle_public_chat<uWS::WebSocket<UseSsl, true>>);
 }
 
 void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> &quit) {
@@ -152,7 +181,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                         .dh_params_file_name = nullptr,
                         .ssl_prefer_low_memory_usage = false
                         }).
-                        ws<per_socket_data>("/*", {
+                        ws<per_socket_data<uWS::WebSocket<true, true>>>("/*", {
                         .compression = uWS::SHARED_COMPRESSOR,
                         .maxPayloadLength = ws_max_payload,
                         .idleTimeout = ws_timeout,
@@ -167,11 +196,11 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                             spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
                         },
                         .ping = [](auto *ws) {
-                            auto user_data = (per_socket_data *) ws->getUserData();
+                            auto user_data = (per_socket_data<uWS::WebSocket<true, true>> *) ws->getUserData();
                             spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .pong = [](auto *ws) {
-                            auto user_data = (per_socket_data *) ws->getUserData();
+                            auto user_data = (per_socket_data<uWS::WebSocket<true, true>> *) ws->getUserData();
                             spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .close = [](auto *ws, int code, std::string_view message) {
@@ -190,7 +219,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
         add_routes(message_router);
 
         uWS::TemplatedApp<false>().
-                        ws<per_socket_data>("/*", {
+                        ws<per_socket_data<uWS::WebSocket<false, true>>>("/*", {
                         .compression = uWS::SHARED_COMPRESSOR,
                         .maxPayloadLength = ws_max_payload,
                         .idleTimeout = ws_timeout,
@@ -205,11 +234,11 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                             spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
                         },
                         .ping = [](auto *ws) {
-                            auto user_data = (per_socket_data *) ws->getUserData();
+                            auto user_data = (per_socket_data<uWS::WebSocket<false, true>> *) ws->getUserData();
                             spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .pong = [](auto *ws) {
-                            auto user_data = (per_socket_data *) ws->getUserData();
+                            auto user_data = (per_socket_data<uWS::WebSocket<false, true>> *) ws->getUserData();
                             spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .close = [](auto *ws, int code, std::string_view message) {

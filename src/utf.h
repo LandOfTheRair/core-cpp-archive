@@ -22,9 +22,8 @@
 #include <locale>
 #include <codecvt>
 
+using namespace std;
+
 namespace lotr {
-    u32string To_UTF16(const string &s) {
-        wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
-        return conv.from_bytes(s);
-    }
+    u32string To_UTF16(const string &s);
 }

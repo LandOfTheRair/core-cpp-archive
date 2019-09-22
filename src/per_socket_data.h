@@ -19,12 +19,14 @@
 #pragma once
 
 namespace lotr {
+    template <class WebSocket>
     struct per_socket_data {
         uint64_t connection_id;
         uint64_t user_id;
         bool playing_character;
         string *username;
+        WebSocket *ws;
 
-        per_socket_data() : connection_id(0), user_id(0), playing_character(), username(nullptr) {}
+        per_socket_data() : connection_id(0), user_id(0), playing_character(), username(nullptr), ws(nullptr) {}
     };
 }

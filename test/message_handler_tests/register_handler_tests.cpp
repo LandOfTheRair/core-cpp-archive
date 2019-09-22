@@ -22,32 +22,24 @@
 #include <message_handlers/user_access/register_handler.h>
 #include <messages/user_access/register_request.h>
 #include <messages/generic_error_response.h>
+#include "../custom_websocket.h"
 
 using namespace std;
 using namespace lotr;
 
-class custom_websocket : public uWS::WebSocket<false, true> {
-public:
-    bool send(std::string_view message, uWS::OpCode opCode = uWS::OpCode::BINARY, bool compress = false) {
-        sent_message = message;
-
-        return true;
-    }
-
-    string sent_message;
-};
-
 TEST_CASE("register handler tests") {
     SECTION("Prohibit too short usernames") {
         string message = register_request("a", "okay_password", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
@@ -57,14 +49,16 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too short usernames utf8") {
         string message = register_request("漢", "okay_password", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
@@ -74,14 +68,16 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too long usernames") {
         string message = register_request("aalishdiquwhgebilugfhkjsdhasdasd", "okay_password", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
@@ -91,14 +87,16 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too short password") {
         string message = register_request("ab", "shortpw", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
@@ -108,14 +106,16 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too short password utf8") {
         string message = register_request("ab", "漢字漢字漢字", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
@@ -125,14 +125,16 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit password equal to username") {
         string message = register_request("okay_p$ssword", "okay_p$ssword", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
@@ -142,14 +144,16 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit password equal to email") {
         string message = register_request("ab", "an_email", "an_email").serialize();
-        per_socket_data user_data;
+        per_socket_data<custom_websocket> user_data;
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
         custom_websocket ws;
+        user_data.ws = &ws;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register<false>(&ws, uWS::OpCode::TEXT, d, db_pool, &user_data, q);
+        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
 
         d.Parse(&ws.sent_message[0], ws.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);

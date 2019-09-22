@@ -28,7 +28,7 @@
 using namespace std;
 
 namespace lotr {
-    template <bool UseSsl>
-    void handle_create_character(uWS::WebSocket<UseSsl, true> *ws, uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                               per_socket_data *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q);
+    template <class WebSocket>
+    void handle_create_character(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                               per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections);
 }

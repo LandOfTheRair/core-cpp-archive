@@ -184,11 +184,11 @@ int main() {
         if(config.use_ssl) {
             shit_uws.loop->defer([&] {
                 for(auto &[conn_id, q] : per_player_outward_queue) {
-                    auto conn = user_ssl_connections.find(conn_id);
-                    if (conn != end(user_ssl_connections)) {
+                    auto user_data = user_ssl_connections.find(conn_id);
+                    if (user_data != end(user_ssl_connections)) {
                         unique_ptr<message> msg;
                         while (q.try_dequeue(msg)) {
-                            conn->second->send(msg->serialize(), uWS::OpCode::TEXT, true);
+                            user_data->second->ws->send(msg->serialize(), uWS::OpCode::TEXT, true);
                         }
                     }
                 }
@@ -196,11 +196,11 @@ int main() {
         } else {
             shit_uws.loop->defer([&] {
                 for(auto &[conn_id, q] : per_player_outward_queue) {
-                    auto conn = user_connections.find(conn_id);
-                    if (conn != end(user_connections)) {
+                    auto user_data = user_connections.find(conn_id);
+                    if (user_data != end(user_connections)) {
                         unique_ptr<message> msg;
                         while (q.try_dequeue(msg)) {
-                            conn->second->send(msg->serialize(), uWS::OpCode::TEXT, true);
+                            user_data->second->ws->send(msg->serialize(), uWS::OpCode::TEXT, true);
                         }
                     }
                 }
@@ -221,16 +221,16 @@ int main() {
     spdlog::warn("[{}] quitting program", __FUNCTION__);
     if(config.use_ssl) {
         shit_uws.loop->defer([&shit_uws] {
-            for (auto &[conn_id, ws] : user_ssl_connections) {
-                ws->end(0);
+            for (auto &[conn_id, user_data] : user_ssl_connections) {
+                user_data->ws->end(0);
             }
 
             us_listen_socket_close(1, shit_uws.socket);
         });
     } else {
         shit_uws.loop->defer([&shit_uws] {
-            for (auto &[conn_id, ws] : user_connections) {
-                ws->end(0);
+            for (auto &[conn_id, user_data] : user_connections) {
+                user_data->ws->end(0);
             }
 
             us_listen_socket_close(0, shit_uws.socket);

@@ -21,8 +21,8 @@
 #include <messages/generic_error_response.h>
 
 #define SEND_ERROR(err, pretty_name, pretty_desc, clear_login)  generic_error_response resp{err, pretty_name, pretty_desc, clear_login}; \
-                                                                if(!ws->send(resp.serialize(), op_code, true)) { \
-                                                                    ws->end(0); \
+                                                                if(!user_data->ws->send(resp.serialize(), op_code, true)) { \
+                                                                    user_data->ws->end(0); \
                                                                 }
 
 #define DESERIALIZE_WITH_CHECK(type)    auto msg = type::deserialize(d); \
