@@ -21,9 +21,6 @@
 
 #include <spdlog/spdlog.h>
 #include <sodium.h>
-#include <string>
-#include <locale>
-#include <codecvt>
 
 #include <messages/user_access/register_request.h>
 #include <repositories/users_repository.h>
@@ -33,16 +30,12 @@
 #include <messages/user_access/login_response.h>
 #include <game_logic/censor_sensor.h>
 #include "message_handlers/handler_macros.h"
+#include <utf.h>
 
 #define crypto_pwhash_argon2id_MEMLIMIT_rair 33554432U
 
 using namespace std;
 
-u32string To_UTF16(const string &s)
-{
-    wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
-    return conv.from_bytes(s);
-}
 
 namespace lotr {
     template <bool UseSsl>

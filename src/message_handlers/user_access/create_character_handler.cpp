@@ -28,6 +28,7 @@
 #include <messages/user_access/create_character_response.h>
 #include "message_handlers/handler_macros.h"
 #include <ecs/components.h>
+#include <utf.h>
 
 using namespace std;
 
@@ -49,6 +50,11 @@ namespace lotr {
 
         if(sensor.is_profane_ish(msg->name)) {
             SEND_ERROR("invalid_char_name", "Invalid Character Name", "That character name is not valid", true);
+            return;
+        }
+
+        if(To_UTF16(msg->name).size() < 2 || To_UTF16(msg->name).size() > 20) {
+            SEND_ERROR("Character names needs to be at least 2 characters and at most 20 characters", "", "", true);
             return;
         }
 
