@@ -37,7 +37,7 @@
                                             } \
                                             auto msg = type::deserialize(d); \
                                             if (!msg) { \
-                                                spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                spdlog::warn("[{}] deserialize failed", __FUNCTION__); \
                                                 SEND_ERROR("Unrecognized message", "", "", true); \
                                                 return; \
                                             }
@@ -47,7 +47,7 @@
                                                 } \
                                                 auto msg = type::deserialize(d); \
                                                 if (!msg) { \
-                                                    spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                    spdlog::warn("[{}] deserialize failed", __FUNCTION__); \
                                                     SEND_ERROR("Unrecognized message", "", "", true); \
                                                     return; \
                                                 }
@@ -58,7 +58,7 @@
                                                 } \
                                                 auto msg = type::deserialize(d); \
                                                 if (!msg) { \
-                                                    spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                    spdlog::warn("[{}] deserialize failed", __FUNCTION__); \
                                                     SEND_ERROR("Unrecognized message", "", "", true); \
                                                     return; \
                                                 }
@@ -73,7 +73,7 @@
                                                 } \
                                                 auto msg = type::deserialize(d); \
                                                 if (!msg) { \
-                                                    spdlog::warn("[{}}] deserialize failed", __FUNCTION__); \
+                                                    spdlog::warn("[{}] deserialize failed", __FUNCTION__); \
                                                     SEND_ERROR("Unrecognized message", "", "", true); \
                                                     return; \
                                                 }
