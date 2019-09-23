@@ -25,6 +25,7 @@
 #include <message_handlers/user_access/register_handler.h>
 #include <message_handlers/user_access/play_character_handler.h>
 #include <message_handlers/user_access/create_character_handler.h>
+#include <message_handlers/user_access/delete_character_handler.h>
 #include <message_handlers/commands/move_handler.h>
 #include <message_handlers/chat/public_chat_handler.h>
 #include <message_handlers/moderator/set_motd_handler.h>
@@ -32,6 +33,7 @@
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
+#include <messages/user_access/delete_character_request.h>
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
 #include <messages/moderator/set_motd_request.h>
@@ -157,6 +159,7 @@ void add_routes(message_router_type<UseSsl> &message_router) {
     message_router.emplace(register_request::type, handle_register<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(play_character_request::type, handle_play_character<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(create_character_request::type, handle_create_character<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(delete_character_request::type, handle_delete_character<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(move_request::type, handle_move<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(message_request::type, handle_public_chat<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(set_motd_request::type, set_motd_handler<uWS::WebSocket<UseSsl, true>>);

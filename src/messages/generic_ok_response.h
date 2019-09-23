@@ -21,23 +21,23 @@
 #include <string>
 #include <optional>
 #include <rapidjson/document.h>
-#include "../message.h"
+#include "message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct play_character_request : public message {
-        play_character_request(uint32_t slot) noexcept;
+    struct generic_ok_response : public message {
+        generic_ok_response(string message) noexcept;
 
-        ~play_character_request() noexcept = default;
+        ~generic_ok_response() noexcept = default;
 
         [[nodiscard]]
         string serialize() const override;
 
         [[nodiscard]]
-        static optional<play_character_request> deserialize(rapidjson::Document const &d);
+        static optional<generic_ok_response> deserialize(rapidjson::Document const &d);
 
-        uint32_t slot;
+        string message;
 
         static string const type;
     };

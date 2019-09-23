@@ -27,7 +27,7 @@ using namespace std;
 
 namespace lotr {
     struct create_character_request : public message {
-        create_character_request(string name, string sex, string allegiance, string baseclass) noexcept;
+        create_character_request(uint32_t slot, string name, string sex, string allegiance, string baseclass) noexcept;
 
         ~create_character_request() noexcept = default;
 
@@ -37,6 +37,7 @@ namespace lotr {
         [[nodiscard]]
         static optional<create_character_request> deserialize(rapidjson::Document const &d);
 
+        uint32_t slot;
         string name;
         string sex;
         string allegiance;

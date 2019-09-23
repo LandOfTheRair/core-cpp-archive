@@ -34,72 +34,79 @@ unique_ptr<transaction_T> characters_repository<pool_T, transaction_T>::create_t
 }
 
 template<typename pool_T, typename transaction_T>
-bool characters_repository<pool_T, transaction_T>::insert(db_character &plyr, unique_ptr<transaction_T> const &transaction) const {
+bool characters_repository<pool_T, transaction_T>::insert(db_character &character, unique_ptr<transaction_T> const &transaction) const {
 
     auto result = transaction->execute(fmt::format(
-            "INSERT INTO characters (user_id, location_id, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, '{}', '{}', '{}', '{}', '{}') "
-            "ON CONFLICT (character_name) DO NOTHING RETURNING xmax, id",
-            plyr.user_id, plyr.location_id, transaction->escape(plyr.name), transaction->escape(plyr.allegiance), transaction->escape(plyr.gender), transaction->escape(plyr.alignment), transaction->escape(plyr._class)));
+            "INSERT INTO characters (user_id, location_id, slot, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, {}, '{}', '{}', '{}', '{}', '{}') "
+            "ON CONFLICT (user_id, slot) DO NOTHING RETURNING xmax, id",
+            character.user_id, character.location_id, character.slot, transaction->escape(character.name), transaction->escape(character.allegiance), transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class)));
 
     if(result.empty()) {
         spdlog::error("[{}] contains {} entries", __FUNCTION__, result.size());
         return false;
     }
 
-    plyr.id = result[0][1].as(uint64_t{});
+    character.id = result[0][1].as(uint64_t{});
 
     if(result[0][0].as(uint64_t{}) == 0) {
-        spdlog::debug("[{}] inserted db_character {}", __FUNCTION__, plyr.id);
+        spdlog::debug("[{}] inserted db_character {}", __FUNCTION__, character.id);
         return true;
     }
 
-    spdlog::debug("[{}] could not insert db_character {} {}", __FUNCTION__, plyr.id, plyr.name);
+    spdlog::debug("[{}] could not insert db_character {} {}", __FUNCTION__, character.id, character.name);
     return false;
 }
 
 template<typename pool_T, typename transaction_T>
-bool characters_repository<pool_T, transaction_T>::insert_or_update_player(db_character &plyr, unique_ptr<transaction_T> const &transaction) const {
+bool characters_repository<pool_T, transaction_T>::insert_or_update_character(db_character &character, unique_ptr<transaction_T> const &transaction) const {
 
     auto result = transaction->execute(fmt::format(
-            "INSERT INTO characters (user_id, location_id, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, '{}', '{}', '{}', '{}', '{}') "
-            "ON CONFLICT (character_name) DO UPDATE SET user_id = {}, location_id = {}, allegiance = '{}', gender = '{}', alignment = '{}', class = '{}' RETURNING xmax, id",
-            plyr.user_id, plyr.location_id, transaction->escape(plyr.name), transaction->escape(plyr.allegiance), transaction->escape(plyr.gender), transaction->escape(plyr.alignment), transaction->escape(plyr._class), plyr.user_id, plyr.location_id,
-            transaction->escape(plyr.allegiance), transaction->escape(plyr.gender), transaction->escape(plyr.alignment), transaction->escape(plyr._class)));
+            "INSERT INTO characters (user_id, location_id, slot, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, {}, '{}', '{}', '{}', '{}', '{}') "
+            "ON CONFLICT (user_id, slot) DO UPDATE SET user_id = {}, location_id = {}, allegiance = '{}', gender = '{}', alignment = '{}', class = '{}' RETURNING xmax, id",
+            character.user_id, character.location_id, character.slot, transaction->escape(character.name), transaction->escape(character.allegiance), transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class), character.user_id, character.location_id,
+            transaction->escape(character.allegiance), transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class)));
 
     if(result.empty()) {
         spdlog::error("[{}] contains {} entries", __FUNCTION__, result.size());
         return false;
     }
 
-    plyr.id = result[0][1].as(uint64_t{});
+    character.id = result[0][1].as(uint64_t{});
 
     if(result[0][0].as(uint64_t{}) == 0) {
-        spdlog::debug("[{}] inserted db_character {}", __FUNCTION__, plyr.id);
+        spdlog::debug("[{}] inserted db_character {}", __FUNCTION__, character.id);
         return true;
     }
 
-    spdlog::debug("[{}] updated db_character {}", __FUNCTION__, plyr.id);
+    spdlog::debug("[{}] updated db_character {}", __FUNCTION__, character.id);
     return false;
 }
 
 template<typename pool_T, typename transaction_T>
-void characters_repository<pool_T, transaction_T>::update_player(db_character const &plyr, unique_ptr<transaction_T> const &transaction) const {
-    transaction->execute(fmt::format("UPDATE players SET user_id = {}, location_id = {} WHERE id = {}", plyr.user_id, plyr.location_id, plyr.id));
+void characters_repository<pool_T, transaction_T>::update_character(db_character const &character, unique_ptr<transaction_T> const &transaction) const {
+    transaction->execute(fmt::format("UPDATE characters SET user_id = {}, location_id = {} WHERE id = {}", character.user_id, character.location_id, character.id));
 
-    spdlog::debug("[{}] updated db_character {}", __FUNCTION__, plyr.id);
+    spdlog::debug("[{}] updated db_character {}", __FUNCTION__, character.id);
 }
 
 template<typename pool_T, typename transaction_T>
-optional<db_character> characters_repository<pool_T, transaction_T>::get_player(string const &name, included_tables includes,
-                                                                                unique_ptr<transaction_T> const &transaction) const {
+void characters_repository<pool_T, transaction_T>::delete_character_by_slot(uint32_t slot, uint64_t user_id, unique_ptr<transaction_T> const &transaction) const {
+    transaction->execute(fmt::format("DELETE FROM characters WHERE slot = {} AND user_id = {}", slot, user_id));
+
+    spdlog::debug("[{}] deleted db_character {} for user {}", __FUNCTION__, slot, user_id);
+}
+
+template<typename pool_T, typename transaction_T>
+optional<db_character> characters_repository<pool_T, transaction_T>::get_character(string const &name, uint64_t user_id, included_tables includes,
+                                                                                   unique_ptr<transaction_T> const &transaction) const {
     pqxx::result result;
 
     if(includes == included_tables::none) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE character_name = '{}'", transaction->escape(name)));
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE character_name = '{}' and p.user_id = {}", transaction->escape(name), user_id));
     } else if (includes == included_tables::location) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
                                               "INNER JOIN locations l ON l.id = p.location_id "
-                                              "WHERE p.character_name = '{}'", transaction->escape(name)));
+                                              "WHERE p.character_name = '{}' and p.user_id = {}", transaction->escape(name), user_id));
     } else {
         spdlog::debug("[{}] included_tables value {} not implemented", __FUNCTION__, static_cast<int>(includes));
         return {};
@@ -111,13 +118,14 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_player(
     }
 
     auto ret = make_optional<db_character>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
-                                           result[0][2].as(uint64_t{}), result[0][3].as(string{}),
+                                           result[0][2].as(uint64_t{}), result[0][3].as(uint32_t{}),
                                            result[0][4].as(string{}), result[0][5].as(string{}),
                                            result[0][6].as(string{}), result[0][7].as(string{}),
-                                           optional<db_location>{}, vector<player_stat>{}, vector<player_item>{});
+                                           result[0][8].as(string{}),
+                                           optional<db_location>{}, vector<character_stat>{}, vector<character_item>{});
 
     if(includes == included_tables::location) {
-        ret->loc.emplace(result[0][8].as(uint64_t{}), result[0][9].as(string{}), result[0][10].as(uint32_t{}), result[0][11].as(uint32_t{}));
+        ret->loc.emplace(result[0][9].as(uint64_t{}), result[0][10].as(string{}), result[0][11].as(uint32_t{}), result[0][12].as(uint32_t{}));
     }
 
     spdlog::debug("[{}] found db_character by name {} with id {}", __FUNCTION__, name, ret->id);
@@ -126,9 +134,9 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_player(
 }
 
 template<typename pool_T, typename transaction_T>
-optional<db_character> characters_repository<pool_T, transaction_T>::get_player(uint64_t id, included_tables includes,
-                                                                                unique_ptr<transaction_T> const &transaction) const {
-    auto result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE id = {}", id));
+optional<db_character> characters_repository<pool_T, transaction_T>::get_character(uint64_t id, uint64_t user_id, included_tables includes,
+                                                                                   unique_ptr<transaction_T> const &transaction) const {
+    auto result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE id = {} and user_id = {}", id, user_id));
 
     if(result.empty()) {
         spdlog::debug("[{}] found no db_character by id {}", __FUNCTION__, id);
@@ -136,12 +144,50 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_player(
     }
 
     auto ret = make_optional<db_character>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
-                                           result[0][2].as(uint64_t{}), result[0][3].as(string{}),
+                                           result[0][2].as(uint64_t{}), result[0][3].as(uint32_t{}),
                                            result[0][4].as(string{}), result[0][5].as(string{}),
                                            result[0][6].as(string{}), result[0][7].as(string{}),
-                                           optional<db_location>{}, vector<player_stat>{}, vector<player_item>{});
+                                           result[0][8].as(string{}),
+                                           optional<db_location>{}, vector<character_stat>{}, vector<character_item>{});
 
     spdlog::debug("[{}] found db_character by id {}", __FUNCTION__, id);
+
+    return ret;
+}
+
+template<typename pool_T, typename transaction_T>
+optional<db_character> characters_repository<pool_T, transaction_T>::get_character_by_slot(uint32_t slot, uint64_t user_id, included_tables includes,
+                                                                                   unique_ptr<transaction_T> const &transaction) const {
+    pqxx::result result;
+
+    if(includes == included_tables::none) {
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE slot = {} and user_id = {}", slot, user_id));
+    } else if (includes == included_tables::location) {
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
+                                                  "INNER JOIN locations l ON l.id = p.location_id "
+                                                  "WHERE slot = {} and user_id = {}", slot, user_id));
+    } else {
+        spdlog::debug("[{}] included_tables value {} not implemented", __FUNCTION__, static_cast<int>(includes));
+        return {};
+    }
+
+    if(result.empty()) {
+        spdlog::debug("[{}] found no db_character by slot {}", __FUNCTION__, slot);
+        return {};
+    }
+
+    auto ret = make_optional<db_character>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
+                                           result[0][2].as(uint64_t{}), result[0][3].as(uint32_t{}),
+                                           result[0][4].as(string{}), result[0][5].as(string{}),
+                                           result[0][6].as(string{}), result[0][7].as(string{}),
+                                           result[0][8].as(string{}),
+                                           optional<db_location>{}, vector<character_stat>{}, vector<character_item>{});
+
+    if(includes == included_tables::location) {
+        ret->loc.emplace(result[0][9].as(uint64_t{}), result[0][10].as(string{}), result[0][11].as(uint32_t{}), result[0][12].as(uint32_t{}));
+    }
+
+    spdlog::debug("[{}] found db_character by slot {} for user {}", __FUNCTION__, slot, user_id);
 
     return ret;
 }
@@ -151,9 +197,9 @@ vector<db_character> characters_repository<pool_T, transaction_T>::get_by_user_i
                                                                                   unique_ptr<transaction_T> const &transaction) const {
     pqxx::result result;
     if(includes == included_tables::none) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE user_id = {}", user_id));
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE user_id = {}", user_id));
     } else if (includes == included_tables::location) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
                                       "INNER JOIN locations l ON l.id = p.location_id "
                                       "WHERE p.user_id = {}", user_id));
     } else {
@@ -163,16 +209,17 @@ vector<db_character> characters_repository<pool_T, transaction_T>::get_by_user_i
 
     spdlog::debug("[{}] contains {} entries", __FUNCTION__, result.size());
 
-    vector<db_character> players;
-    players.reserve(result.size());
+    vector<db_character> characters;
+    characters.reserve(result.size());
 
     for(auto const & res : result) {
-        db_character plyr{res[0].as(uint64_t{}), res[1].as(uint64_t{}), res[2].as(uint64_t{}), res[3].as(string{}), res[4].as(string{}), res[5].as(string{}), res[6].as(string{}), res[7].as(string{}), {}, {}, {}};
+        db_character character{res[0].as(uint64_t{}), res[1].as(uint64_t{}), res[2].as(uint64_t{}), res[3].as(uint32_t{}),
+                          res[4].as(string{}), res[5].as(string{}), res[6].as(string{}), res[7].as(string{}), res[8].as(string{}), {}, {}, {}};
         if(includes == included_tables::location) {
-            plyr.loc.emplace(result[0][8].as(uint64_t{}), result[0][9].as(string{}), result[0][10].as(uint32_t{}), result[0][11].as(uint32_t{}));
+            character.loc.emplace(result[0][9].as(uint64_t{}), result[0][10].as(string{}), result[0][11].as(uint32_t{}), result[0][12].as(uint32_t{}));
         }
-        players.push_back(move(plyr));
+        characters.push_back(move(character));
     }
 
-    return players;
+    return characters;
 }

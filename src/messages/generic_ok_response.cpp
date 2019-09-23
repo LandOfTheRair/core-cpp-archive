@@ -16,20 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "play_character_request.h"
+#include "generic_ok_response.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
 
 using namespace lotr;
 using namespace rapidjson;
 
-string const play_character_request::type = "Game:play_character";
+string const generic_ok_response::type = "error_response";
 
-play_character_request::play_character_request(uint32_t slot) noexcept : slot(slot) {
+generic_ok_response::generic_ok_response(string message) noexcept
+        : message(move(message)) {
 
 }
 
-string play_character_request::serialize() const {
+string generic_ok_response::serialize() const {
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
 
@@ -38,23 +39,26 @@ string play_character_request::serialize() const {
     writer.String("type");
     writer.String(type.c_str(), type.size());
 
-    writer.String("slot");
-    writer.Uint(slot);
+    writer.String("message");
+    writer.String(message.c_str(), message.size());
 
     writer.EndObject();
     return sb.GetString();
 }
 
-optional<play_character_request> play_character_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("slot")) {
-        spdlog::warn("[play_character_request] deserialize failed");
+optional<generic_ok_response> generic_ok_response::deserialize(rapidjson::Document const &d) {
+    if (!d.HasMember("type") ||
+        !d.HasMember("message")) {
+        spdlog::warn("[generic_ok_response] deserialize failed");
         return nullopt;
     }
 
     if(d["type"].GetString() != type) {
-        spdlog::warn("[play_character_request] deserialize failed wrong type");
+        spdlog::warn("[generic_ok_response] deserialize failed wrong type");
         return nullopt;
     }
 
-    return play_character_request(d["slot"].GetUint());
+    return generic_ok_response(
+            d["message"].GetString()
+    );
 }

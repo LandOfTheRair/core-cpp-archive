@@ -50,6 +50,7 @@ CREATE TABLE characters (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     location_id BIGINT NOT NULL,
+    slot INT NOT NULL,
     character_name CITEXT NOT NULL,
     allegiance CITEXT NOT NULL,
     gender CITEXT NOT NULL,
@@ -124,7 +125,7 @@ ALTER TABLE banned_users ADD CONSTRAINT "banned_users_user_id_fkey" FOREIGN KEY 
 ALTER TABLE silver_purchase_possibilities ADD CONSTRAINT "silver_purchase_possibilities_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id);
 ALTER TABLE characters ADD CONSTRAINT "characters_locations_id_fkey" FOREIGN KEY (location_id) REFERENCES locations(id);
 ALTER TABLE characters ADD CONSTRAINT "characters_users_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE characters ADD CONSTRAINT "characters_name_unique" UNIQUE (character_name);
+ALTER TABLE characters ADD CONSTRAINT "characters_slot_unique" UNIQUE (user_id, slot);
 ALTER TABLE character_stats ADD CONSTRAINT "character_stats_characters_id_fkey" FOREIGN KEY (character_id) REFERENCES characters(id);
 ALTER TABLE items ADD CONSTRAINT "items_characters_id_fkey" FOREIGN KEY (character_id) REFERENCES characters(id);
 ALTER TABLE items ADD CONSTRAINT "items_npcs_id_fkey" FOREIGN KEY (npc_id) REFERENCES npcs(id);

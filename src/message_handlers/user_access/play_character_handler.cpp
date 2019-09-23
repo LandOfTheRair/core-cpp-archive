@@ -35,11 +35,11 @@ namespace lotr {
                          shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(play_character_request)
 
-        characters_repository<database_pool, database_transaction> player_repo(pool);
-        auto transaction = player_repo.create_transaction();
-        auto plyr = player_repo.get_player(msg->name, included_tables::location, transaction);
+        characters_repository<database_pool, database_transaction> character_repo(pool);
+        auto transaction = character_repo.create_transaction();
+        auto character = character_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
 
-        if(!plyr) {
+        if(!character) {
             SEND_ERROR("Couldn't find character by name", "", "", true);
             return;
         }
@@ -56,8 +56,9 @@ namespace lotr {
         for(auto &stat : stat_names) {
             player_stats.emplace_back(stat, 10);
         }
-        spdlog::debug("[{}] enqueing character {}", __FUNCTION__, plyr->name);
-        q.enqueue(make_unique<player_enter_message>(plyr->name, plyr->loc->map_name, player_stats, user_data->connection_id, plyr->loc->x, plyr->loc->y));
+        spdlog::debug("[{}] enqueing character {}", __FUNCTION__, character->name);
+        spdlog::trace("[{}] enqueing character {} has loc {}", __FUNCTION__, character->name, character->loc.has_value());
+        q.enqueue(make_unique<player_enter_message>(character->name, character->loc->map_name, player_stats, user_data->connection_id, character->loc->x, character->loc->y));
     }
 
     template void handle_play_character<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,

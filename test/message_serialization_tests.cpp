@@ -23,6 +23,7 @@
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
 #include <messages/user_access/create_character_response.h>
+#include <messages/user_access/delete_character_request.h>
 #include <messages/user_access/user_joined_response.h>
 #include <messages/user_access/user_entered_game_response.h>
 #include <messages/user_access/user_left_game_response.h>
@@ -34,6 +35,7 @@
 #include <messages/moderator/update_motd_response.h>
 #include <messages/map_update_response.h>
 #include <messages/generic_error_response.h>
+#include <messages/generic_ok_response.h>
 
 #include <ecs/components.h>
 
@@ -105,12 +107,13 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("play character request") {
-        SERDE(play_character_request, "character");
-        REQUIRE(msg.name == msg2->name);
+        SERDE(play_character_request, 1);
+        REQUIRE(msg.slot == msg2->slot);
     }
 
     SECTION("play character request") {
-        SERDE(create_character_request, "name", "sex", "allegiance", "baseclass");
+        SERDE(create_character_request, 1, "name", "sex", "allegiance", "baseclass");
+        REQUIRE(msg.slot == msg2->slot);
         REQUIRE(msg.name == msg2->name);
         REQUIRE(msg.sex == msg2->sex);
         REQUIRE(msg.allegiance == msg2->allegiance);
@@ -128,6 +131,11 @@ TEST_CASE("message serialization tests") {
             REQUIRE(msg.stats[i].name == msg2->stats[i].name);
             REQUIRE(msg.stats[i].value == msg2->stats[i].value);
         }
+    }
+
+    SECTION("delete character request") {
+        SERDE(delete_character_request, 1);
+        REQUIRE(msg.slot == msg2->slot);
     }
 
     SECTION("user joined response") {
@@ -220,5 +228,10 @@ TEST_CASE("message serialization tests") {
         REQUIRE(msg.pretty_error_name == msg2->pretty_error_name);
         REQUIRE(msg.pretty_error_name == msg2->pretty_error_name);
         REQUIRE(msg.clear_login_data == msg2->clear_login_data);
+    }
+
+    SECTION("generic ok response") {
+        SERDE(generic_ok_response, "msg");
+        REQUIRE(msg.message == msg2->message);
     }
 }

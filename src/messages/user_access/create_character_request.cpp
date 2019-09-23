@@ -25,8 +25,8 @@ using namespace rapidjson;
 
 string const create_character_request::type = "Game:create_character";
 
-create_character_request::create_character_request(string name, string sex, string allegiance, string baseclass) noexcept
-    : name(move(name)), sex(move(sex)), allegiance(move(allegiance)), baseclass(move(baseclass)) {
+create_character_request::create_character_request(uint32_t slot, string name, string sex, string allegiance, string baseclass) noexcept
+    : slot(slot), name(move(name)), sex(move(sex)), allegiance(move(allegiance)), baseclass(move(baseclass)) {
 
 }
 
@@ -38,6 +38,9 @@ string create_character_request::serialize() const {
 
     writer.String("type");
     writer.String(type.c_str(), type.size());
+
+    writer.String("slot");
+    writer.Uint(slot);
 
     writer.String("name");
     writer.String(name.c_str(), name.size());
@@ -56,7 +59,7 @@ string create_character_request::serialize() const {
 }
 
 optional<create_character_request> create_character_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("name") || ! d.HasMember("sex") || ! d.HasMember("allegiance") || ! d.HasMember("baseclass")) {
+    if (!d.HasMember("type") || !d.HasMember("slot")  || !d.HasMember("name") || ! d.HasMember("sex") || ! d.HasMember("allegiance") || ! d.HasMember("baseclass")) {
         spdlog::warn("[create_character_request] deserialize failed");
         return nullopt;
     }
@@ -66,5 +69,5 @@ optional<create_character_request> create_character_request::deserialize(rapidjs
         return nullopt;
     }
 
-    return create_character_request(d["name"].GetString(), d["sex"].GetString(), d["allegiance"].GetString(), d["baseclass"].GetString());
+    return create_character_request(d["slot"].GetUint(), d["name"].GetString(), d["sex"].GetString(), d["allegiance"].GetString(), d["baseclass"].GetString());
 }

@@ -55,39 +55,40 @@ namespace lotr {
         : id(id), ip(move(ip)), _user(move(_user)), until(until) {}
     };
 
-    struct player_stat {
+    struct character_stat {
         uint64_t id;
         string name;
         uint64_t value;
 
-        player_stat() : id(), name(), value() {}
-        player_stat(uint64_t id, string name, uint64_t value) : id(id), name(move(name)), value(value) {}
+        character_stat() : id(), name(), value() {}
+        character_stat(uint64_t id, string name, uint64_t value) : id(id), name(move(name)), value(value) {}
     };
 
-    struct player_item {
+    struct character_item {
         uint64_t id;
         string name;
 
-        player_item() : id(), name() {}
-        player_item(uint64_t id, string name) : id(id), name(move(name)) {}
+        character_item() : id(), name() {}
+        character_item(uint64_t id, string name) : id(id), name(move(name)) {}
     };
 
     struct db_character {
         uint64_t id;
         uint64_t user_id;
         uint64_t location_id;
+        uint32_t slot;
         string name;
         string allegiance;
         string gender;
         string alignment;
         string _class;
         optional<db_location> loc;
-        vector<player_stat> stats;
-        vector<player_item> items;
+        vector<character_stat> stats;
+        vector<character_item> items;
 
-        db_character() : id(), user_id(), location_id(), name(), loc(), stats(), items() {}
-        db_character(uint64_t id, uint64_t user_id, uint64_t location_id, string name, string allegiance, string gender, string alignment, string _class, optional<db_location> loc, vector<player_stat> stats, vector<player_item> items)
-        : id(id), user_id(user_id), location_id(location_id), name(move(name)), allegiance(move(allegiance)), gender(move(gender)), alignment(move(alignment)), _class(move(_class)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
+        db_character() : id(), user_id(), location_id(), slot(), name(), loc(), stats(), items() {}
+        db_character(uint64_t id, uint64_t user_id, uint64_t location_id, uint32_t slot, string name, string allegiance, string gender, string alignment, string _class, optional<db_location> loc, vector<character_stat> stats, vector<character_item> items)
+        : id(id), user_id(user_id), location_id(location_id), slot(slot), name(move(name)), allegiance(move(allegiance)), gender(move(gender)), alignment(move(alignment)), _class(move(_class)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
     };
 }
 

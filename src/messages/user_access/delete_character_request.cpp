@@ -16,20 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "play_character_request.h"
+#include "delete_character_request.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
 
 using namespace lotr;
 using namespace rapidjson;
 
-string const play_character_request::type = "Game:play_character";
+string const delete_character_request::type = "Game:delete_character";
 
-play_character_request::play_character_request(uint32_t slot) noexcept : slot(slot) {
+delete_character_request::delete_character_request(uint32_t slot) noexcept
+        : slot(slot) {
 
 }
 
-string play_character_request::serialize() const {
+string delete_character_request::serialize() const {
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
 
@@ -45,16 +46,16 @@ string play_character_request::serialize() const {
     return sb.GetString();
 }
 
-optional<play_character_request> play_character_request::deserialize(rapidjson::Document const &d) {
+optional<delete_character_request> delete_character_request::deserialize(rapidjson::Document const &d) {
     if (!d.HasMember("type") || !d.HasMember("slot")) {
-        spdlog::warn("[play_character_request] deserialize failed");
+        spdlog::warn("[delete_character_request] deserialize failed");
         return nullopt;
     }
 
     if(d["type"].GetString() != type) {
-        spdlog::warn("[play_character_request] deserialize failed wrong type");
+        spdlog::warn("[delete_character_request] deserialize failed wrong type");
         return nullopt;
     }
 
-    return play_character_request(d["slot"].GetUint());
+    return delete_character_request(d["slot"].GetUint());
 }

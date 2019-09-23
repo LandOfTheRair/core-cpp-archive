@@ -26,16 +26,16 @@
 using namespace std;
 
 namespace lotr {
-    struct play_character_request : public message {
-        play_character_request(uint32_t slot) noexcept;
+    struct delete_character_request : public message {
+        explicit delete_character_request(uint32_t slot) noexcept;
 
-        ~play_character_request() noexcept = default;
+        ~delete_character_request() noexcept = default;
 
         [[nodiscard]]
         string serialize() const override;
 
         [[nodiscard]]
-        static optional<play_character_request> deserialize(rapidjson::Document const &d);
+        static optional<delete_character_request> deserialize(rapidjson::Document const &d);
 
         uint32_t slot;
 

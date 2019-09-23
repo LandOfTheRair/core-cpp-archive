@@ -41,7 +41,7 @@ namespace lotr {
         locations_repository<database_pool, database_transaction> location_repo(pool);
         characters_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
-        auto plyr = player_repo.get_player(msg->name, included_tables::location, transaction);
+        auto plyr = player_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
 
         if(plyr) {
             SEND_ERROR("Player with name already exists", "", "", true);

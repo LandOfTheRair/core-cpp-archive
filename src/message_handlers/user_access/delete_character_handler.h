@@ -18,27 +18,17 @@
 
 #pragma once
 
-#include <string>
-#include <optional>
+#include <App.h>
 #include <rapidjson/document.h>
-#include "../message.h"
+#include <database/database_pool.h>
+#include <per_socket_data.h>
+#include <readerwriterqueue.h>
+#include <game_queue_messages/messages.h>
 
 using namespace std;
 
 namespace lotr {
-    struct play_character_request : public message {
-        play_character_request(uint32_t slot) noexcept;
-
-        ~play_character_request() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const override;
-
-        [[nodiscard]]
-        static optional<play_character_request> deserialize(rapidjson::Document const &d);
-
-        uint32_t slot;
-
-        static string const type;
-    };
+    template <class WebSocket>
+    void handle_delete_character(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                                 per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections);
 }
