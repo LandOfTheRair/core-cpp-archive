@@ -26,18 +26,18 @@
 using namespace std;
 
 namespace lotr {
-    struct message_request : public message {
-        message_request(string content) noexcept;
+    struct user_entered_game_response : public message {
+        explicit user_entered_game_response(string username) noexcept;
 
-        ~message_request() noexcept = default;
+        ~user_entered_game_response() noexcept = default;
 
         [[nodiscard]]
         string serialize() const override;
 
         [[nodiscard]]
-        static optional<message_request> deserialize(rapidjson::Document const &d);
+        static optional<user_entered_game_response> deserialize(rapidjson::Document const &d);
 
-        string content;
+        string username;
 
         static string const type;
     };

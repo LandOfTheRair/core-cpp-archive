@@ -25,8 +25,8 @@ using namespace rapidjson;
 
 string const user_joined_response::type = "Auth:join";
 
-user_joined_response::user_joined_response(string username) noexcept
-        : username(move(username)) {
+user_joined_response::user_joined_response(account_object user) noexcept
+        : user(move(user)) {
 
 }
 
@@ -39,15 +39,31 @@ string user_joined_response::serialize() const {
     writer.String("type");
     writer.String(type.c_str(), type.size());
 
+    writer.String("is_game_master");
+    writer.Bool(user.is_game_master);
+
+    writer.String("is_tester");
+    writer.Bool(user.is_tester);
+
+    writer.String("has_done_trial");
+    writer.Bool(user.has_done_trial);
+
+    writer.String("trial_ends_unix_timestamp");
+    writer.Uint64(user.trial_ends_unix_timestamp);
+
+    writer.String("subscription_tier");
+    writer.Uint(user.subscription_tier);
+
     writer.String("username");
-    writer.String(username.c_str(), username.size());
+    writer.String(user.username.c_str(), user.username.size());
 
     writer.EndObject();
     return sb.GetString();
 }
 
 optional<user_joined_response> user_joined_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("username")) {
+    if (!d.HasMember("type") || !d.HasMember("is_game_master") || !d.HasMember("is_tester") || !d.HasMember("has_done_trial") ||
+        !d.HasMember("trial_ends_unix_timestamp") || !d.HasMember("subscription_tier") || !d.HasMember("username")) {
         spdlog::warn("[user_joined_response] deserialize failed");
         return nullopt;
     }
@@ -57,5 +73,6 @@ optional<user_joined_response> user_joined_response::deserialize(rapidjson::Docu
         return nullopt;
     }
 
-    return user_joined_response(d["username"].GetString());
+    return user_joined_response(account_object(d["is_game_master"].GetBool(), d["is_tester"].GetBool(), d["has_done_trial"].GetBool(),
+            d["trial_ends_unix_timestamp"].GetUint64(), d["subscription_tier"].GetUint(), d["username"].GetString()));
 }

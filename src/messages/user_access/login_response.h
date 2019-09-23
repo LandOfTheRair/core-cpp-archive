@@ -23,6 +23,7 @@
 #include <vector>
 #include <rapidjson/document.h>
 #include "../message.h"
+#include "../account_object.h"
 
 using namespace std;
 
@@ -38,16 +39,18 @@ namespace lotr {
     };
 
     struct login_response : public message {
-        explicit login_response(vector<message_player> players, vector<string> online_users, string username, string email, string motd) noexcept;
+        explicit login_response(vector<message_player> players, vector<account_object> online_users, string username, string email, string motd) noexcept;
 
         ~login_response() noexcept = default;
 
         [[nodiscard]]
         string serialize() const override;
+
+        [[nodiscard]]
         static optional<login_response> deserialize(rapidjson::Document const &d);
 
         vector<message_player> players;
-        vector<string> online_users;
+        vector<account_object> online_users;
         string username;
         string email;
         string motd;

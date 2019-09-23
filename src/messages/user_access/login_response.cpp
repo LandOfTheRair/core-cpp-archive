@@ -25,7 +25,7 @@ using namespace rapidjson;
 
 string const login_response::type = "Auth:login_response";
 
-login_response::login_response(vector<message_player> players, vector<string> online_users, string username, string email, string motd) noexcept :
+login_response::login_response(vector<message_player> players, vector<account_object> online_users, string username, string email, string motd) noexcept :
     players(move(players)), online_users(move(online_users)), username(move(username)), email(move(email)), motd(move(motd)) {
 }
 
@@ -74,7 +74,27 @@ string login_response::serialize() const {
     writer.StartArray();
 
     for(auto& user : online_users) {
-        writer.String(user.c_str(), user.size());
+        writer.StartObject();
+
+        writer.String("is_game_master");
+        writer.Bool(user.is_game_master);
+
+        writer.String("is_tester");
+        writer.Bool(user.is_tester);
+
+        writer.String("has_done_trial");
+        writer.Bool(user.has_done_trial);
+
+        writer.String("trial_ends_unix_timestamp");
+        writer.Uint64(user.trial_ends_unix_timestamp);
+
+        writer.String("subscription_tier");
+        writer.Uint(user.subscription_tier);
+
+        writer.String("username");
+        writer.String(user.username.c_str(), user.username.size());
+
+        writer.EndObject();
     }
 
     writer.EndArray();
@@ -101,15 +121,26 @@ optional<login_response> login_response::deserialize(rapidjson::Document const &
         return nullopt;
     }
 
-    vector<string> online_users;
+    vector<account_object> online_users;
     auto &online_users_array = d["online_users"];
-    if(!players_array.IsArray()) {
+    if(!online_users_array.IsArray()) {
         spdlog::warn("[login_response] deserialize failed");
         return nullopt;
     }
 
     for(SizeType i = 0; i < online_users_array.Size(); i++) {
-        online_users.emplace_back(online_users_array[i].GetString());
+        if (!online_users_array[i].IsObject() ||
+            !online_users_array[i].HasMember("is_game_master") ||
+            !online_users_array[i].HasMember("is_tester") ||
+            !online_users_array[i].HasMember("has_done_trial") ||
+            !online_users_array[i].HasMember("trial_ends_unix_timestamp") ||
+            !online_users_array[i].HasMember("subscription_tier") ||
+            !online_users_array[i].HasMember("username")) {
+            spdlog::warn("[login_response] deserialize failed");
+            return nullopt;
+        }
+        online_users.emplace_back(online_users_array[i]["is_game_master"].GetBool(), online_users_array[i]["is_tester"].GetBool(), online_users_array[i]["has_done_trial"].GetBool(),
+                online_users_array[i]["trial_ends_unix_timestamp"].GetUint64(), online_users_array[i]["subscription_tier"].GetUint(), online_users_array[i]["username"].GetString());
     }
 
     for(SizeType i = 0; i < players_array.Size(); i++) {

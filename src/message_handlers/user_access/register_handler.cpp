@@ -129,15 +129,15 @@ namespace lotr {
             user_data->username = new string(new_usr.username);
 
 
-            vector<string> online_users;
-            user_joined_response join_msg(new_usr.username);
+            vector<account_object> online_users;
+            user_joined_response join_msg(account_object(new_usr.is_game_master, false, false, 0, 0, new_usr.username));
             auto join_msg_str = join_msg.serialize();
             for (auto &[conn_id, other_user_data] : user_connections) {
                 if(other_user_data->user_id != user_data->user_id) {
                     other_user_data->ws->send(join_msg_str, op_code, true);
-                    if(other_user_data->username != nullptr) {
-                        online_users.push_back(*other_user_data->username);
-                    }
+                }
+                if(other_user_data->username != nullptr) {
+                    online_users.emplace_back(other_user_data->is_game_master, other_user_data->is_tester, false, 0, other_user_data->subscription_tier, *other_user_data->username);
                 }
             }
 

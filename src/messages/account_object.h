@@ -19,26 +19,19 @@
 #pragma once
 
 #include <string>
-#include <optional>
-#include <rapidjson/document.h>
-#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct message_request : public message {
-        message_request(string content) noexcept;
+    struct account_object {
+        bool is_game_master;
+        bool is_tester;
+        bool has_done_trial;
+        uint64_t trial_ends_unix_timestamp;
+        uint32_t subscription_tier;
+        string username;
 
-        ~message_request() noexcept = default;
-
-        [[nodiscard]]
-        string serialize() const override;
-
-        [[nodiscard]]
-        static optional<message_request> deserialize(rapidjson::Document const &d);
-
-        string content;
-
-        static string const type;
+        account_object(bool is_game_master, bool is_tester, bool has_done_trial, uint64_t trial_ends_unix_timestamp, uint32_t subscription_tier, string username) :
+                is_game_master(is_game_master), is_tester(is_tester), has_done_trial(has_done_trial), trial_ends_unix_timestamp(trial_ends_unix_timestamp), subscription_tier(subscription_tier), username(move(username)) {}
     };
 }

@@ -42,9 +42,6 @@
 using namespace std;
 using namespace lotr;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc99-extensions"
-
 template <bool UseSsl>
 using message_router_type = lotr_flat_map<string, function<void(uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data<uWS::WebSocket<UseSsl, true>>*,
         moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<UseSsl, true>> *> user_connections)>>;
@@ -261,5 +258,3 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
 
     spdlog::warn("[{}] done", __FUNCTION__);
 }
-
-#pragma clang diagnostic pop

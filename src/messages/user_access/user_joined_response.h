@@ -22,20 +22,23 @@
 #include <optional>
 #include <rapidjson/document.h>
 #include "../message.h"
+#include "../account_object.h"
 
 using namespace std;
 
 namespace lotr {
     struct user_joined_response : public message {
-        explicit user_joined_response(string username) noexcept;
+        explicit user_joined_response(account_object user) noexcept;
 
         ~user_joined_response() noexcept = default;
 
         [[nodiscard]]
         string serialize() const override;
+
+        [[nodiscard]]
         static optional<user_joined_response> deserialize(rapidjson::Document const &d);
 
-        string username;
+        account_object user;
 
         static string const type;
     };

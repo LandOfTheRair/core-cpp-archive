@@ -33,6 +33,8 @@ namespace lotr {
 
         [[nodiscard]]
         string serialize() const override;
+
+        [[nodiscard]]
         static optional<register_request> deserialize(rapidjson::Document const &d);
 
         string username;

@@ -29,10 +29,6 @@ using namespace std;
 namespace lotr {
     struct character_component;
 
-    struct characters_visible {
-        string name;
-    };
-
     struct map_update_response : public message {
         map_update_response(vector<character_component> npcs) noexcept;
 
@@ -40,6 +36,8 @@ namespace lotr {
 
         [[nodiscard]]
         string serialize() const override;
+
+        [[nodiscard]]
         static optional<map_update_response> deserialize(rapidjson::Document const &d);
 
         vector<character_component> npcs;

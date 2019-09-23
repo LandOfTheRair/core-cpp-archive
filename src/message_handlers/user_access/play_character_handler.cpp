@@ -22,6 +22,7 @@
 #include <spdlog/spdlog.h>
 
 #include <messages/user_access/play_character_request.h>
+#include <messages/user_access/user_entered_game_response.h>
 #include <repositories/characters_repository.h>
 #include "message_handlers/handler_macros.h"
 #include <ecs/components.h>
@@ -44,6 +45,12 @@ namespace lotr {
         }
 
         user_data->playing_character = true;
+
+        user_entered_game_response enter_msg(*user_data->username);
+        auto enter_msg_str = enter_msg.serialize();
+        for (auto &[conn_id, other_user_data] : user_connections) {
+            other_user_data->ws->send(enter_msg_str, op_code, true);
+        }
 
         vector<stat_component> player_stats;
         for(auto &stat : stat_names) {

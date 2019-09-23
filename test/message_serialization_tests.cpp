@@ -24,6 +24,9 @@
 #include <messages/user_access/create_character_request.h>
 #include <messages/user_access/create_character_response.h>
 #include <messages/user_access/user_joined_response.h>
+#include <messages/user_access/user_entered_game_response.h>
+#include <messages/user_access/user_left_game_response.h>
+#include <messages/user_access/user_left_response.h>
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
 #include <messages/chat/message_response.h>
@@ -55,7 +58,7 @@ TEST_CASE("message serialization tests") {
 
     SECTION("empty login response") {
         vector<message_player> players;
-        vector<string> users;
+        vector<account_object> users;
         SERDE(login_response, players, users, "username", "email", "motd");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.username == msg2->username);
@@ -67,9 +70,9 @@ TEST_CASE("message serialization tests") {
         vector<message_player> players;
         players.emplace_back("name", "map", 1, 2);
         players.emplace_back("name2", "map2", 3, 4);
-        vector<string> users;
-        users.emplace_back("user1");
-        users.emplace_back("user2");
+        vector<account_object> users;
+        users.emplace_back(false, true, false, 123, 456, "user1");
+        users.emplace_back(true, false, true, 890, 342, "user2");
         SERDE(login_response, players, users, "username", "email", "motd");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.online_users.size() == msg2->online_users.size());
@@ -85,7 +88,12 @@ TEST_CASE("message serialization tests") {
         }
 
         for(uint32_t i = 0; i < msg.online_users.size(); i++) {
-            REQUIRE(msg.online_users[i] == msg2->online_users[i]);
+            REQUIRE(msg.online_users[i].is_game_master == msg2->online_users[i].is_game_master);
+            REQUIRE(msg.online_users[i].is_tester == msg2->online_users[i].is_tester);
+            REQUIRE(msg.online_users[i].has_done_trial == msg2->online_users[i].has_done_trial);
+            REQUIRE(msg.online_users[i].trial_ends_unix_timestamp == msg2->online_users[i].trial_ends_unix_timestamp);
+            REQUIRE(msg.online_users[i].subscription_tier == msg2->online_users[i].subscription_tier);
+            REQUIRE(msg.online_users[i].username == msg2->online_users[i].username);
         }
     }
 
@@ -123,7 +131,27 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("user joined response") {
-        SERDE(user_joined_response, "username");
+        SERDE(user_joined_response, account_object(true, false, true, 123, 345, "username"));
+        REQUIRE(msg.user.is_game_master == msg2->user.is_game_master);
+        REQUIRE(msg.user.is_tester == msg2->user.is_tester);
+        REQUIRE(msg.user.has_done_trial == msg2->user.has_done_trial);
+        REQUIRE(msg.user.trial_ends_unix_timestamp == msg2->user.trial_ends_unix_timestamp);
+        REQUIRE(msg.user.subscription_tier == msg2->user.subscription_tier);
+        REQUIRE(msg.user.username == msg2->user.username);
+    }
+
+    SECTION("user entered game response") {
+        SERDE(user_entered_game_response, "username");
+        REQUIRE(msg.username == msg2->username);
+    }
+
+    SECTION("user left response") {
+        SERDE(user_left_response, "username");
+        REQUIRE(msg.username == msg2->username);
+    }
+
+    SECTION("user left game response") {
+        SERDE(user_left_game_response, "username");
         REQUIRE(msg.username == msg2->username);
     }
 
