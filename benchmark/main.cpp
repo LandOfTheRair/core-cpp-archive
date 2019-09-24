@@ -32,6 +32,7 @@
 #include <game_logic/a_star.h>
 #include <asset_loading/load_assets.h>
 #include <ai/default_ai.h>
+#include <messages/generic_error_response.h>
 
 using namespace std;
 using namespace lotr;
@@ -155,6 +156,23 @@ void bench_default_ai(map_component &m) {
     spdlog::info("[{}] {:n} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(end-start).count());
 }
 
+void bench_serialization() {
+    if(quit) {
+        return;
+    }
+
+    auto start = chrono::system_clock::now();
+
+    for(int i = 0; i < 1'000'000; i++) {
+        generic_error_response resp{"err", "pretty err", "desc", true};
+        auto msg = resp.serialize();
+    }
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("[{}] {:n} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
 int main(int argc, char **argv) {
     set_cwd(get_selfpath());
     ::signal(SIGINT, on_sigint);
@@ -202,4 +220,5 @@ int main(int argc, char **argv) {
     bench_hash_verify();
     bench_a_star(m.value());
     bench_default_ai(m.value());
+    bench_serialization();
 }
