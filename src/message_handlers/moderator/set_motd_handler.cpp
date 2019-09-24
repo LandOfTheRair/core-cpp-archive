@@ -32,12 +32,12 @@ namespace lotr {
     template<class WebSocket>
     void set_motd_handler(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data,
                           moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
-        DESERIALIZE_WITH_PLAYING_CHECK(set_motd_request)
-
         if(!user_data->is_game_master) {
             spdlog::warn("[{}] user {} tried to set motd but is not a game master!", __FUNCTION__, *user_data->username);
             return;
         }
+
+        DESERIALIZE_WITH_PLAYING_CHECK(set_motd_request)
 
         spdlog::info("[{}] motd set to \"{}\" by user {}", __FUNCTION__, msg->motd, *user_data->username);
         motd = msg->motd;
