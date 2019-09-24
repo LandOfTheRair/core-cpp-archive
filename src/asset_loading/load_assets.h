@@ -23,5 +23,5 @@
 using namespace std;
 
 namespace lotr {
-    void load_assets(entt::registry &registry, atomic<bool> &quit);
+    void load_assets(entt::registry &registry, atomic<bool> const &quit);
 }

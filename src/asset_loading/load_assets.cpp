@@ -32,7 +32,7 @@ using namespace lotr;
 #define NPC_UINT_FIELD(x) if(npc_node[ #x ]) { npc. x = npc_node[ #x ].as<uint32_t>(); }
 #define NPC_BOOL_FIELD(x) if(npc_node[ #x ]) { npc. x = npc_node[ #x ].as<bool>(); }
 
-void lotr::load_assets(entt::registry &registry, atomic<bool> &quit) {
+void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
     uint32_t item_count = 0;
     uint32_t npc_count = 0;
     uint32_t map_count = 0;

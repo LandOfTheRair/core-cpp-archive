@@ -28,31 +28,31 @@ namespace lotr {
     void remove_dead_npcs(vector<npc_component> &npcs) noexcept;
     void fill_spawners(map_component const &m, vector<npc_component> &npcs, entt::registry &registry);
 
-    inline bool tile_is_walkable(map_component const &m, location &loc) {
+    inline bool tile_is_walkable(map_component const &m, location const &loc) {
         auto const &walls_layer = m.layers[map_layer_name::Walls];
         auto const &opaque_layer = m.layers[map_layer_name::OpaqueDecor];
         uint32_t c = get<0>(loc) + get<1>(loc) * walls_layer.width;
         return walls_layer.data[c] == 0 && opaque_layer.objects[c].gid == 0;
     }
 
-    inline bool tile_is_walkable(map_layer const &walls_layer, map_layer const &opaque_layer, location &loc) {
+    inline bool tile_is_walkable(map_layer const &walls_layer, map_layer const &opaque_layer, location const &loc) {
         uint32_t c = get<0>(loc) + get<1>(loc) * walls_layer.width;
         return walls_layer.data[c] == 0 && opaque_layer.objects[c].gid == 0;
     }
 
-    inline bool tile_is_walkable(map_component const &m, int32_t x, int32_t y) {
+    inline bool tile_is_walkable(map_component const &m, int32_t const x, int32_t const y) {
         auto const &walls_layer = m.layers[map_layer_name::Walls];
         auto const &opaque_layer = m.layers[map_layer_name::OpaqueDecor];
         uint32_t c = x + y * walls_layer.width;
         return walls_layer.data[c] == 0 && opaque_layer.objects[c].gid == 0;
     }
 
-    inline bool tile_is_walkable(map_layer const &walls_layer, map_layer const &opaque_layer, int32_t x, int32_t y) {
+    inline bool tile_is_walkable(map_layer const &walls_layer, map_layer const &opaque_layer, int32_t const x, int32_t const y) {
         uint32_t c = x + y * walls_layer.width;
         return walls_layer.data[c] == 0 && opaque_layer.objects[c].gid == 0;
     }
     
-    inline bool is_visible(location main_entity, location other, bitset<power(fov_diameter)> &fov, int32_t min_x, int32_t max_x, int32_t min_y, int32_t max_y) {
+    inline bool is_visible(location const main_entity, location const other, bitset<power(fov_diameter)> const &fov, int32_t const min_x, int32_t const max_x, int32_t const min_y, int32_t const max_y) {
         return get<0>(other) >= min_x && get<0>(other) <= max_x &&
             get<1>(other) >= min_y && get<1>(other) <= max_y &&
             fov[get<0>(main_entity) - get<0>(other) + fov_max_distance + ((get<1>(other) - get<1>(main_entity) + fov_max_distance) * fov_diameter)] == true;

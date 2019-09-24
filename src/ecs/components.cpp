@@ -97,7 +97,7 @@ namespace  lotr {
                                                 stat_poison_resist, stat_disease_resist, stat_action_speed };
 
 
-    global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string &npc_id) {
+    global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string const &npc_id) {
         auto gnpc_view = registry.view<global_npc_component>();
 
         for(auto gnpc_entity : gnpc_view) {
@@ -113,7 +113,7 @@ namespace  lotr {
         return nullptr;
     }
 
-    map_component* get_map_by_name(entt::registry &registry, string &name) {
+    map_component* get_map_by_name(entt::registry &registry, string const &name) {
         auto map_view = registry.view<map_component>();
 
         for(auto m_entity : map_view) {

@@ -59,7 +59,7 @@ moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
 string lotr::motd;
 
 template <bool UseSsl>
-void on_open(atomic<bool> &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequest *req) {
+void on_open(atomic<bool> const &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequest *req) {
     if(quit) {
         spdlog::debug("[{}] new connection in closing state", __FUNCTION__);
         ws->end(0);
@@ -166,7 +166,7 @@ void add_routes(message_router_type<UseSsl> &message_router) {
     message_router.emplace(set_motd_request::type, set_motd_handler<uWS::WebSocket<UseSsl, true>>);
 }
 
-void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> &quit) {
+void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit) {
     connection_id_counter = 0;
     shit_uws.loop = uWS::Loop::get();
     motd = "";
@@ -202,11 +202,11 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                             spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
                         },
                         .ping = [](auto *ws) {
-                            auto user_data = (per_socket_data<uWS::WebSocket<true, true>> *) ws->getUserData();
+                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
                             spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .pong = [](auto *ws) {
-                            auto user_data = (per_socket_data<uWS::WebSocket<true, true>> *) ws->getUserData();
+                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
                             spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .close = [](auto *ws, int code, std::string_view message) {
@@ -240,11 +240,11 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
                             spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
                         },
                         .ping = [](auto *ws) {
-                            auto user_data = (per_socket_data<uWS::WebSocket<false, true>> *) ws->getUserData();
+                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
                             spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .pong = [](auto *ws) {
-                            auto user_data = (per_socket_data<uWS::WebSocket<false, true>> *) ws->getUserData();
+                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData()) ;
                             spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
                         },
                         .close = [](auto *ws, int code, std::string_view message) {

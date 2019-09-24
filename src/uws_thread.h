@@ -40,5 +40,5 @@ namespace lotr {
     extern moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> game_loop_queue;
     extern string motd;
 
-    void run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> &quit);
+    void run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit);
 }

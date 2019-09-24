@@ -370,8 +370,8 @@ namespace lotr {
 
     // helper functions
 
-    global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string &npc_id);
-    map_component* get_map_by_name(entt::registry &registry, string &name);
+    global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string const &npc_id);
+    map_component* get_map_by_name(entt::registry &registry, string const &name);
 
     // constants
 
