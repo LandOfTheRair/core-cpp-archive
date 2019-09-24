@@ -144,7 +144,9 @@ TEST_CASE("message serialization tests") {
         REQUIRE(msg.user.is_tester == msg2->user.is_tester);
         REQUIRE(msg.user.has_done_trial == msg2->user.has_done_trial);
         REQUIRE(msg.user.trial_ends_unix_timestamp == msg2->user.trial_ends_unix_timestamp);
+        REQUIRE(msg2->user.trial_ends_unix_timestamp == 123);
         REQUIRE(msg.user.subscription_tier == msg2->user.subscription_tier);
+        REQUIRE(msg2->user.subscription_tier == 345);
         REQUIRE(msg.user.username == msg2->user.username);
     }
 

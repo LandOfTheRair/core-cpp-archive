@@ -41,7 +41,7 @@ matrix:
       - unzip test.zip
       - export TEMPFILE=$(mktemp)
       - echo "$SSH_KNOWN_HOSTS" > $TEMPFILE
+      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux kill-session -t "myTempSession"'
       - scp -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
       - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'cp lotr_backend builds/${TRAVIS_COMMIT}'
-      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux kill-session -t "myTempSession"'
       - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'

@@ -73,6 +73,7 @@ void on_open(atomic<bool> &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequ
     user_data->playing_character = false;
     user_data->username = nullptr;
     user_data->ws = ws;
+    user_data->subscription_tier = 0;
     if constexpr(UseSsl) {
         user_ssl_connections[user_data->connection_id] = user_data;
     } else {
