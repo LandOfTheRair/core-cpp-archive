@@ -26,10 +26,10 @@ namespace lotr {
         uint32_t subscription_tier;
         bool is_tester;
         bool is_game_master;
-        bool playing_character;
+        int32_t playing_character_slot;
         string *username;
         WebSocket *ws;
 
-        per_socket_data() : connection_id(0), user_id(0), subscription_tier(0), is_tester(), is_game_master(), playing_character(), username(nullptr), ws(nullptr) {}
+        per_socket_data() : connection_id(0), user_id(0), subscription_tier(0), is_tester(), is_game_master(), playing_character_slot(), username(nullptr), ws(nullptr) {}
     };
 }

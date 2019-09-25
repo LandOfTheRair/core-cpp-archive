@@ -41,10 +41,10 @@ namespace lotr {
         locations_repository<database_pool, database_transaction> location_repo(pool);
         characters_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
-        auto plyr = player_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
+        auto existing_character = player_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
 
-        if(plyr) {
-            SEND_ERROR("Player with name already exists", "", "", true);
+        if(existing_character) {
+            SEND_ERROR("Character already exists in slot", "", "", true);
             return;
         }
 
@@ -65,10 +65,11 @@ namespace lotr {
         location_repo.insert(loc, transaction);
         new_player.loc = loc;
         new_player.location_id = loc.id;
+        new_player.slot = msg->slot;
 
         if(!player_repo.insert(new_player, transaction)) {
             SEND_ERROR("Player with name already exists", "", "", true);
-            spdlog::error("[{}] Player with name {} already exists, but this code path should never be hit.", __FUNCTION__, new_player.name);
+            spdlog::error("[{}] Player with slot {} already exists, but this code path should never be hit.", __FUNCTION__, new_player.slot);
             return;
         }
 

@@ -40,11 +40,18 @@ namespace lotr {
         auto character = character_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
 
         if(!character) {
-            SEND_ERROR("Couldn't find character by name", "", "", true);
+            SEND_ERROR("Couldn't find character in that slot", "", "", true);
             return;
         }
 
-        user_data->playing_character = true;
+        for (auto &[conn_id, other_user_data] : user_connections) {
+            if(other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot == user_data->playing_character_slot) {
+                SEND_ERROR("Already playing that slot on another connection", "", "", true);
+                return;
+            }
+        }
+
+        user_data->playing_character_slot = msg->slot;
 
         user_entered_game_response enter_msg(*user_data->username);
         auto enter_msg_str = enter_msg.serialize();

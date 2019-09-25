@@ -40,5 +40,8 @@ namespace lotr {
     extern moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> game_loop_queue;
     extern string motd;
 
+    using user_connections_type = lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *>::value_type;
+    using user_ssl_connections_type = lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *>::value_type;
+
     void run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit);
 }

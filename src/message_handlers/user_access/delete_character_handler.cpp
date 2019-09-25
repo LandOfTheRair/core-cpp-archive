@@ -34,6 +34,13 @@ namespace lotr {
                                  shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(delete_character_request)
 
+        for (auto &[conn_id, other_user_data] : user_connections) {
+            if(other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot >=0 && other_user_data->playing_character_slot == msg->slot) {
+                SEND_ERROR("Already playing that slot on another connection", "", "", true);
+                return;
+            }
+        }
+
         characters_repository<database_pool, database_transaction> player_repo(pool);
         auto transaction = player_repo.create_transaction();
         player_repo.delete_character_by_slot(msg->slot, user_data->user_id, transaction);

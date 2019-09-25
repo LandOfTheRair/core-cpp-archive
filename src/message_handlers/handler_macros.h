@@ -52,7 +52,7 @@
                                                     return; \
                                                 }
 
-#define DESERIALIZE_WITH_PLAYING_CHECK(type)    if(!user_data->playing_character) { \
+#define DESERIALIZE_WITH_PLAYING_CHECK(type)    if(user_data->playing_character_slot < 0) { \
                                                     SEND_ERROR("Not playing character", "", "", true); \
                                                     return; \
                                                 } \
@@ -67,7 +67,7 @@
                                                     SEND_ERROR("Not logged in", "", "", true); \
                                                     return; \
                                                 } \
-                                                if(user_data->playing_character) { \
+                                                if(user_data->playing_character_slot >= 0) { \
                                                     SEND_ERROR("Already playing character", "", "", true); \
                                                     return; \
                                                 } \

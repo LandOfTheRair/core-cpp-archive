@@ -70,7 +70,7 @@ void on_open(atomic<bool> const &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::Ht
     auto *user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
     user_data->connection_id = connection_id_counter++;
     user_data->user_id = 0;
-    user_data->playing_character = false;
+    user_data->playing_character_slot = -1;
     user_data->username = nullptr;
     user_data->ws = ws;
     user_data->subscription_tier = 0;
@@ -124,30 +124,34 @@ void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view messa
     } else {
         user_connections.erase(user_data->connection_id);
     }
-    if(user_data->playing_character) {
+    if(user_data->playing_character_slot >= 0) {
         game_loop_queue.enqueue(make_unique<player_leave_message>(user_data->connection_id));
     }
     if(user_data->username != nullptr) {
         if constexpr(UseSsl) {
-            user_left_response join_msg(*user_data->username);
-            auto join_msg_str = join_msg.serialize();
-            for (auto &[conn_id, other_user_data] : user_ssl_connections) {
-                if(other_user_data->user_id != user_data->user_id) {
-                    other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+            auto same_user_id_it = find_if(begin(user_ssl_connections), end(user_ssl_connections), [&](user_ssl_connections_type const &vt){ return vt.second->user_id == user_data->user_id; });
+
+            if(same_user_id_it == end(user_ssl_connections)) {
+                user_left_response join_msg(*user_data->username);
+                auto join_msg_str = join_msg.serialize();
+                for (auto &[conn_id, other_user_data] : user_ssl_connections) {
+                    if (other_user_data->user_id != user_data->user_id) {
+                        other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+                    }
                 }
             }
-
-            user_ssl_connections.erase(user_data->connection_id);
         } else {
-            user_left_response join_msg(*user_data->username);
-            auto join_msg_str = join_msg.serialize();
-            for (auto &[conn_id, other_user_data] : user_connections) {
-                if(other_user_data->user_id != user_data->user_id) {
-                    other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+            auto same_user_id_it = find_if(begin(user_connections), end(user_connections), [&](user_connections_type const &vt){ return vt.second->user_id == user_data->user_id; });
+
+            if(same_user_id_it == end(user_connections)) {
+                user_left_response join_msg(*user_data->username);
+                auto join_msg_str = join_msg.serialize();
+                for (auto &[conn_id, other_user_data] : user_connections) {
+                    if (other_user_data->user_id != user_data->user_id) {
+                        other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+                    }
                 }
             }
-
-            user_connections.erase(user_data->connection_id);
         }
         delete user_data->username;
     }
@@ -176,11 +180,6 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
         add_routes(message_router);
 
         uWS::TemplatedApp<true>({
-                                        /*const char *key_file_name;
-                                        const char *cert_file_name;
-                                        const char *passphrase;
-                                        const char *dh_params_file_name;
-                                        int ssl_prefer_low_memory_usage;*/
                         .key_file_name = "key.pem",
                         .cert_file_name = "cert.pem",
                         .passphrase = nullptr,
