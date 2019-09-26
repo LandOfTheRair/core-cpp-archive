@@ -67,7 +67,7 @@ unique_ptr<database_transaction> database_pool::create_transaction() {
                     id = get<1>(c);
                     conn = get<2>(c);
 
-                    spdlog::debug("[database_pool] got connection {}", id);
+                    spdlog::trace("[database_pool] got connection {}", id);
                 }
             };
         }
@@ -87,7 +87,7 @@ unique_ptr<database_transaction> database_pool::create_transaction() {
 void database_pool::release_connection(uint32_t id) {
     lock_guard<mutex> cl(_connections_mutex);
 
-    spdlog::debug("[database_pool] releasing connection {}", id);
+    spdlog::trace("[database_pool] releasing connection {}", id);
 
     auto result = find_if(begin(_connections), end(_connections), [&](tuple<bool, uint32_t, shared_ptr<connection>> const &t) noexcept {
         return get<1>(t) == id;

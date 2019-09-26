@@ -33,6 +33,7 @@ namespace lotr {
     template <class WebSocket>
     void handle_public_chat(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data,
             moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+        MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_LOGIN_CHECK(message_request)
 
         auto now = system_clock::now();

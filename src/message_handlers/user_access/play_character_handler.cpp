@@ -33,6 +33,7 @@ namespace lotr {
     template <class WebSocket>
     void handle_play_character(uWS::OpCode op_code, rapidjson::Document const &d,
                          shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+        MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(play_character_request)
 
         characters_repository<database_pool, database_transaction> character_repo(pool);
@@ -45,7 +46,7 @@ namespace lotr {
         }
 
         for (auto &[conn_id, other_user_data] : user_connections) {
-            if(other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot == user_data->playing_character_slot) {
+            if( other_user_data->connection_id != user_data->connection_id && other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot == user_data->playing_character_slot) {
                 SEND_ERROR("Already playing that slot on another connection", "", "", true);
                 return;
             }

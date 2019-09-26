@@ -155,7 +155,7 @@ void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view messa
         }
         delete user_data->username;
     }
-    spdlog::debug("[{}] close connection {} {} {} {}", __FUNCTION__, code, message, user_data->connection_id, user_data->user_id);
+    spdlog::trace("[{}] close connection {} {} {} {}", __FUNCTION__, code, message, user_data->connection_id, user_data->user_id);
 }
 
 template <bool UseSsl>

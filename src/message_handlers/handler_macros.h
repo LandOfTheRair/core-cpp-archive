@@ -19,6 +19,7 @@
 #pragma once
 
 #include <messages/generic_error_response.h>
+#include <on_leaving_scope.h>
 
 #define SEND_ERROR(err, pretty_name, pretty_desc, clear_login)  generic_error_response resp{err, pretty_name, pretty_desc, clear_login}; \
                                                                 if(!user_data->ws->send(resp.serialize(), op_code, true)) { \
@@ -77,3 +78,10 @@
                                                     SEND_ERROR("Unrecognized message", "", "", true); \
                                                     return; \
                                                 }
+
+#define MEASURE_TIME_OF_FUNCTION()  auto start = chrono::system_clock::now(); \
+                                    auto func_name = __FUNCTION__; \
+                                    auto scope_guard = on_leaving_scope([start, func_name] { \
+                                        auto end = chrono::system_clock::now(); \
+                                        spdlog::trace("[{}] finished in {} µs", func_name, chrono::duration_cast<chrono::microseconds>(end-start).count()); \
+                                    });
