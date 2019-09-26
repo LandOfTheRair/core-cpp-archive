@@ -16,23 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "skill_object.h"
+#include <ecs/components.h>
 
-#include <string>
-#include <spdlog/spdlog.h>
+void lotr::write_skill_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, skill_object const &obj) {
+    writer.String(KEY_STRING("value"));
+    writer.Uint(obj.value);
 
-using namespace std;
-
-namespace lotr {
-    int constexpr string_length(const char* str)
-    {
-        return *str ? 1 + string_length(str + 1) : 0;
-    }
-
-#define KEY_STRING(str) str, string_length(str)
-
-    struct message {
-        [[nodiscard]]
-        virtual string serialize() const = 0;
-    };
+    writer.String(KEY_STRING("name"));
+    writer.String(obj.name.c_str(), obj.name.size());
 }

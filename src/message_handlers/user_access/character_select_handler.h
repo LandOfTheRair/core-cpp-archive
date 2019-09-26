@@ -18,21 +18,17 @@
 
 #pragma once
 
-#include <string>
-#include <spdlog/spdlog.h>
+#include <App.h>
+#include <rapidjson/document.h>
+#include <database/database_pool.h>
+#include <per_socket_data.h>
+#include <readerwriterqueue.h>
+#include <game_queue_messages/messages.h>
 
 using namespace std;
 
 namespace lotr {
-    int constexpr string_length(const char* str)
-    {
-        return *str ? 1 + string_length(str + 1) : 0;
-    }
-
-#define KEY_STRING(str) str, string_length(str)
-
-    struct message {
-        [[nodiscard]]
-        virtual string serialize() const = 0;
-    };
+    template <class WebSocket>
+    void handle_character_select(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                                 per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections);
 }

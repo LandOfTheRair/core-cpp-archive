@@ -22,7 +22,8 @@
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
-#include <messages/user_access/create_character_response.h>
+#include <messages/user_access/character_select_request.h>
+#include <messages/user_access/character_select_response.h>
 #include <messages/user_access/delete_character_request.h>
 #include <messages/user_access/user_joined_response.h>
 #include <messages/user_access/user_entered_game_response.h>
@@ -41,6 +42,12 @@
 
 using namespace std;
 using namespace lotr;
+
+#define SERDE_SINGLE(type) type msg{}; \
+            rapidjson::Document d; \
+            auto ser = msg.serialize(); \
+            d.Parse(ser.c_str(), ser.size()); \
+            auto msg2 = type::deserialize(d);
 
 #define SERDE(type, ...) type msg(__VA_ARGS__); \
             rapidjson::Document d; \
@@ -111,7 +118,7 @@ TEST_CASE("message serialization tests") {
         REQUIRE(msg.slot == msg2->slot);
     }
 
-    SECTION("play character request") {
+    SECTION("create character request") {
         SERDE(create_character_request, 1, "name", "sex", "allegiance", "baseclass");
         REQUIRE(msg.slot == msg2->slot);
         REQUIRE(msg.name == msg2->name);
@@ -120,17 +127,66 @@ TEST_CASE("message serialization tests") {
         REQUIRE(msg.baseclass == msg2->baseclass);
     }
 
-    SECTION("play character request") {
-        vector<stat_component> player_stats;
-        player_stats.emplace_back("hp", 10);
-        player_stats.emplace_back("mp", 20);
-        SERDE(create_character_response, "name", player_stats);
-        REQUIRE(msg.name == msg2->name);
-        REQUIRE(msg.stats.size() == msg2->stats.size());
-        for(uint32_t i = 0; i < msg.stats.size(); i++) {
-            REQUIRE(msg.stats[i].name == msg2->stats[i].name);
-            REQUIRE(msg.stats[i].value == msg2->stats[i].value);
+    SECTION("character select request") {
+        SERDE_SINGLE(character_select_request);
+        REQUIRE(msg2);
+    }
+
+    SECTION("character select response") {
+        vector<stat_component> base_stats;
+        base_stats.emplace_back("test", 123);
+        vector<character_allegiance> allegiances;
+        {
+            vector<stat_component> stat_mods;
+            vector<item_object> items;
+            vector<skill_object> skills;
+
+            stat_mods.emplace_back("test2", 234);
+            items.emplace_back(1, 2, 3, "test3", "4", "5", vector<stat_component>{});
+            skills.emplace_back("test4", 345);
+            allegiances.emplace_back("test5", "test6", stat_mods, items, skills);
         }
+
+        vector<character_class> classes;
+        {
+            vector<stat_component> stat_mods;
+            stat_mods.emplace_back("test7", 456);
+            classes.emplace_back("test8", "test9", stat_mods);
+        }
+        SERDE(character_select_response, base_stats, allegiances, classes);
+        REQUIRE(msg.base_stats.size() == 1);
+        REQUIRE(msg.base_stats.size() == msg2->base_stats.size());
+        REQUIRE(msg.allegiances.size() == 1);
+        REQUIRE(msg.allegiances.size() == msg2->allegiances.size());
+        REQUIRE(msg.classes.size() == 1);
+        REQUIRE(msg.classes.size() == msg2->classes.size());
+
+        REQUIRE(msg.base_stats[0].name == msg2->base_stats[0].name);
+        REQUIRE(msg.base_stats[0].value == msg2->base_stats[0].value);
+
+        REQUIRE(msg.allegiances[0].name == msg2->allegiances[0].name);
+        REQUIRE(msg.allegiances[0].description == msg2->allegiances[0].description);
+        REQUIRE(msg.allegiances[0].stat_mods.size() == 1);
+        REQUIRE(msg.allegiances[0].stat_mods.size() == msg2->allegiances[0].stat_mods.size());
+        REQUIRE(msg.allegiances[0].stat_mods[0].name == msg2->allegiances[0].stat_mods[0].name);
+        REQUIRE(msg.allegiances[0].stat_mods[0].value == msg2->allegiances[0].stat_mods[0].value);
+        REQUIRE(msg.allegiances[0].items.size() == 1);
+        REQUIRE(msg.allegiances[0].items.size() == msg2->allegiances[0].items.size());
+        REQUIRE(msg.allegiances[0].items[0].name == msg2->allegiances[0].items[0].name);
+        REQUIRE(msg.allegiances[0].skills.size() == 1);
+        REQUIRE(msg.allegiances[0].skills.size() == msg2->allegiances[0].skills.size());
+        REQUIRE(msg.allegiances[0].skills[0].name == msg2->allegiances[0].skills[0].name);
+        REQUIRE(msg.allegiances[0].skills[0].value == msg2->allegiances[0].skills[0].value);
+
+        REQUIRE(msg.classes[0].name == msg2->classes[0].name);
+        REQUIRE(msg.classes[0].description == msg2->classes[0].description);
+        REQUIRE(msg.classes[0].stat_mods.size() == 1);
+        REQUIRE(msg.classes[0].stat_mods.size() == msg2->classes[0].stat_mods.size());
+        REQUIRE(msg.classes[0].stat_mods[0].name == msg2->classes[0].stat_mods[0].name);
+        REQUIRE(msg.classes[0].stat_mods[0].value == msg2->classes[0].stat_mods[0].value);
+
+        REQUIRE(msg.base_stats[0].name == msg2->base_stats[0].name);
+        REQUIRE(msg.base_stats[0].value == msg2->base_stats[0].value);
     }
 
     SECTION("delete character request") {

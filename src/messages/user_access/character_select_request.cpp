@@ -16,21 +16,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "user_left_game_response.h"
+#include "character_select_request.h"
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
 
 using namespace lotr;
 using namespace rapidjson;
 
-string const user_left_game_response::type = "Auth:left_game";
+string const character_select_request::type = "Game:character_select";
 
-user_left_game_response::user_left_game_response(string username) noexcept
-        : username(move(username)) {
+character_select_request::character_select_request() noexcept {
 
 }
 
-string user_left_game_response::serialize() const {
+string character_select_request::serialize() const {
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);
 
@@ -39,23 +38,20 @@ string user_left_game_response::serialize() const {
     writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String(KEY_STRING("username"));
-    writer.String(username.c_str(), username.size());
-
     writer.EndObject();
     return sb.GetString();
 }
 
-optional<user_left_game_response> user_left_game_response::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("username")) {
-        spdlog::warn("[user_left_game_response] deserialize failed");
+optional<character_select_request> character_select_request::deserialize(rapidjson::Document const &d) {
+    if (!d.HasMember("type")) {
+        spdlog::warn("[character_select_request] deserialize failed");
         return nullopt;
     }
 
     if(d["type"].GetString() != type) {
-        spdlog::warn("[user_left_game_response] deserialize failed wrong type");
+        spdlog::warn("[character_select_request] deserialize failed wrong type");
         return nullopt;
     }
 
-    return user_left_game_response(d["username"].GetString());
+    return character_select_request{};
 }

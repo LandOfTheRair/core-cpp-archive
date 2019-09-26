@@ -35,34 +35,34 @@ string login_response::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("username");
+    writer.String(KEY_STRING("username"));
     writer.String(username.c_str(), username.size());
 
-    writer.String("email");
+    writer.String(KEY_STRING("email"));
     writer.String(email.c_str(), email.size());
 
-    writer.String("motd");
+    writer.String(KEY_STRING("motd"));
     writer.String(motd.c_str(), motd.size());
 
-    writer.String("players");
+    writer.String(KEY_STRING("players"));
     writer.StartArray();
 
     for(auto& player : players) {
         writer.StartObject();
 
-        writer.String("name");
+        writer.String(KEY_STRING("name"));
         writer.String(player.name.c_str(), player.name.size());
 
-        writer.String("map_name");
+        writer.String(KEY_STRING("map_name"));
         writer.String(player.map_name.c_str(), player.map_name.size());
 
-        writer.String("x");
+        writer.String(KEY_STRING("x"));
         writer.Int(player.x);
 
-        writer.String("y");
+        writer.String(KEY_STRING("y"));
         writer.Int(player.y);
 
         writer.EndObject();
@@ -70,29 +70,13 @@ string login_response::serialize() const {
 
     writer.EndArray();
 
-    writer.String("online_users");
+    writer.String(KEY_STRING("online_users"));
     writer.StartArray();
 
     for(auto& user : online_users) {
         writer.StartObject();
 
-        writer.String("is_game_master");
-        writer.Bool(user.is_game_master);
-
-        writer.String("is_tester");
-        writer.Bool(user.is_tester);
-
-        writer.String("has_done_trial");
-        writer.Bool(user.has_done_trial);
-
-        writer.String("trial_ends_unix_timestamp");
-        writer.Uint64(user.trial_ends_unix_timestamp);
-
-        writer.String("subscription_tier");
-        writer.Uint(user.subscription_tier);
-
-        writer.String("username");
-        writer.String(user.username.c_str(), user.username.size());
+        write_account_object(writer, user);
 
         writer.EndObject();
     }

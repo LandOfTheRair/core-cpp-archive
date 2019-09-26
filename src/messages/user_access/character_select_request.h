@@ -19,23 +19,24 @@
 #pragma once
 
 #include <string>
-#include <rapidjson/writer.h>
-#include "message.h"
+#include <optional>
+#include <rapidjson/document.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct account_object {
-        bool is_game_master;
-        bool is_tester;
-        bool has_done_trial;
-        uint64_t trial_ends_unix_timestamp;
-        uint32_t subscription_tier;
-        string username;
+    struct character_select_request : public message {
+        character_select_request() noexcept;
 
-        account_object(bool is_game_master, bool is_tester, bool has_done_trial, uint64_t trial_ends_unix_timestamp, uint32_t subscription_tier, string username) noexcept :
-                is_game_master(is_game_master), is_tester(is_tester), has_done_trial(has_done_trial), trial_ends_unix_timestamp(trial_ends_unix_timestamp), subscription_tier(subscription_tier), username(move(username)) {}
+        ~character_select_request() noexcept = default;
+
+        [[nodiscard]]
+        string serialize() const override;
+
+        [[nodiscard]]
+        static optional<character_select_request> deserialize(rapidjson::Document const &d);
+
+        static string const type;
     };
-
-    void write_account_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, account_object const &obj);
 }

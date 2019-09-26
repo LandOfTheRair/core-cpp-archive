@@ -36,10 +36,10 @@ string user_entered_game_response::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("username");
+    writer.String(KEY_STRING("username"));
     writer.String(username.c_str(), username.size());
 
     writer.EndObject();

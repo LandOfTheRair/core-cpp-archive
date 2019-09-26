@@ -16,23 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "account_object.h"
+#include <ecs/components.h>
 
-#include <string>
-#include <spdlog/spdlog.h>
+void lotr::write_account_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, account_object const &obj) {
+    writer.String(KEY_STRING("is_game_master"));
+    writer.Bool(obj.is_game_master);
 
-using namespace std;
+    writer.String(KEY_STRING("is_tester"));
+    writer.Bool(obj.is_tester);
 
-namespace lotr {
-    int constexpr string_length(const char* str)
-    {
-        return *str ? 1 + string_length(str + 1) : 0;
-    }
+    writer.String(KEY_STRING("has_done_trial"));
+    writer.Bool(obj.has_done_trial);
 
-#define KEY_STRING(str) str, string_length(str)
+    writer.String(KEY_STRING("trial_ends_unix_timestamp"));
+    writer.Uint64(obj.trial_ends_unix_timestamp);
 
-    struct message {
-        [[nodiscard]]
-        virtual string serialize() const = 0;
-    };
+    writer.String(KEY_STRING("subscription_tier"));
+    writer.Uint(obj.subscription_tier);
+
+    writer.String(KEY_STRING("username"));
+    writer.String(obj.username.c_str(), obj.username.size());
 }

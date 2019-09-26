@@ -36,19 +36,19 @@ string generic_error_response::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("error");
+    writer.String(KEY_STRING("error"));
     writer.String(error.c_str(), error.size());
 
-    writer.String("prettyErrorName");
+    writer.String(KEY_STRING("prettyErrorName"));
     writer.String(pretty_error_name.c_str(), pretty_error_name.size());
 
-    writer.String("prettyErrorDesc");
+    writer.String(KEY_STRING("prettyErrorDesc"));
     writer.String(pretty_error_description.c_str(), pretty_error_description.size());
 
-    writer.String("clearLoginData");
+    writer.String(KEY_STRING("clearLoginData"));
     writer.Bool(clear_login_data);
 
     writer.EndObject();

@@ -34,7 +34,7 @@ namespace lotr {
         uint32_t x;
         uint32_t y;
 
-        message_player(string name, string map_name, uint32_t x, uint32_t y)
+        message_player(string name, string map_name, uint32_t x, uint32_t y) noexcept
             : name(move(name)), map_name(move(map_name)), x(x), y(y) {}
     };
 

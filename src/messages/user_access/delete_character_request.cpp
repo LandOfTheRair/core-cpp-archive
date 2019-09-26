@@ -36,10 +36,10 @@ string delete_character_request::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("slot");
+    writer.String(KEY_STRING("slot"));
     writer.Uint(slot);
 
     writer.EndObject();

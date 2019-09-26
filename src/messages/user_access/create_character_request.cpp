@@ -36,22 +36,22 @@ string create_character_request::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("slot");
+    writer.String(KEY_STRING("slot"));
     writer.Uint(slot);
 
-    writer.String("name");
+    writer.String(KEY_STRING("name"));
     writer.String(name.c_str(), name.size());
 
-    writer.String("sex");
+    writer.String(KEY_STRING("sex"));
     writer.String(sex.c_str(), sex.size());
 
-    writer.String("allegiance");
+    writer.String(KEY_STRING("allegiance"));
     writer.String(allegiance.c_str(), allegiance.size());
 
-    writer.String("baseclass");
+    writer.String(KEY_STRING("baseclass"));
     writer.String(baseclass.c_str(), baseclass.size());
 
     writer.EndObject();

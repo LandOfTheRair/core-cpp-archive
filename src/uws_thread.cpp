@@ -26,6 +26,7 @@
 #include <message_handlers/user_access/play_character_handler.h>
 #include <message_handlers/user_access/create_character_handler.h>
 #include <message_handlers/user_access/delete_character_handler.h>
+#include <message_handlers/user_access/character_select_handler.h>
 #include <message_handlers/commands/move_handler.h>
 #include <message_handlers/chat/public_chat_handler.h>
 #include <message_handlers/moderator/set_motd_handler.h>
@@ -34,12 +35,17 @@
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
 #include <messages/user_access/delete_character_request.h>
+#include <messages/user_access/character_select_request.h>
+#include <messages/user_access/character_select_response.h>
 #include <messages/commands/move_request.h>
 #include <messages/chat/message_request.h>
 #include <messages/moderator/set_motd_request.h>
 #include <message_handlers/handler_macros.h>
 #include <messages/user_access/user_left_response.h>
 #include "per_socket_data.h"
+#include <yaml-cpp/yaml.h>
+#include <working_directory_manipulation.h>
+#include <ecs/components.h>
 
 using namespace std;
 using namespace lotr;
@@ -57,6 +63,7 @@ lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> lotr::us
 lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> lotr::user_ssl_connections;
 moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
 string lotr::motd;
+character_select_response lotr::select_response{{}, {}, {}};
 
 template <bool UseSsl>
 void on_open(atomic<bool> const &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequest *req) {
@@ -158,6 +165,81 @@ void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view messa
     spdlog::trace("[{}] close connection {} {} {} {}", __FUNCTION__, code, message, user_data->connection_id, user_data->user_id);
 }
 
+void load_character_select() {
+    auto env_contents = read_whole_file("assets/core/charselect.yml");
+
+    if(!env_contents) {
+        spdlog::trace("[{}] couldn't load character select!", __FUNCTION__);
+        return;
+    }
+
+    YAML::Node tree = YAML::Load(env_contents.value());
+
+    if(!tree["baseStats"] || !tree["allegiances"] || !tree["classes"]) {
+        spdlog::trace("[{}] couldn't load character select!", __FUNCTION__);
+        return;
+    }
+
+    vector<stat_component> base_stats;
+    for (auto const &stat : stat_names) {
+        if (tree["baseStats"][stat]) {
+            spdlog::trace("[{}] loading base stat {}", __FUNCTION__, stat);
+            base_stats.emplace_back(stat, tree["baseStats"][stat].as<int32_t>());
+        }
+    }
+
+    vector<character_allegiance> allegiances;
+    for(auto const &allegiance_node : tree["allegiances"]) {
+        spdlog::trace("[{}] loading allegiance {}", __FUNCTION__, allegiance_node["name"].as<string>());
+
+        vector<stat_component> stat_mods;
+        vector<item_object> items;
+        vector<skill_object> skills;
+        if(allegiance_node["statMods"]) {
+            for (auto const &stat : stat_names) {
+                if (allegiance_node["statMods"][stat]) {
+                    spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, stat);
+                    stat_mods.emplace_back(stat, allegiance_node["statMods"][stat].as<int32_t>());
+                }
+            }
+        }
+
+        if(allegiance_node["baseItems"]) {
+            for (auto const &slot : slot_names) {
+                if (allegiance_node["baseItems"][slot]) {
+                    spdlog::trace("[{}] loading base item {}", __FUNCTION__, slot);
+                    items.emplace_back(0, 0, 0, slot, "", allegiance_node["baseItems"][slot].as<string>(), vector<stat_component>{});
+                }
+            }
+        }
+
+        if(allegiance_node["baseSkills"]) {
+
+        }
+
+        allegiances.emplace_back(allegiance_node["name"].as<string>(), allegiance_node["description"].as<string>(), stat_mods, items, skills);
+    }
+
+    vector<character_class> classes;
+    for(auto const &class_node : tree["classes"]) {
+        spdlog::trace("[{}] loading class {}", __FUNCTION__, class_node["name"].as<string>());
+        vector<stat_component> stat_mods;
+
+        for (auto const &stat : stat_names) {
+            if (class_node["statMods"][stat]) {
+                spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, stat);
+                stat_mods.emplace_back(stat, class_node["statMods"][stat].as<int32_t>());
+            }
+        }
+
+        classes.emplace_back(class_node["name"].as<string>(), class_node["description"].as<string>(), stat_mods);
+    }
+
+    select_response.base_stats = base_stats;
+    select_response.allegiances = allegiances;
+    select_response.classes = classes;
+}
+
 template <bool UseSsl>
 void add_routes(message_router_type<UseSsl> &message_router) {
     message_router.emplace(login_request::type, handle_login<uWS::WebSocket<UseSsl, true>>);
@@ -165,6 +247,7 @@ void add_routes(message_router_type<UseSsl> &message_router) {
     message_router.emplace(play_character_request::type, handle_play_character<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(create_character_request::type, handle_create_character<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(delete_character_request::type, handle_delete_character<uWS::WebSocket<UseSsl, true>>);
+    message_router.emplace(character_select_request::type, handle_character_select<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(move_request::type, handle_move<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(message_request::type, handle_public_chat<uWS::WebSocket<UseSsl, true>>);
     message_router.emplace(set_motd_request::type, set_motd_handler<uWS::WebSocket<UseSsl, true>>);
@@ -174,6 +257,7 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
     connection_id_counter = 0;
     shit_uws.loop = uWS::Loop::get();
     motd = "";
+    load_character_select();
 
     if(config.use_ssl) {
         message_router_type<true> message_router;

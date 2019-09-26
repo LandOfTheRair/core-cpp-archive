@@ -96,6 +96,10 @@ namespace  lotr {
                                                 stat_physical_resist, stat_necrotic_resist, stat_energy_resist, stat_water_resist, stat_fire_resist, stat_ice_resist,
                                                 stat_poison_resist, stat_disease_resist, stat_action_speed };
 
+    array<string const, 14> const slot_names = {gear_slot_right_hand, gear_slot_left_hand, gear_slot_armor, gear_slot_robe1, gear_slot_robe2, gear_slot_ring1,
+                                                gear_slot_ring2, gear_slot_head, gear_slot_next, gear_slot_waist, gear_slot_wrist, gear_slot_hands,
+                                                gear_slot_feet, gear_slot_ear};
+
 
     global_npc_component* get_global_npc_by_npc_id(entt::registry &registry, string const &npc_id) {
         auto gnpc_view = registry.view<global_npc_component>();

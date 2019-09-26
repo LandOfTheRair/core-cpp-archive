@@ -36,26 +36,10 @@ string user_joined_response::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("is_game_master");
-    writer.Bool(user.is_game_master);
-
-    writer.String("is_tester");
-    writer.Bool(user.is_tester);
-
-    writer.String("has_done_trial");
-    writer.Bool(user.has_done_trial);
-
-    writer.String("trial_ends_unix_timestamp");
-    writer.Uint64(user.trial_ends_unix_timestamp);
-
-    writer.String("subscription_tier");
-    writer.Uint(user.subscription_tier);
-
-    writer.String("username");
-    writer.String(user.username.c_str(), user.username.size());
+    write_account_object(writer, user);
 
     writer.EndObject();
     return sb.GetString();

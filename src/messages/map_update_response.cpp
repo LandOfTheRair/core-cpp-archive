@@ -36,25 +36,25 @@ string map_update_response::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("npcs");
+    writer.String(KEY_STRING("npcs"));
 
     writer.StartArray();
-    for(auto &npc: npcs) {
+    for(auto const &npc: npcs) {
         writer.StartObject();
 
-        writer.String("name");
+        writer.String(KEY_STRING("name"));
         writer.String(npc.name.c_str(), npc.name.size());
 
-        writer.String("sprite");
+        writer.String(KEY_STRING("sprite"));
         writer.Uint(npc.sprite);
 
-        writer.String("x");
+        writer.String(KEY_STRING("x"));
         writer.Uint(get<0>(npc.loc));
 
-        writer.String("y");
+        writer.String(KEY_STRING("y"));
         writer.Uint(get<1>(npc.loc));
 
         writer.EndObject();

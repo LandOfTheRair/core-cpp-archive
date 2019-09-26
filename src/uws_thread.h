@@ -35,10 +35,13 @@ namespace lotr {
         uWS::Loop *loop;
     };
 
+    struct character_select_response;
+
     extern lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections;
     extern lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_ssl_connections;
     extern moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> game_loop_queue;
     extern string motd;
+    extern character_select_response select_response;
 
     using user_connections_type = lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *>::value_type;
     using user_ssl_connections_type = lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *>::value_type;

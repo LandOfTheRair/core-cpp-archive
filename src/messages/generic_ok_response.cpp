@@ -36,10 +36,10 @@ string generic_ok_response::serialize() const {
 
     writer.StartObject();
 
-    writer.String("type");
+    writer.String(KEY_STRING("type"));
     writer.String(type.c_str(), type.size());
 
-    writer.String("message");
+    writer.String(KEY_STRING("message"));
     writer.String(message.c_str(), message.size());
 
     writer.EndObject();

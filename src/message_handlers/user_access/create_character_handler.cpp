@@ -25,7 +25,7 @@
 #include <repositories/locations_repository.h>
 #include <repositories/characters_repository.h>
 #include <game_logic/censor_sensor.h>
-#include <messages/user_access/create_character_response.h>
+#include <messages/generic_ok_response.h>
 #include "message_handlers/handler_macros.h"
 #include <ecs/components.h>
 #include <utf.h>
@@ -76,11 +76,7 @@ namespace lotr {
 
         transaction->commit();
 
-        vector<stat_component> player_stats;
-        for(auto &stat : stat_names) {
-            player_stats.emplace_back(stat, 10);
-        }
-        create_character_response response{msg->name, player_stats};
+        generic_ok_response response{"Player created successfully"};
         auto response_msg = response.serialize();
         if (!user_data->ws->send(response_msg, op_code, true)) {
             user_data->ws->end(0);
