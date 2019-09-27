@@ -1,14 +1,25 @@
-//
-// Created by oipo on 27-09-19.
-//
+/*
+    Land of the Rair
+    Copyright (C) 2019  Michael de Lang
 
-#ifndef LOTR_BACKEND_LOAD_CHARACTER_SELECT_H
-#define LOTR_BACKEND_LOAD_CHARACTER_SELECT_H
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
-class load_character_select {
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-};
+#pragma once
 
+#include <messages/user_access/character_select_response.h>
 
-#endif //LOTR_BACKEND_LOAD_CHARACTER_SELECT_H
+namespace lotr {
+    optional<character_select_response> load_character_select();
+}
