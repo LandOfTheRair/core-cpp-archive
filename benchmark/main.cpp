@@ -22,6 +22,7 @@
 #include <game_logic/censor_sensor.h>
 #include <sodium.h>
 #include <csignal>
+#include <rapidjson/writer.h>
 
 #include "../src/config.h"
 #include "../src/config_parsers.h"
@@ -36,6 +37,7 @@
 
 using namespace std;
 using namespace lotr;
+using namespace rapidjson;
 
 atomic<bool> quit{false};
 
@@ -173,6 +175,50 @@ void bench_serialization() {
     spdlog::info("[{}] {:n} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(end-start).count());
 }
 
+void bench_rapidjson_without_strlen() {
+    if(quit) {
+        return;
+    }
+
+    auto start = chrono::system_clock::now();
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+
+    writer.StartObject();
+
+    for(int i = 0; i < 1'000'000; i++) {
+        writer.String("some strsome str");
+    }
+
+    writer.EndObject();
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("[{}] {:n} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
+void bench_rapidjson_with_strlen() {
+    if(quit) {
+        return;
+    }
+
+    auto start = chrono::system_clock::now();
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+
+    writer.StartObject();
+
+    for(int i = 0; i < 1'000'000; i++) {
+        writer.String("some strsome str", string_length("some strsome str"));
+    }
+
+    writer.EndObject();
+
+    auto end = chrono::system_clock::now();
+
+    spdlog::info("[{}] {:n} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(end-start).count());
+}
+
 int main(int argc, char **argv) {
     set_cwd(get_selfpath());
     ::signal(SIGINT, on_sigint);
@@ -221,4 +267,6 @@ int main(int argc, char **argv) {
     bench_a_star(m.value());
     bench_default_ai(m.value());
     bench_serialization();
+    bench_rapidjson_without_strlen();
+    bench_rapidjson_with_strlen();
 }
