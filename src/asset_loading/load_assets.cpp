@@ -22,7 +22,7 @@
 #include "load_item.h"
 #include "load_npc.h"
 #include "load_map.h"
-#include <random_helper.h>
+#include <game_logic/random_helper.h>
 #include <game_logic/logic_helpers.h>
 
 using namespace std;

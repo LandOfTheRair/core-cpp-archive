@@ -19,7 +19,7 @@
 #include "default_ai.h"
 
 #include <spdlog/spdlog.h>
-#include <random_helper.h>
+#include <game_logic/random_helper.h>
 #include <game_logic/a_star.h>
 #include <range/v3/view/reverse.hpp>
 #include <game_logic/logic_helpers.h>
