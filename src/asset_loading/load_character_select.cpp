@@ -48,6 +48,11 @@ optional<character_select_response> lotr::load_character_select() {
         }
     }
 
+    if(tree["baseStats"]["gold"]) {
+        spdlog::trace("[{}] loading base stat {}", __FUNCTION__, "gold");
+        base_stats.emplace_back("gold", tree["baseStats"]["gold"].as<int32_t>());
+    }
+
     vector<character_allegiance> allegiances;
     for(auto const &allegiance_node : tree["allegiances"]) {
         spdlog::trace("[{}] loading allegiance {}", __FUNCTION__, allegiance_node["name"].as<string>());
@@ -61,6 +66,11 @@ optional<character_select_response> lotr::load_character_select() {
                     spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, stat);
                     stat_mods.emplace_back(stat, allegiance_node["statMods"][stat].as<int32_t>());
                 }
+            }
+
+            if(allegiance_node["statMods"]["gold"]) {
+                spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, "gold");
+                stat_mods.emplace_back("gold", allegiance_node["statMods"]["gold"].as<int32_t>());
             }
         }
 
@@ -90,6 +100,11 @@ optional<character_select_response> lotr::load_character_select() {
                 spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, stat);
                 stat_mods.emplace_back(stat, class_node["statMods"][stat].as<int32_t>());
             }
+        }
+
+        if(class_node["statMods"]["gold"]) {
+            spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, "gold");
+            stat_mods.emplace_back("gold", class_node["statMods"]["gold"].as<int32_t>());
         }
 
         classes.emplace_back(class_node["name"].as<string>(), class_node["description"].as<string>(), stat_mods);
