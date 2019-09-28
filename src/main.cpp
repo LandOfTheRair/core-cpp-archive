@@ -59,6 +59,7 @@ void on_sigint(int sig) {
 int main() {
     set_cwd(get_selfpath());
     ::signal(SIGINT, on_sigint);
+    locale::global(locale("en_US.UTF-8"));
 
     config config;
     try {

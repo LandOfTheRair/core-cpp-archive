@@ -58,8 +58,24 @@ namespace lotr {
             return;
         }
 
-        if(To_UTF32(msg->name).size() < 2 || To_UTF32(msg->name).size() > 20) {
+        auto utf_name = To_UTF32(msg->name);
+        if(utf_name.size() < 2 || utf_name.size() > 20) {
             SEND_ERROR("Character names needs to be at least 2 characters and at most 20 characters", "", "", true);
+            return;
+        }
+
+        if(any_of(begin(msg->name), end(msg->name), ::isdigit)) {
+            SEND_ERROR("Character names cannot contain digits", "", "", true);
+            return;
+        }
+
+        if(any_of(begin(msg->name), end(msg->name), ::isspace)) {
+            SEND_ERROR("Character names cannot contain spaces", "", "", true);
+            return;
+        }
+
+        if(To_UTF32(utf_to_upper_copy(msg->name))[0] != To_UTF32(msg->name)[0]) {
+            SEND_ERROR("Character names must start with a capital", "", "", true);
             return;
         }
 

@@ -34,3 +34,27 @@ string lotr::string_tolower_copy(string str) {
               [](unsigned char c){ return tolower(c); });
     return str;
 }
+
+string lotr::utf_to_upper_copy(string const &str)
+{
+    wstring_convert<codecvt_utf8_utf16<wchar_t>> to_wstring_convertor;
+    auto wstr = to_wstring_convertor.from_bytes(str);
+
+    auto& f = use_facet<ctype<wchar_t>>(locale());
+
+    f.toupper(&wstr[0], &wstr[0] + wstr.size());
+
+    return to_wstring_convertor.to_bytes(wstr);
+}
+
+string lotr::utf_to_lower_copy(string const &str)
+{
+    wstring_convert<codecvt_utf8<wchar_t>> to_wstring_convertor;
+    auto wstr = to_wstring_convertor.from_bytes(str);
+
+    auto& f = use_facet<ctype<wchar_t>>(locale());
+
+    f.tolower(&wstr[0], &wstr[0] + wstr.size());
+
+    return to_wstring_convertor.to_bytes(wstr);
+}

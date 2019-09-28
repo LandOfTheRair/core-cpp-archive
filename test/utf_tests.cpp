@@ -1,6 +1,6 @@
 /*
     Land of the Rair
-    Copyright (C) 2019 Michael de Lang
+    Copyright (C) 2019  Michael de Lang
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,24 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <string>
-#include <locale>
-#include <codecvt>
+#include <catch2/catch.hpp>
+#include <utf.h>
 
 using namespace std;
+using namespace lotr;
 
-namespace lotr {
-    [[nodiscard]]
-    u32string To_UTF32(const string &s);
-    void string_tolower(string &str);
-    [[nodiscard]]
-    string string_tolower_copy(string str);
+TEST_CASE("utf character count test") {
+    string input = "ńößôб漢";
+    auto output = To_UTF32(input);
+    REQUIRE(output.size() == 6);
+}
 
-    [[nodiscard]]
-    string utf_to_upper_copy(string const &str);
+TEST_CASE("utf_to_upper_copy test") {
+    string input = "ńößôб漢";
+    auto output = utf_to_upper_copy(input);
+    REQUIRE(output == "ŃÖßÔБ漢");
+}
 
-    [[nodiscard]]
-    string utf_to_lower_copy(string const &str);
+TEST_CASE("utf_to_lower_copy test") {
+    string input = "ŃÖßÔБ漢";
+    auto output = utf_to_lower_copy(input);
+    REQUIRE(output == "ńößôб漢");
 }

@@ -31,6 +31,7 @@ using namespace lotr;
 
 int main(int argc, char **argv) {
     set_cwd(get_selfpath());
+    locale::global(locale("en_US.UTF-8"));
 
     try {
         auto config_opt = parse_env_file();
