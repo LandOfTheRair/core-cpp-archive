@@ -22,8 +22,8 @@
 #include <optional>
 #include <rapidjson/document.h>
 #include "../message.h"
-#include "../item_object.h"
-#include "../skill_object.h"
+#include "messages/objects/item_object.h"
+#include "messages/objects/skill_object.h"
 
 using namespace std;
 

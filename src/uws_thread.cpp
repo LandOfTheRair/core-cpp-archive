@@ -42,7 +42,6 @@
 #include <messages/moderator/set_motd_request.h>
 #include <message_handlers/handler_macros.h>
 #include <messages/user_access/user_left_response.h>
-#include <asset_loading/load_character_select.h>
 #include "per_socket_data.h"
 #include <ecs/components.h>
 
@@ -181,13 +180,6 @@ void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_s
     connection_id_counter = 0;
     shit_uws.loop = uWS::Loop::get();
     motd = "";
-    auto char_sel = load_character_select();
-
-    if(!char_sel) {
-        exit(1);
-    }
-
-    select_response = char_sel.value();
 
     if(config.use_ssl) {
         message_router_type<true> message_router;

@@ -23,23 +23,14 @@
 #include <vector>
 #include <rapidjson/document.h>
 #include "../message.h"
-#include "../account_object.h"
+#include "messages/objects/account_object.h"
+#include "messages/objects/character_object.h"
 
 using namespace std;
 
 namespace lotr {
-    struct message_player {
-        string name;
-        string map_name;
-        uint32_t x;
-        uint32_t y;
-
-        message_player(string name, string map_name, uint32_t x, uint32_t y) noexcept
-            : name(move(name)), map_name(move(map_name)), x(x), y(y) {}
-    };
-
     struct login_response : public message {
-        explicit login_response(vector<message_player> players, vector<account_object> online_users, string username, string email, string motd) noexcept;
+        login_response(vector<character_object> players, vector<account_object> online_users, string username, string email, string motd) noexcept;
 
         ~login_response() noexcept = default;
 
@@ -49,7 +40,7 @@ namespace lotr {
         [[nodiscard]]
         static optional<login_response> deserialize(rapidjson::Document const &d);
 
-        vector<message_player> players;
+        vector<character_object> players;
         vector<account_object> online_users;
         string username;
         string email;

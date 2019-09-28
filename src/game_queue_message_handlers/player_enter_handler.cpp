@@ -63,8 +63,13 @@ namespace lotr {
 
             pc_component pc{};
             pc.name = enter_msg->character_name;
+            pc.level = enter_msg->level;
+            pc.gold = enter_msg->gold;
             pc.loc = make_tuple(enter_msg->x, enter_msg->y);
             pc.connection_id = enter_msg->connection_id;
+            pc.gender = enter_msg->gender;
+            pc.allegiance = enter_msg->allegiance;
+            pc.character_class = enter_msg->baseclass;
 
             for(auto &stat : enter_msg->player_stats) {
                 pc.stats[stat.name] = stat.value;

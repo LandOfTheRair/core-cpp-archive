@@ -40,13 +40,18 @@ namespace lotr {
 
     struct player_enter_message : public queue_message {
         string character_name;
+        string gender;
+        string allegiance;
+        string baseclass;
         string map_name;
         vector<stat_component> player_stats;
+        uint32_t level;
+        uint32_t gold;
         uint32_t x;
         uint32_t y;
         static uint32_t const _type;
 
-        player_enter_message(string character_name, string map_name, vector<stat_component> player_stats, uint64_t connection_id, uint32_t x, uint32_t y);
+        player_enter_message(string character_name, string gender, string allegiance, string baseclass, string map_name, vector<stat_component> player_stats, uint64_t connection_id, uint32_t level, uint32_t gold, uint32_t x, uint32_t y);
     };
 
     struct player_leave_message : public queue_message {

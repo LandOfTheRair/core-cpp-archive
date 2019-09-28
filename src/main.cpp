@@ -34,6 +34,7 @@
 #include <game_queue_message_handlers/player_leave_handler.h>
 #include <game_queue_message_handlers/commands/player_move_handler.h>
 #include <range/v3/all.hpp>
+#include <asset_loading/load_character_select.h>
 
 #include "config.h"
 #include "logger_init.h"
@@ -100,6 +101,13 @@ int main() {
     entt::registry registry;
 
     load_assets(registry, quit);
+    auto char_sel = load_character_select();
+
+    if(!char_sel) {
+        exit(1);
+    }
+
+    select_response = char_sel.value();
 
     outward_queues per_player_outward_queue;
     vector<uint64_t> frame_times;
@@ -117,7 +125,6 @@ int main() {
         if(now < next_tick) {
             this_thread::sleep_until(next_tick);
         }
-        spdlog::trace("[{}] starting tick", __FUNCTION__);
         auto tick_start = chrono::system_clock::now();
 
         auto map_view = registry.view<map_component>();
@@ -163,7 +170,6 @@ int main() {
                     cs.push_back(pc);
                 }
 
-                spdlog::trace("[{}] Enqueued map update response with {} visible npcs", __FUNCTION__, cs.size());
                 per_player_outward_queue[player.connection_id].enqueue(make_unique<map_update_response>(cs));
             }
 

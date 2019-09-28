@@ -17,8 +17,20 @@
 */
 
 #include "utf.h"
+#include <algorithm>
 
-u32string lotr::To_UTF16(const string &s) {
+u32string lotr::To_UTF32(const string &s) {
     wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
     return conv.from_bytes(s);
+}
+
+void lotr::string_tolower(string &str) {
+    transform(str.begin(), str.end(), str.begin(),
+              [](unsigned char c){ return tolower(c); });
+}
+
+string lotr::string_tolower_copy(string str) {
+    transform(str.begin(), str.end(), str.begin(),
+              [](unsigned char c){ return tolower(c); });
+    return str;
 }

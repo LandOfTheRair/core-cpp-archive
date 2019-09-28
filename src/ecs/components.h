@@ -148,7 +148,7 @@ namespace lotr {
         string npc_id;
         string allegiance;
         string alignment;
-        string sex;
+        string gender;
         string dir;
         string hostility;
         string character_class;
@@ -174,7 +174,7 @@ namespace lotr {
         string npc_id;
         string allegiance;
         string alignment;
-        string sex;
+        string gender;
         string dir;
         string hostility;
         string character_class;
@@ -195,7 +195,7 @@ namespace lotr {
 
         spawner_npc_id(uint32_t chance, string npc_id) : chance(chance), npc_id(npc_id) {}
         spawner_npc_id(uint32_t chance, global_npc_component const &npc)
-        : chance(chance), npc_id(npc.npc_id), allegiance(npc.allegiance), alignment(npc.alignment), sex(npc.sex), dir(npc.dir), hostility(npc.hostility),
+        : chance(chance), npc_id(npc.npc_id), allegiance(npc.allegiance), alignment(npc.alignment), gender(npc.gender), dir(npc.dir), hostility(npc.hostility),
         character_class(npc.character_class), monster_class(npc.monster_class), spawn_message(npc.spawn_message), sfx(npc.sfx), level(npc.level), highest_level(npc.highest_level),
         sprite(npc.sprite), skill_on_kill(npc.skill_on_kill), sfx_max_chance(npc.sfx_max_chance), stats(npc.stats), random_stats(npc.random_stats), items(npc.items),
         skills(npc.skills) {}
@@ -244,7 +244,7 @@ namespace lotr {
         string name;
         string allegiance;
         string alignment;
-        string sex;
+        string gender;
         string dir;
         string hostility;
         string character_class;
@@ -267,7 +267,7 @@ namespace lotr {
         vector<skill_component> skills;
         //location_component location;
 
-        character_component() : id(), name(), allegiance(), alignment(), sex(), dir(), hostility(), character_class(), monster_class(), spawn_message(),
+        character_component() : id(), name(), allegiance(), alignment(), gender(), dir(), hostility(), character_class(), monster_class(), spawn_message(),
                           sfx(), level(), highest_level(), sprite(), skill_on_kill(), sfx_max_chance(), loc(), stats(), items(), skills() {}
     };
 

@@ -26,3 +26,12 @@ void lotr::write_skill_object(rapidjson::Writer<rapidjson::StringBuffer> &writer
     writer.String(KEY_STRING("name"));
     writer.String(obj.name.c_str(), obj.name.size());
 }
+
+bool lotr::read_skill_object_into_vector(rapidjson::Value const &value, vector<skill_object> &objs) {
+    if(!value.IsObject() || !value.HasMember("value") || !value.HasMember("name")) {
+        return false;
+    }
+
+    objs.emplace_back(value["name"].GetString(), value["value"].GetUint());
+    return true;
+}

@@ -22,13 +22,16 @@
 #include <spdlog/spdlog.h>
 
 #include <messages/user_access/create_character_request.h>
+#include <messages/user_access/create_character_response.h>
 #include <repositories/locations_repository.h>
 #include <repositories/characters_repository.h>
+#include <repositories/stats_repository.h>
 #include <game_logic/censor_sensor.h>
-#include <messages/generic_ok_response.h>
 #include "message_handlers/handler_macros.h"
 #include <ecs/components.h>
 #include <utf.h>
+#include <uws_thread.h>
+#include <messages/user_access/character_select_response.h>
 
 using namespace std;
 
@@ -41,6 +44,7 @@ namespace lotr {
 
         locations_repository<database_pool, database_transaction> location_repo(pool);
         characters_repository<database_pool, database_transaction> player_repo(pool);
+        stats_repository<database_pool, database_transaction> stats_repo(pool);
         auto transaction = player_repo.create_transaction();
         auto existing_character = player_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
 
@@ -54,19 +58,35 @@ namespace lotr {
             return;
         }
 
-        if(To_UTF16(msg->name).size() < 2 || To_UTF16(msg->name).size() > 20) {
+        if(To_UTF32(msg->name).size() < 2 || To_UTF32(msg->name).size() > 20) {
             SEND_ERROR("Character names needs to be at least 2 characters and at most 20 characters", "", "", true);
+            return;
+        }
+
+        auto class_it = find_if(begin(select_response.classes), end(select_response.classes), [&baseclass = as_const(msg->baseclass)](character_class const &c){ return c.name == baseclass;});
+        if(class_it == end(select_response.classes)) {
+            SEND_ERROR("Selected class does not exist", "", "", true);
+            spdlog::error("[{}] Attempted to create character with class {}", __FUNCTION__, msg->baseclass);
             return;
         }
 
         db_character new_player;
         new_player.name = msg->name;
         new_player.user_id = user_data->user_id;
+        new_player.allegiance = msg->allegiance;
+        new_player._class = msg->baseclass;
+        new_player.gender = msg->gender;
+        new_player.level = 1;
         db_location loc(0, "Tutorial", 14, 14);
         location_repo.insert(loc, transaction);
         new_player.loc = loc;
         new_player.location_id = loc.id;
         new_player.slot = msg->slot;
+
+        auto allegiance_it = find_if(begin(select_response.allegiances), end(select_response.allegiances), [&allegiance = as_const(new_player.allegiance)](character_allegiance const &a){ return a.name == allegiance;});
+        if(allegiance_it == end(select_response.allegiances)) {
+            new_player.allegiance = "Undecided";
+        }
 
         if(!player_repo.insert(new_player, transaction)) {
             SEND_ERROR("Player with name already exists", "", "", true);
@@ -74,9 +94,19 @@ namespace lotr {
             return;
         }
 
+        vector<stat_component> player_stats;
+        player_stats.reserve(select_response.base_stats.size());
+        for(auto const &stat : select_response.base_stats) {
+            character_stat char_stat{0, new_player.id, stat.name, stat.value};
+            stats_repo.insert(char_stat, transaction);
+            player_stats.emplace_back(stat.name, stat.value);
+        }
+
         transaction->commit();
 
-        generic_ok_response response{"Player created successfully"};
+
+        create_character_response response{character_object{new_player.name, new_player.gender, new_player.allegiance, new_player._class, new_player.loc->map_name,
+                                                            new_player.level, new_player.gold, new_player.loc->x, new_player.loc->y, move(player_stats), {}, {}}};
         auto response_msg = response.serialize();
         if (!user_data->ws->send(response_msg, op_code, true)) {
             user_data->ws->end(0);

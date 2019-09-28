@@ -36,16 +36,21 @@ TEST_CASE("character enter tests") {
             registry.assign<map_component>(new_entity, move(test_map));
         }
 
-        player_enter_message msg("test_player",  "test", {}, 1, 2, 3);
+        player_enter_message msg("test_player", "gender", "allegiance", "class", "test", {}, 1, 2, 3, 4, 5);
         handle_player_enter_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);
 
         REQUIRE(test_map.players.size() == 1);
         REQUIRE(test_map.players[0].name == "test_player");
+        REQUIRE(test_map.players[0].gender == "gender");
+        REQUIRE(test_map.players[0].allegiance == "allegiance");
+        REQUIRE(test_map.players[0].character_class == "class");
         REQUIRE(test_map.players[0].connection_id == 1);
-        REQUIRE(get<0>(test_map.players[0].loc) == 2);
-        REQUIRE(get<1>(test_map.players[0].loc) == 3);
+        REQUIRE(test_map.players[0].level == 2);
+        REQUIRE(test_map.players[0].gold == 3);
+        REQUIRE(get<0>(test_map.players[0].loc) == 4);
+        REQUIRE(get<1>(test_map.players[0].loc) == 5);
     }
 
     SECTION( "character does not enter non-existing world" ) {
@@ -58,7 +63,7 @@ TEST_CASE("character enter tests") {
             registry.assign<map_component>(new_entity, move(test_map));
         }
 
-        player_enter_message msg("test_player",  "wrong_map", {}, 1, 2, 3);
+        player_enter_message msg("test_player", "gender", "allegiance", "class", "wrong_map", {}, 1, 2, 3, 4, 5);
         handle_player_enter_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);
@@ -75,8 +80,7 @@ TEST_CASE("character enter tests") {
 
             registry.assign<map_component>(new_entity, move(test_map));
         }
-
-        player_enter_message msg("test_player",  "test", {}, 1, 20, 30);
+        player_enter_message msg("test_player", "gender", "allegiance", "class", "test", {}, 1, 20, 30, 40, 50);
         handle_player_enter_message(&msg, registry, q);
 
         auto &test_map = registry.get<map_component>(new_entity);

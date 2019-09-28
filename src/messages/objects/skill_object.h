@@ -19,15 +19,21 @@
 #pragma once
 
 #include <string>
-#include <locale>
-#include <codecvt>
+#include <rapidjson/writer.h>
+#include <rapidjson/pointer.h>
+#include "messages/message.h"
 
 using namespace std;
 
 namespace lotr {
-    [[nodiscard]]
-    u32string To_UTF32(const string &s);
-    void string_tolower(string &str);
-    [[nodiscard]]
-    string string_tolower_copy(string str);
+    struct skill_object {
+        uint32_t value;
+        string name;
+
+        skill_object(string name, uint32_t value) noexcept :
+                value(value), name(move(name)) {}
+    };
+
+    void write_skill_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, skill_object const &obj);
+    bool read_skill_object_into_vector(rapidjson::Value const &value, vector<skill_object> &objs);
 }

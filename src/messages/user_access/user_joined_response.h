@@ -22,7 +22,7 @@
 #include <optional>
 #include <rapidjson/document.h>
 #include "../message.h"
-#include "../account_object.h"
+#include "messages/objects/account_object.h"
 
 using namespace std;
 

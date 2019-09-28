@@ -20,5 +20,6 @@ if res_msg['type'] == 'error_response':
 
 
 ws.send("{\"type\": \"Game:character_select\" }")
+
 res = ws.recv()
 print(f'res: {res}')

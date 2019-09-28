@@ -51,6 +51,8 @@ CREATE TABLE characters (
     user_id BIGINT NOT NULL,
     location_id BIGINT NOT NULL,
     slot INT NOT NULL,
+    level INT NOT NULL,
+    gold INT NOT NULL,
     character_name CITEXT NOT NULL,
     allegiance CITEXT NOT NULL,
     gender CITEXT NOT NULL,

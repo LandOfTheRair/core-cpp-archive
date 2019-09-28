@@ -37,9 +37,10 @@ template<typename pool_T, typename transaction_T>
 bool characters_repository<pool_T, transaction_T>::insert(db_character &character, unique_ptr<transaction_T> const &transaction) const {
 
     auto result = transaction->execute(fmt::format(
-            "INSERT INTO characters (user_id, location_id, slot, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, {}, '{}', '{}', '{}', '{}', '{}') "
+            "INSERT INTO characters (user_id, location_id, slot, level, gold, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}') "
             "ON CONFLICT (user_id, slot) DO NOTHING RETURNING xmax, id",
-            character.user_id, character.location_id, character.slot, transaction->escape(character.name), transaction->escape(character.allegiance), transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class)));
+            character.user_id, character.location_id, character.slot, character.level, character.gold, transaction->escape(character.name), transaction->escape(character.allegiance),
+            transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class)));
 
     if(result.empty()) {
         spdlog::error("[{}] contains {} entries", __FUNCTION__, result.size());
@@ -61,9 +62,11 @@ template<typename pool_T, typename transaction_T>
 bool characters_repository<pool_T, transaction_T>::insert_or_update_character(db_character &character, unique_ptr<transaction_T> const &transaction) const {
 
     auto result = transaction->execute(fmt::format(
-            "INSERT INTO characters (user_id, location_id, slot, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, {}, '{}', '{}', '{}', '{}', '{}') "
-            "ON CONFLICT (user_id, slot) DO UPDATE SET user_id = {}, location_id = {}, allegiance = '{}', gender = '{}', alignment = '{}', class = '{}' RETURNING xmax, id",
-            character.user_id, character.location_id, character.slot, transaction->escape(character.name), transaction->escape(character.allegiance), transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class), character.user_id, character.location_id,
+            "INSERT INTO characters (user_id, location_id, slot, level, gold, character_name, allegiance, gender, alignment, class) VALUES ({}, {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}') "
+            "ON CONFLICT (user_id, slot) DO UPDATE SET user_id = {}, location_id = {}, level = {}, gold = {}, allegiance = '{}', gender = '{}', alignment = '{}', class = '{}' RETURNING xmax, id",
+            character.user_id, character.location_id, character.slot, character.level, character.gold, transaction->escape(character.name), transaction->escape(character.allegiance),
+            transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class),
+            character.user_id, character.location_id, character.level, character.gold,
             transaction->escape(character.allegiance), transaction->escape(character.gender), transaction->escape(character.alignment), transaction->escape(character._class)));
 
     if(result.empty()) {
@@ -84,7 +87,8 @@ bool characters_repository<pool_T, transaction_T>::insert_or_update_character(db
 
 template<typename pool_T, typename transaction_T>
 void characters_repository<pool_T, transaction_T>::update_character(db_character const &character, unique_ptr<transaction_T> const &transaction) const {
-    transaction->execute(fmt::format("UPDATE characters SET user_id = {}, location_id = {} WHERE id = {}", character.user_id, character.location_id, character.id));
+    transaction->execute(fmt::format("UPDATE characters SET user_id = {}, location_id = {}, level = {}, gold = {}, allegiance = '{}', gender = '{}', alignment = '{}', class = '{}' WHERE id = {}",
+            character.user_id, character.location_id, character.level, character.gold, character.allegiance, character.gender, character.alignment, character._class, character.id));
 
     spdlog::debug("[{}] updated db_character {}", __FUNCTION__, character.id);
 }
@@ -102,9 +106,9 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_charact
     pqxx::result result;
 
     if(includes == included_tables::none) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE character_name = '{}' and p.user_id = {}", transaction->escape(name), user_id));
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE character_name = '{}' and p.user_id = {}", transaction->escape(name), user_id));
     } else if (includes == included_tables::location) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
                                               "INNER JOIN locations l ON l.id = p.location_id "
                                               "WHERE p.character_name = '{}' and p.user_id = {}", transaction->escape(name), user_id));
     } else {
@@ -119,13 +123,14 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_charact
 
     auto ret = make_optional<db_character>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
                                            result[0][2].as(uint64_t{}), result[0][3].as(uint32_t{}),
-                                           result[0][4].as(string{}), result[0][5].as(string{}),
+                                           result[0][4].as(uint32_t{}), result[0][5].as(uint32_t{}),
                                            result[0][6].as(string{}), result[0][7].as(string{}),
-                                           result[0][8].as(string{}),
+                                           result[0][8].as(string{}), result[0][9].as(string{}),
+                                           result[0][10].as(string{}),
                                            optional<db_location>{}, vector<character_stat>{}, vector<character_item>{});
 
     if(includes == included_tables::location) {
-        ret->loc.emplace(result[0][9].as(uint64_t{}), result[0][10].as(string{}), result[0][11].as(uint32_t{}), result[0][12].as(uint32_t{}));
+        ret->loc.emplace(result[0][11].as(uint64_t{}), result[0][12].as(string{}), result[0][13].as(uint32_t{}), result[0][14].as(uint32_t{}));
     }
 
     spdlog::debug("[{}] found db_character by name {} with id {}", __FUNCTION__, name, ret->id);
@@ -136,7 +141,7 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_charact
 template<typename pool_T, typename transaction_T>
 optional<db_character> characters_repository<pool_T, transaction_T>::get_character(uint64_t id, uint64_t user_id, included_tables includes,
                                                                                    unique_ptr<transaction_T> const &transaction) const {
-    auto result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE id = {} and user_id = {}", id, user_id));
+    auto result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE id = {} and user_id = {}", id, user_id));
 
     if(result.empty()) {
         spdlog::debug("[{}] found no db_character by id {}", __FUNCTION__, id);
@@ -145,9 +150,10 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_charact
 
     auto ret = make_optional<db_character>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
                                            result[0][2].as(uint64_t{}), result[0][3].as(uint32_t{}),
-                                           result[0][4].as(string{}), result[0][5].as(string{}),
+                                           result[0][4].as(uint32_t{}), result[0][5].as(uint32_t{}),
                                            result[0][6].as(string{}), result[0][7].as(string{}),
-                                           result[0][8].as(string{}),
+                                           result[0][8].as(string{}), result[0][9].as(string{}),
+                                           result[0][10].as(string{}),
                                            optional<db_location>{}, vector<character_stat>{}, vector<character_item>{});
 
     spdlog::debug("[{}] found db_character by id {}", __FUNCTION__, id);
@@ -161,9 +167,9 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_charact
     pqxx::result result;
 
     if(includes == included_tables::none) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE slot = {} and user_id = {}", slot, user_id));
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE slot = {} and user_id = {}", slot, user_id));
     } else if (includes == included_tables::location) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
                                                   "INNER JOIN locations l ON l.id = p.location_id "
                                                   "WHERE slot = {} and user_id = {}", slot, user_id));
     } else {
@@ -178,13 +184,14 @@ optional<db_character> characters_repository<pool_T, transaction_T>::get_charact
 
     auto ret = make_optional<db_character>(result[0][0].as(uint64_t{}), result[0][1].as(uint64_t{}),
                                            result[0][2].as(uint64_t{}), result[0][3].as(uint32_t{}),
-                                           result[0][4].as(string{}), result[0][5].as(string{}),
+                                           result[0][4].as(uint32_t{}), result[0][5].as(uint32_t{}),
                                            result[0][6].as(string{}), result[0][7].as(string{}),
-                                           result[0][8].as(string{}),
+                                           result[0][8].as(string{}), result[0][9].as(string{}),
+                                           result[0][10].as(string{}),
                                            optional<db_location>{}, vector<character_stat>{}, vector<character_item>{});
 
     if(includes == included_tables::location) {
-        ret->loc.emplace(result[0][9].as(uint64_t{}), result[0][10].as(string{}), result[0][11].as(uint32_t{}), result[0][12].as(uint32_t{}));
+        ret->loc.emplace(result[0][11].as(uint64_t{}), result[0][12].as(string{}), result[0][13].as(uint32_t{}), result[0][14].as(uint32_t{}));
     }
 
     spdlog::debug("[{}] found db_character by slot {} for user {}", __FUNCTION__, slot, user_id);
@@ -197,9 +204,9 @@ vector<db_character> characters_repository<pool_T, transaction_T>::get_by_user_i
                                                                                   unique_ptr<transaction_T> const &transaction) const {
     pqxx::result result;
     if(includes == included_tables::none) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE user_id = {}", user_id));
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class FROM characters p WHERE user_id = {}", user_id));
     } else if (includes == included_tables::location) {
-        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
+        result = transaction->execute(fmt::format("SELECT p.id, p.user_id, p.location_id, p.slot, p.level, p.gold, p.character_name, p.allegiance, p.gender, p.alignment, p.class, l.id, l.map_name, l.x, l.y FROM characters p "
                                       "INNER JOIN locations l ON l.id = p.location_id "
                                       "WHERE p.user_id = {}", user_id));
     } else {
@@ -213,10 +220,10 @@ vector<db_character> characters_repository<pool_T, transaction_T>::get_by_user_i
     characters.reserve(result.size());
 
     for(auto const & res : result) {
-        db_character character{res[0].as(uint64_t{}), res[1].as(uint64_t{}), res[2].as(uint64_t{}), res[3].as(uint32_t{}),
-                          res[4].as(string{}), res[5].as(string{}), res[6].as(string{}), res[7].as(string{}), res[8].as(string{}), {}, {}, {}};
+        db_character character{res[0].as(uint64_t{}), res[1].as(uint64_t{}), res[2].as(uint64_t{}), res[3].as(uint32_t{}), res[4].as(uint32_t{}),
+                               res[5].as(uint32_t{}), res[6].as(string{}), res[7].as(string{}), res[8].as(string{}), res[9].as(string{}), res[10].as(string{}), {}, {}, {}};
         if(includes == included_tables::location) {
-            character.loc.emplace(result[0][9].as(uint64_t{}), result[0][10].as(string{}), result[0][11].as(uint32_t{}), result[0][12].as(uint32_t{}));
+            character.loc.emplace(result[0][11].as(uint64_t{}), result[0][12].as(string{}), result[0][13].as(uint32_t{}), result[0][14].as(uint32_t{}));
         }
         characters.push_back(move(character));
     }

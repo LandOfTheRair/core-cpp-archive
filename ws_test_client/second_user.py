@@ -19,7 +19,7 @@ if res_msg['type'] == 'error_response':
         sys.exit(1)
 
 
-ws.send("{\"type\": \"Game:create_character\", \"slot\": 0, \"name\": \"cat\", \"sex\": \"test\", \"allegiance\": \"test\", \"baseclass\": \"baseclass\"}")
+ws.send("{\"type\": \"Game:create_character\", \"slot\": 0, \"name\": \"cat\", \"gender\": \"test\", \"allegiance\": \"Pirates\", \"baseclass\": \"Mage\"}")
 res = ws.recv()
 print(f'res: {res}')
 ws.send("{\"type\": \"Game:play_character\", \"slot\": 0}")

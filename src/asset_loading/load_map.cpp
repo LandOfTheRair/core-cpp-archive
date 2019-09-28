@@ -49,6 +49,7 @@ optional<spawner_script> create_spawner_script_for_npc(rapidjson::Value &current
 
     script.npc_ids.emplace_back(1, current_object["name"].GetString());
     script.npc_ids[0].sprite.push_back(current_object["gid"].GetUint() - first_gid);
+    script.npc_ids[0].stats.reserve(stat_names.size());
     for(auto &stat : stat_names) {
         script.npc_ids[0].stats.emplace_back(stat, 10);
     }
@@ -160,6 +161,7 @@ optional<spawner_script> get_spawner_script(string const &script_file, uint32_t 
 [[nodiscard]]
 vector<map_property> get_properties(Value const &properties) {
     vector<map_property> object_properties;
+    object_properties.reserve(properties.MemberCount());
 
     for (auto it = properties.MemberBegin(); it != properties.MemberEnd(); it++) {
         string name = it->name.GetString();
@@ -238,6 +240,7 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
 
     auto& json_tilesets = d["tilesets"];
     vector<map_tileset> map_tilesets;
+    map_tilesets.reserve(json_tilesets.Size());
 
     for(SizeType i = 0; i < json_tilesets.Size(); i++) {
         auto& current_tileset = json_tilesets[i];

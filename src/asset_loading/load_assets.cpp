@@ -98,6 +98,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
                 gnpc.name = npc.name;
                 gnpc.npc_id = npc.name;
                 gnpc.sprite.push_back(npc.gid - m->tilesets[3].firstgid);
+                gnpc.stats.reserve(stat_names.size());
 
                 for(auto &stat : stat_names) {
                     gnpc.stats.emplace_back(stat, 10);
@@ -182,10 +183,10 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
     });
 
     auto loading_end = chrono::system_clock::now();
-    spdlog::info("[{}] {} items loaded in {} µs", __FUNCTION__, item_count, chrono::duration_cast<chrono::microseconds>(npcs_loading_start - items_loading_start).count());
-    spdlog::info("[{}] {} npcs loaded in {} µs", __FUNCTION__, npc_count, chrono::duration_cast<chrono::microseconds>(maps_loading_start - npcs_loading_start).count());
-    spdlog::info("[{}] {} maps loaded in {} µs", __FUNCTION__, map_count, chrono::duration_cast<chrono::microseconds>(entity_spawning_start - maps_loading_start).count());
-    spdlog::info("[{}] {} entities spawned in {} µs", __FUNCTION__, entity_count, chrono::duration_cast<chrono::microseconds>(loading_end - entity_spawning_start).count());
-    spdlog::info("[{}] everything loaded in {} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - items_loading_start).count());
+    spdlog::info("[{}] {:n} items loaded in {:n} µs", __FUNCTION__, item_count, chrono::duration_cast<chrono::microseconds>(npcs_loading_start - items_loading_start).count());
+    spdlog::info("[{}] {:n} npcs loaded in {:n} µs", __FUNCTION__, npc_count, chrono::duration_cast<chrono::microseconds>(maps_loading_start - npcs_loading_start).count());
+    spdlog::info("[{}] {:n} maps loaded in {:n} µs", __FUNCTION__, map_count, chrono::duration_cast<chrono::microseconds>(entity_spawning_start - maps_loading_start).count());
+    spdlog::info("[{}] {:n} entities spawned in {:n} µs", __FUNCTION__, entity_count, chrono::duration_cast<chrono::microseconds>(loading_end - entity_spawning_start).count());
+    spdlog::info("[{}] everything loaded in {:n} µs", __FUNCTION__, chrono::duration_cast<chrono::microseconds>(loading_end - items_loading_start).count());
 }
 

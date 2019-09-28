@@ -26,6 +26,7 @@
 #include <repositories/users_repository.h>
 #include <repositories/banned_users_repository.h>
 #include <repositories/characters_repository.h>
+#include <repositories/stats_repository.h>
 #include <on_leaving_scope.h>
 #include <messages/user_access/login_response.h>
 #include <game_logic/censor_sensor.h>
@@ -33,6 +34,7 @@
 #include <utf.h>
 #include <messages/user_access/user_joined_response.h>
 #include <uws_thread.h>
+#include <ecs/components.h>
 
 #ifdef TEST_CODE
 #include "../../../test/custom_websocket.h"
@@ -53,18 +55,19 @@ namespace lotr {
         users_repository<database_pool, database_transaction> user_repo(pool);
         banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
         characters_repository<database_pool, database_transaction> player_repo(pool);
+        stats_repository<database_pool, database_transaction> stats_repo(pool);
 
         if(sensor.is_profane_ish(msg->username)) {
             SEND_ERROR("Usernames cannot contain profanities", "", "", true);
             return;
         }
 
-        if(To_UTF16(msg->username).size() < 2 || To_UTF16(msg->username).size() > 20) {
+        if(To_UTF32(msg->username).size() < 2 || To_UTF32(msg->username).size() > 20) {
             SEND_ERROR("Usernames needs to be at least 2 characters and at most 20 characters", "", "", true);
             return;
         }
 
-        if(To_UTF16(msg->password).size() < 8) {
+        if(To_UTF32(msg->password).size() < 8) {
             SEND_ERROR("Password needs to be at least 8 characters", "", "", true);
             return;
         }
@@ -129,8 +132,23 @@ namespace lotr {
             user_data->user_id = new_usr.id;
             user_data->username = new string(new_usr.username);
 
+            vector<character_object> message_players;
+            auto players = player_repo.get_by_user_id(usr->id, included_tables::all, transaction);
+
+            for (auto &player : players) {
+                auto db_stats = stats_repo.get_by_character_id(player.id, transaction);
+                vector<stat_component> stats;
+                stats.reserve(db_stats.size());
+                for(auto const &stat : db_stats) {
+                    stats.emplace_back(stat.name, stat.value);
+                }
+                vector<item_object> items;
+                vector<skill_object> skills;
+                message_players.emplace_back(player.name, player.gender, player.allegiance, player._class, player.loc->map_name, player.level, player.gold, player.loc->x, player.loc->y, move(stats), move(items), move(skills));
+            }
 
             vector<account_object> online_users;
+            online_users.reserve(user_connections.size());
             user_joined_response join_msg(account_object(new_usr.is_game_master, false, false, 0, 0, new_usr.username));
             auto join_msg_str = join_msg.serialize();
             for (auto &[conn_id, other_user_data] : user_connections) {
@@ -142,7 +160,7 @@ namespace lotr {
                 }
             }
 
-            login_response response({}, online_users, new_usr.username, new_usr.email, motd);
+            login_response response(move(message_players), move(online_users), new_usr.username, new_usr.email, motd);
             auto response_msg = response.serialize();
             if (!user_data->ws->send(response_msg, op_code, true)) {
                 user_data->ws->end(0);

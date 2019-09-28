@@ -25,8 +25,8 @@ using namespace rapidjson;
 
 string const create_character_request::type = "Game:create_character";
 
-create_character_request::create_character_request(uint32_t slot, string name, string sex, string allegiance, string baseclass) noexcept
-    : slot(slot), name(move(name)), sex(move(sex)), allegiance(move(allegiance)), baseclass(move(baseclass)) {
+create_character_request::create_character_request(uint32_t slot, string name, string gender, string allegiance, string baseclass) noexcept
+    : slot(slot), name(move(name)), gender(move(gender)), allegiance(move(allegiance)), baseclass(move(baseclass)) {
 
 }
 
@@ -45,8 +45,8 @@ string create_character_request::serialize() const {
     writer.String(KEY_STRING("name"));
     writer.String(name.c_str(), name.size());
 
-    writer.String(KEY_STRING("sex"));
-    writer.String(sex.c_str(), sex.size());
+    writer.String(KEY_STRING("gender"));
+    writer.String(gender.c_str(), gender.size());
 
     writer.String(KEY_STRING("allegiance"));
     writer.String(allegiance.c_str(), allegiance.size());
@@ -59,7 +59,7 @@ string create_character_request::serialize() const {
 }
 
 optional<create_character_request> create_character_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("type") || !d.HasMember("slot")  || !d.HasMember("name") || ! d.HasMember("sex") || ! d.HasMember("allegiance") || ! d.HasMember("baseclass")) {
+    if (!d.HasMember("type") || !d.HasMember("slot")  || !d.HasMember("name") || ! d.HasMember("gender") || ! d.HasMember("allegiance") || ! d.HasMember("baseclass")) {
         spdlog::warn("[create_character_request] deserialize failed");
         return nullopt;
     }
@@ -69,5 +69,5 @@ optional<create_character_request> create_character_request::deserialize(rapidjs
         return nullopt;
     }
 
-    return create_character_request(d["slot"].GetUint(), d["name"].GetString(), d["sex"].GetString(), d["allegiance"].GetString(), d["baseclass"].GetString());
+    return create_character_request(d["slot"].GetUint(), d["name"].GetString(), d["gender"].GetString(), d["allegiance"].GetString(), d["baseclass"].GetString());
 }

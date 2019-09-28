@@ -20,25 +20,32 @@
 
 #include <string>
 #include <rapidjson/writer.h>
-#include "message.h"
+#include <rapidjson/pointer.h>
+#include "messages/message.h"
+#include "item_object.h"
+#include "skill_object.h"
 
 using namespace std;
 
 namespace lotr {
     struct stat_component;
-    struct item_object {
-        uint32_t tier;
-        uint32_t value;
-        uint32_t sprite;
+    struct character_object {
         string name;
-        string description;
-        string type;
+        string gender;
+        string allegiance;
+        string baseclass;
+        string map_name;
+        uint32_t level;
+        uint32_t gold;
+        uint32_t x;
+        uint32_t y;
         vector<stat_component> stats;
+        vector<item_object> items;
+        vector<skill_object> skills;
 
-
-        item_object(uint32_t tier, uint32_t value, uint32_t sprite, string name, string description, string type, vector<stat_component> stats) noexcept :
-                tier(tier), value(value), sprite(sprite), name(move(name)), description(move(description)), type(move(type)), stats(move(stats)) {}
+        character_object(string name, string gender, string allegiance, string baseclass, string map_name, uint32_t level, uint32_t gold, uint32_t x, uint32_t y, vector<stat_component> stats, vector<item_object> items, vector<skill_object> skills) noexcept;
     };
 
-    void write_item_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, item_object const &obj);
+    void write_character_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, character_object const &obj);
+    bool read_character_object_into_vector(rapidjson::Value const &value, vector<character_object> &objs);
 }

@@ -27,7 +27,7 @@ using namespace std;
 
 namespace lotr {
     struct create_character_request : public message {
-        create_character_request(uint32_t slot, string name, string sex, string allegiance, string baseclass) noexcept;
+        create_character_request(uint32_t slot, string name, string gender, string allegiance, string baseclass) noexcept;
 
         ~create_character_request() noexcept = default;
 
@@ -39,7 +39,7 @@ namespace lotr {
 
         uint32_t slot;
         string name;
-        string sex;
+        string gender;
         string allegiance;
         string baseclass;
 

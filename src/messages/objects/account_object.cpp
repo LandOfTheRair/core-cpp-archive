@@ -38,3 +38,15 @@ void lotr::write_account_object(rapidjson::Writer<rapidjson::StringBuffer> &writ
     writer.String(KEY_STRING("username"));
     writer.String(obj.username.c_str(), obj.username.size());
 }
+
+bool lotr::read_account_object_into_vector(rapidjson::Value const &value, vector<account_object> &objs) {
+    if(!value.IsObject() || !value.HasMember("is_game_master") || !value.HasMember("is_tester") ||
+       !value.HasMember("has_done_trial") || !value.HasMember("trial_ends_unix_timestamp") ||
+       !value.HasMember("subscription_tier") || !value.HasMember("username")) {
+        return false;
+    }
+
+    objs.emplace_back(value["is_game_master"].GetBool(), value["is_tester"].GetBool(), value["has_done_trial"].GetBool(), value["trial_ends_unix_timestamp"].GetUint64(),
+            value["subscription_tier"].GetUint(), value["username"].GetString());
+    return true;
+}

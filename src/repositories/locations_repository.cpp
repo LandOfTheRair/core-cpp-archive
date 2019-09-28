@@ -35,7 +35,7 @@ unique_ptr<transaction_T> locations_repository<pool_T, transaction_T>::create_tr
 
 template<typename pool_T, typename transaction_T>
 void locations_repository<pool_T, transaction_T>::insert(db_location &loc, unique_ptr<transaction_T> const &transaction) const {
-    auto result = transaction->execute(fmt::format("INSERT INTO locations (map_name, x, y) VALUES ('{}', {}, {}) RETURNING id", loc.map_name, loc.x, loc.y));
+    auto result = transaction->execute(fmt::format("INSERT INTO locations (map_name, x, y) VALUES ('{}', {}, {}) RETURNING id", transaction->escape(loc.map_name), loc.x, loc.y));
 
     if(result.empty()) {
         spdlog::error("[{}] contains {} entries", __FUNCTION__, result.size());
@@ -49,7 +49,7 @@ void locations_repository<pool_T, transaction_T>::insert(db_location &loc, uniqu
 
 template<typename pool_T, typename transaction_T>
 void locations_repository<pool_T, transaction_T>::update(db_location const &loc, unique_ptr<transaction_T> const &transaction) const {
-    transaction->execute(fmt::format("UPDATE locations SET map_name = '{}', x = {}, y = {} WHERE id = {}", loc.map_name, loc.x, loc.y, loc.id));
+    transaction->execute(fmt::format("UPDATE locations SET map_name = '{}', x = {}, y = {} WHERE id = {}", transaction->escape(loc.map_name), loc.x, loc.y, loc.id));
 
     spdlog::debug("[{}] updated location {}", __FUNCTION__, loc.id);
 }

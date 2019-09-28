@@ -18,15 +18,15 @@
 
 #include "login_response.h"
 #include <spdlog/spdlog.h>
-#include <rapidjson/writer.h>
+#include <ecs/components.h>
 
 using namespace lotr;
 using namespace rapidjson;
 
 string const login_response::type = "Auth:login_response";
 
-login_response::login_response(vector<message_player> players, vector<account_object> online_users, string username, string email, string motd) noexcept :
-    players(move(players)), online_users(move(online_users)), username(move(username)), email(move(email)), motd(move(motd)) {
+login_response::login_response(vector<character_object> players, vector<account_object> online_users, string username, string email, string motd) noexcept :
+        players(move(players)), online_users(move(online_users)), username(move(username)), email(move(email)), motd(move(motd)) {
 }
 
 string login_response::serialize() const {
@@ -53,17 +53,7 @@ string login_response::serialize() const {
     for(auto& player : players) {
         writer.StartObject();
 
-        writer.String(KEY_STRING("name"));
-        writer.String(player.name.c_str(), player.name.size());
-
-        writer.String(KEY_STRING("map_name"));
-        writer.String(player.map_name.c_str(), player.map_name.size());
-
-        writer.String(KEY_STRING("x"));
-        writer.Int(player.x);
-
-        writer.String(KEY_STRING("y"));
-        writer.Int(player.y);
+        write_character_object(writer, player);
 
         writer.EndObject();
     }
@@ -98,7 +88,7 @@ optional<login_response> login_response::deserialize(rapidjson::Document const &
         return nullopt;
     }
 
-    vector<message_player> players;
+    vector<character_object> players;
     auto &players_array = d["players"];
     if(!players_array.IsArray()) {
         spdlog::warn("[login_response] deserialize failed");
@@ -113,31 +103,18 @@ optional<login_response> login_response::deserialize(rapidjson::Document const &
     }
 
     for(SizeType i = 0; i < online_users_array.Size(); i++) {
-        if (!online_users_array[i].IsObject() ||
-            !online_users_array[i].HasMember("is_game_master") ||
-            !online_users_array[i].HasMember("is_tester") ||
-            !online_users_array[i].HasMember("has_done_trial") ||
-            !online_users_array[i].HasMember("trial_ends_unix_timestamp") ||
-            !online_users_array[i].HasMember("subscription_tier") ||
-            !online_users_array[i].HasMember("username")) {
+        if(!read_account_object_into_vector(online_users_array[i], online_users)) {
             spdlog::warn("[login_response] deserialize failed");
             return nullopt;
         }
-        online_users.emplace_back(online_users_array[i]["is_game_master"].GetBool(), online_users_array[i]["is_tester"].GetBool(), online_users_array[i]["has_done_trial"].GetBool(),
-                online_users_array[i]["trial_ends_unix_timestamp"].GetUint64(), online_users_array[i]["subscription_tier"].GetUint(), online_users_array[i]["username"].GetString());
     }
 
     for(SizeType i = 0; i < players_array.Size(); i++) {
-        if (!players_array[i].IsObject() ||
-            !players_array[i].HasMember("name") ||
-            !players_array[i].HasMember("map_name") ||
-            !players_array[i].HasMember("x") ||
-            !players_array[i].HasMember("y")) {
+        if(!read_character_object_into_vector(players_array[i], players)) {
             spdlog::warn("[login_response] deserialize failed");
             return nullopt;
         }
-        players.emplace_back(players_array[i]["name"].GetString(), players_array[i]["map_name"].GetString(), players_array[i]["x"].GetInt(), players_array[i]["y"].GetInt());
     }
 
-    return login_response(players, online_users, d["username"].GetString(), d["email"].GetString(), d["motd"].GetString());
+    return login_response(move(players), move(online_users), d["username"].GetString(), d["email"].GetString(), d["motd"].GetString());
 }

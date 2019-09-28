@@ -41,7 +41,7 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 1, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 1, 2, 3, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto inserted = characters_repo.insert_or_update_character(character, transaction);
         REQUIRE(inserted == true);
 
@@ -50,6 +50,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character2->location_id == character.location_id);
         REQUIRE(character2->user_id == character.user_id);
         REQUIRE(character2->slot == character.slot);
+        REQUIRE(character2->level == character.level);
+        REQUIRE(character2->gold == character.gold);
         REQUIRE(character2->name == character.name);
         REQUIRE(character2->allegiance == character.allegiance);
         REQUIRE(character2->gender == character.gender);
@@ -64,7 +66,7 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 1, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 1, 2, 3, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto inserted = characters_repo.insert_or_update_character(character, transaction);
         REQUIRE(inserted == true);
 
@@ -81,7 +83,7 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 1, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 1, 2, 3, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto inserted = characters_repo.insert_or_update_character(character, transaction);
         REQUIRE(inserted == true);
 
@@ -90,6 +92,8 @@ TEST_CASE("characters repository tests") {
         character.gender = "gender2";
         character.alignment = "alignment2";
         character._class = "class2";
+        character.level = 3;
+        character.gold = 4;
         inserted = characters_repo.insert_or_update_character(character, transaction);
         REQUIRE(inserted == false);
 
@@ -98,6 +102,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character2->location_id == character.location_id);
         REQUIRE(character2->user_id == character.user_id);
         REQUIRE(character2->name == character.name);
+        REQUIRE(character2->level == character.level);
+        REQUIRE(character2->gold == character.gold);
         REQUIRE(character2->allegiance == character.allegiance);
         REQUIRE(character2->gender == character.gender);
         REQUIRE(character2->alignment == character.alignment);
@@ -113,7 +119,7 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 1, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 1, 2, 3, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto inserted = characters_repo.insert_or_update_character(character, transaction);
         REQUIRE(inserted == true);
 
@@ -122,6 +128,8 @@ TEST_CASE("characters repository tests") {
         character.gender = "gender2";
         character.alignment = "alignment2";
         character._class = "class2";
+        character.level = 3;
+        character.gold = 4;
         inserted = characters_repo.insert_or_update_character(character, transaction);
         REQUIRE(inserted == false);
 
@@ -130,6 +138,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character2->location_id == character.location_id);
         REQUIRE(character2->user_id == character.user_id);
         REQUIRE(character2->name == character.name);
+        REQUIRE(character2->level == character.level);
+        REQUIRE(character2->gold == character.gold);
         REQUIRE(character2->allegiance == character.allegiance);
         REQUIRE(character2->gender == character.gender);
         REQUIRE(character2->alignment == character.alignment);
@@ -143,7 +153,7 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 1, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 1, 2, 3, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         auto ret = characters_repo.insert(character, transaction);
         REQUIRE(ret == true);
 
@@ -155,6 +165,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character2->location_id == character.location_id);
         REQUIRE(character2->user_id == character.user_id);
         REQUIRE(character2->slot == character.slot);
+        REQUIRE(character2->level == character.level);
+        REQUIRE(character2->gold == character.gold);
         REQUIRE(character2->name == character.name);
         REQUIRE(character2->allegiance == character.allegiance);
         REQUIRE(character2->gender == character.gender);
@@ -169,8 +181,8 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 0, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
-        db_character character2{0, usr.id, loc.id, 1, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 0, 2, 4, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character2{0, usr.id, loc.id, 1, 3, 5, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         characters_repo.insert_or_update_character(character, transaction);
         characters_repo.insert_or_update_character(character2, transaction);
 
@@ -197,8 +209,8 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 0, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
-        db_character character2{0, usr.id, loc.id, 1, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 0, 2, 4, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character2{0, usr.id, loc.id, 1, 3, 5, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         characters_repo.insert_or_update_character(character, transaction);
         characters_repo.insert_or_update_character(character2, transaction);
 
@@ -206,6 +218,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character_by_slot->location_id == character.location_id);
         REQUIRE(character_by_slot->user_id == character.user_id);
         REQUIRE(character_by_slot->slot == character.slot);
+        REQUIRE(character_by_slot->level == character.level);
+        REQUIRE(character_by_slot->gold == character.gold);
         REQUIRE(character_by_slot->name == character.name);
         REQUIRE(character_by_slot->allegiance == character.allegiance);
         REQUIRE(character_by_slot->gender == character.gender);
@@ -216,6 +230,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character_by_slot->location_id == character2.location_id);
         REQUIRE(character_by_slot->user_id == character2.user_id);
         REQUIRE(character_by_slot->slot == character2.slot);
+        REQUIRE(character_by_slot->level == character2.level);
+        REQUIRE(character_by_slot->gold == character2.gold);
         REQUIRE(character_by_slot->name == character2.name);
         REQUIRE(character_by_slot->allegiance == character2.allegiance);
         REQUIRE(character_by_slot->gender == character2.gender);
@@ -230,8 +246,8 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 0, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
-        db_character character2{0, usr.id, loc.id, 1, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 0, 2, 4, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character2{0, usr.id, loc.id, 1, 3, 5, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         characters_repo.insert_or_update_character(character, transaction);
         characters_repo.insert_or_update_character(character2, transaction);
 
@@ -239,6 +255,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character_by_slot->location_id == character.location_id);
         REQUIRE(character_by_slot->user_id == character.user_id);
         REQUIRE(character_by_slot->slot == character.slot);
+        REQUIRE(character_by_slot->level == character.level);
+        REQUIRE(character_by_slot->gold == character.gold);
         REQUIRE(character_by_slot->name == character.name);
         REQUIRE(character_by_slot->allegiance == character.allegiance);
         REQUIRE(character_by_slot->gender == character.gender);
@@ -254,6 +272,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character_by_slot->location_id == character2.location_id);
         REQUIRE(character_by_slot->user_id == character2.user_id);
         REQUIRE(character_by_slot->slot == character2.slot);
+        REQUIRE(character_by_slot->level == character2.level);
+        REQUIRE(character_by_slot->gold == character2.gold);
         REQUIRE(character_by_slot->name == character2.name);
         REQUIRE(character_by_slot->allegiance == character2.allegiance);
         REQUIRE(character_by_slot->gender == character2.gender);
@@ -273,8 +293,8 @@ TEST_CASE("characters repository tests") {
         user usr{0, "user", "pass", "email", 0, "code", 0, 0};
         users_repo.insert_if_not_exists(usr, transaction);
 
-        db_character character{0, usr.id, loc.id, 0, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
-        db_character character2{0, usr.id, loc.id, 1, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character{0, usr.id, loc.id, 0, 2, 4, "john doe"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
+        db_character character2{0, usr.id, loc.id, 1, 3, 5, "john doe2"s, "allegiance", "gender", "alignment", "class", {}, {}, {}};
         characters_repo.insert_or_update_character(character, transaction);
         characters_repo.insert_or_update_character(character2, transaction);
         characters_repo.delete_character_by_slot(0, usr.id, transaction);
@@ -286,6 +306,8 @@ TEST_CASE("characters repository tests") {
         REQUIRE(character_by_slot->location_id == character2.location_id);
         REQUIRE(character_by_slot->user_id == character2.user_id);
         REQUIRE(character_by_slot->slot == character2.slot);
+        REQUIRE(character_by_slot->level == character2.level);
+        REQUIRE(character_by_slot->gold == character2.gold);
         REQUIRE(character_by_slot->name == character2.name);
         REQUIRE(character_by_slot->allegiance == character2.allegiance);
         REQUIRE(character_by_slot->gender == character2.gender);

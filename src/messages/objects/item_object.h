@@ -20,22 +20,26 @@
 
 #include <string>
 #include <rapidjson/writer.h>
-#include "message.h"
+#include <rapidjson/pointer.h>
+#include "messages/message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct account_object {
-        bool is_game_master;
-        bool is_tester;
-        bool has_done_trial;
-        uint64_t trial_ends_unix_timestamp;
-        uint32_t subscription_tier;
-        string username;
+    struct stat_component;
+    struct item_object {
+        uint32_t tier;
+        uint32_t value;
+        uint32_t sprite;
+        string name;
+        string description;
+        string item_type;
+        vector<stat_component> stats;
 
-        account_object(bool is_game_master, bool is_tester, bool has_done_trial, uint64_t trial_ends_unix_timestamp, uint32_t subscription_tier, string username) noexcept :
-                is_game_master(is_game_master), is_tester(is_tester), has_done_trial(has_done_trial), trial_ends_unix_timestamp(trial_ends_unix_timestamp), subscription_tier(subscription_tier), username(move(username)) {}
+
+        item_object(uint32_t tier, uint32_t value, uint32_t sprite, string name, string description, string item_type, vector<stat_component> stats) noexcept;
     };
 
-    void write_account_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, account_object const &obj);
+    void write_item_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, item_object const &obj);
+    bool read_item_object_into_vector(rapidjson::Value const &value, vector<item_object> &objs);
 }

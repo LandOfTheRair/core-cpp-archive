@@ -18,22 +18,14 @@
 
 #include <spdlog/spdlog.h>
 #include <rapidjson/document.h>
-#include <algorithm>
 
 #include "censor_sensor.h"
 #include "working_directory_manipulation.h"
+#include <utf.h>
 
 using namespace lotr;
 
 censor_sensor lotr::sensor("assets/profanity_locales/en.json");
-
-void string_tolower(string &str) {
-    transform(str.begin(), str.end(), str.begin(),
-              [](unsigned char c){ return tolower(c); });
-}
-
-
-
 
 censor_sensor::censor_sensor(string const &profanity_dictionary_path) : _word_tiers() {
     auto dict_contents = read_whole_file(profanity_dictionary_path);

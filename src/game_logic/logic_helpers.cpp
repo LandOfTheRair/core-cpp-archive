@@ -37,7 +37,7 @@ optional<npc_component> lotr::create_npc(spawner_npc_id const &spawner_npc_id, m
     npc.npc_id = spawner_npc_id.npc_id;
     npc.allegiance = spawner_npc_id.allegiance;
     npc.alignment = spawner_npc_id.alignment;
-    npc.sex = spawner_npc_id.sex;
+    npc.gender = spawner_npc_id.gender;
     npc.dir = spawner_npc_id.dir;
     npc.hostility = spawner_npc_id.hostility;
     npc.character_class = spawner_npc_id.character_class;

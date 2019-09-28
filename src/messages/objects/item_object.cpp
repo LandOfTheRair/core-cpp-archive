@@ -19,6 +19,9 @@
 #include "item_object.h"
 #include <ecs/components.h>
 
+lotr::item_object::item_object(uint32_t tier, uint32_t value, uint32_t sprite, string name, string description, string item_type, vector<stat_component> stats) noexcept :
+tier(tier), value(value), sprite(sprite), name(move(name)), description(move(description)), item_type(move(item_type)), stats(move(stats)) {}
+
 void lotr::write_item_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, item_object const &obj) {
     writer.String(KEY_STRING("tier"));
     writer.Uint(obj.tier);
@@ -35,8 +38,8 @@ void lotr::write_item_object(rapidjson::Writer<rapidjson::StringBuffer> &writer,
     writer.String(KEY_STRING("description"));
     writer.String(obj.description.c_str(), obj.description.size());
 
-    writer.String(KEY_STRING("type"));
-    writer.String(obj.type.c_str(), obj.type.size());
+    writer.String(KEY_STRING("item_type"));
+    writer.String(obj.item_type.c_str(), obj.item_type.size());
 
     writer.String(KEY_STRING("stats"));
     writer.StartArray();
@@ -50,4 +53,31 @@ void lotr::write_item_object(rapidjson::Writer<rapidjson::StringBuffer> &writer,
         writer.EndObject();
     }
     writer.EndArray();
+}
+
+bool lotr::read_item_object_into_vector(rapidjson::Value const &value, vector<item_object> &objs) {
+    if(!value.IsObject() || !value.HasMember("tier") || !value.HasMember("value") ||
+            !value.HasMember("sprite") || !value.HasMember("name") ||
+            !value.HasMember("description") || !value.HasMember("item_type") ||
+            !value.HasMember("stats")) {
+        return false;
+    }
+
+    auto &stats_array = value["stats"];
+    if(!stats_array.IsArray()) {
+        return false;
+    }
+
+    vector<stat_component> stats;
+    for(rapidjson::SizeType i = 0; i < stats_array.Size(); i++) {
+        if(!stats_array[i].IsObject() || !stats_array[i].HasMember("name") || !stats_array[i].HasMember("value")) {
+            return false;
+        }
+
+        stats.emplace_back(stats_array[i]["name"].GetString(), stats_array[i]["value"].GetUint());
+    }
+
+    objs.emplace_back(value["tier"].GetUint(), value["value"].GetUint(), value["sprite"].GetUint(), value["name"].GetString(), value["description"].GetString(),
+            value["item_type"].GetString(), move(stats));
+    return true;
 }

@@ -24,8 +24,12 @@
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/user_entered_game_response.h>
 #include <repositories/characters_repository.h>
+#include <repositories/stats_repository.h>
 #include "message_handlers/handler_macros.h"
 #include <ecs/components.h>
+#include <uws_thread.h>
+#include <utf.h>
+#include <messages/user_access/character_select_response.h>
 
 using namespace std;
 
@@ -37,6 +41,7 @@ namespace lotr {
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(play_character_request)
 
         characters_repository<database_pool, database_transaction> character_repo(pool);
+        stats_repository<database_pool, database_transaction> stats_repo(pool);
         auto transaction = character_repo.create_transaction();
         auto character = character_repo.get_character_by_slot(msg->slot, user_data->user_id, included_tables::location, transaction);
 
@@ -53,6 +58,7 @@ namespace lotr {
         }
 
         user_data->playing_character_slot = msg->slot;
+        auto db_stats = stats_repo.get_by_character_id(character->id, transaction);
 
         user_entered_game_response enter_msg(*user_data->username);
         auto enter_msg_str = enter_msg.serialize();
@@ -60,13 +66,48 @@ namespace lotr {
             other_user_data->ws->send(enter_msg_str, op_code, true);
         }
 
-        vector<stat_component> player_stats;
-        for(auto &stat : stat_names) {
-            player_stats.emplace_back(stat, 10);
+        // TODO move this calculation somewhere global
+        auto allegiance_it = find_if(begin(select_response.allegiances), end(select_response.allegiances), [&allegiance = as_const(character->allegiance)](character_allegiance const &a){ return a.name == allegiance;});
+        if(allegiance_it == end(select_response.allegiances)) {
+            spdlog::error("[{}] character {} slot {} wrong allegiance", __FUNCTION__, character->name, character->slot, character->allegiance);
+            SEND_ERROR("Chosen allegiance does not exist", "", "", true);
+            return;
         }
-        spdlog::debug("[{}] enqueing character {}", __FUNCTION__, character->name);
+
+        auto classes_it = find_if(begin(select_response.classes), end(select_response.classes), [&baseclass = as_const(character->_class)](character_class const &c){ return c.name == baseclass; });
+        if(classes_it == end(select_response.classes)) {
+            spdlog::error("[{}] character {} slot {} wrong class", __FUNCTION__, character->name, character->slot, character->_class);
+            SEND_ERROR("Chosen class does not exist", "", "", true);
+            return;
+        }
+
+        vector<stat_component> player_stats_mods;
+        player_stats_mods.reserve(stat_names.size());
+        for(auto const &stat : stat_names) {
+            auto value = 0;
+            auto allegiance_value_it = find_if(begin(allegiance_it->stat_mods), end(allegiance_it->stat_mods), [&](stat_component const &sc){ return sc.name == stat; });
+            auto class_value_it = find_if(begin(classes_it->stat_mods), end(classes_it->stat_mods), [&](stat_component const &sc){ return sc.name == stat; });
+
+            if(allegiance_value_it != end(allegiance_it->stat_mods)) {
+                value += allegiance_value_it->value;
+            }
+
+            if(class_value_it != end(classes_it->stat_mods)) {
+                value += class_value_it->value;
+            }
+
+            player_stats_mods.emplace_back(stat, value);
+        }
+
+        vector<stat_component> player_stats;
+        player_stats.reserve(db_stats.size());
+        for(auto const &stat : db_stats) {
+            player_stats.emplace_back(stat.name, stat.value);
+        }
+        spdlog::debug("[{}] enqueing character {} slot {}", __FUNCTION__, character->name, character->slot);
         spdlog::trace("[{}] enqueing character {} has loc {}", __FUNCTION__, character->name, character->loc.has_value());
-        q.enqueue(make_unique<player_enter_message>(character->name, character->loc->map_name, player_stats, user_data->connection_id, character->loc->x, character->loc->y));
+        q.enqueue(make_unique<player_enter_message>(character->name, character->gender, character->allegiance, character->_class, character->loc->map_name, move(player_stats),
+                user_data->connection_id, character->level, character->gold, character->loc->x, character->loc->y));
     }
 
     template void handle_play_character<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,

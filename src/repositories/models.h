@@ -57,11 +57,12 @@ namespace lotr {
 
     struct character_stat {
         uint64_t id;
+        uint64_t character_id;
         string name;
-        uint64_t value;
+        int64_t value;
 
-        character_stat() : id(), name(), value() {}
-        character_stat(uint64_t id, string name, uint64_t value) : id(id), name(move(name)), value(value) {}
+        character_stat() : id(), character_id(), name(), value() {}
+        character_stat(uint64_t id, uint64_t character_id, string name, int64_t value) : id(id), character_id(character_id), name(move(name)), value(value) {}
     };
 
     struct character_item {
@@ -77,6 +78,8 @@ namespace lotr {
         uint64_t user_id;
         uint64_t location_id;
         uint32_t slot;
+        uint32_t level;
+        uint32_t gold;
         string name;
         string allegiance;
         string gender;
@@ -86,9 +89,10 @@ namespace lotr {
         vector<character_stat> stats;
         vector<character_item> items;
 
-        db_character() : id(), user_id(), location_id(), slot(), name(), loc(), stats(), items() {}
-        db_character(uint64_t id, uint64_t user_id, uint64_t location_id, uint32_t slot, string name, string allegiance, string gender, string alignment, string _class, optional<db_location> loc, vector<character_stat> stats, vector<character_item> items)
-        : id(id), user_id(user_id), location_id(location_id), slot(slot), name(move(name)), allegiance(move(allegiance)), gender(move(gender)), alignment(move(alignment)), _class(move(_class)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
+        db_character() : id(), user_id(), location_id(), slot(), level(), gold(), name(), loc(), stats(), items() {}
+        db_character(uint64_t id, uint64_t user_id, uint64_t location_id, uint32_t slot, uint32_t level, uint32_t gold, string name, string allegiance, string gender, string alignment, string _class, optional<db_location> loc, vector<character_stat> stats, vector<character_item> items)
+        : id(id), user_id(user_id), location_id(location_id), slot(slot), level(level), gold(gold), name(move(name)), allegiance(move(allegiance)), gender(move(gender)),
+        alignment(move(alignment)), _class(move(_class)), loc(move(loc)), stats(move(stats)), items(move(items)) {}
     };
 }
 

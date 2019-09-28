@@ -19,19 +19,27 @@
 #pragma once
 
 #include <string>
-#include <rapidjson/writer.h>
-#include "message.h"
+#include <optional>
+#include <rapidjson/document.h>
+#include <messages/objects/character_object.h>
+#include "../message.h"
 
 using namespace std;
 
 namespace lotr {
-    struct skill_object {
-        uint32_t value;
-        string name;
+    struct create_character_response : public message {
+        explicit create_character_response(character_object character) noexcept;
 
-        skill_object(string name, uint32_t value) noexcept :
-                value(value), name(move(name)) {}
+        ~create_character_response() noexcept = default;
+
+        [[nodiscard]]
+        string serialize() const override;
+
+        [[nodiscard]]
+        static optional<create_character_response> deserialize(rapidjson::Document const &d);
+
+        character_object character;
+
+        static string const type;
     };
-
-    void write_skill_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, skill_object const &obj);
 }

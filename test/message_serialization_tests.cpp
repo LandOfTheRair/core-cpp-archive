@@ -22,6 +22,7 @@
 #include <messages/user_access/register_request.h>
 #include <messages/user_access/play_character_request.h>
 #include <messages/user_access/create_character_request.h>
+#include <messages/user_access/create_character_response.h>
 #include <messages/user_access/character_select_request.h>
 #include <messages/user_access/character_select_response.h>
 #include <messages/user_access/delete_character_request.h>
@@ -66,9 +67,9 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("empty login response") {
-        vector<message_player> players;
+        vector<character_object> players;
         vector<account_object> users;
-        SERDE(login_response, players, users, "username", "email", "motd");
+        SERDE(login_response, move(players), move(users), "username", "email", "motd");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.username == msg2->username);
         REQUIRE(msg.email == msg2->email);
@@ -76,13 +77,13 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("login response") {
-        vector<message_player> players;
-        players.emplace_back("name", "map", 1, 2);
-        players.emplace_back("name2", "map2", 3, 4);
+        vector<character_object> players;
+        players.emplace_back("name", "gender",  "allegiance", "baseclass", "map", 1, 2, 5, 7, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{});
+        players.emplace_back("name2", "gender2",  "allegiance2", "baseclass2", "map2", 3, 4, 6, 8, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{});
         vector<account_object> users;
         users.emplace_back(false, true, false, 123, 456, "user1");
         users.emplace_back(true, false, true, 890, 342, "user2");
-        SERDE(login_response, players, users, "username", "email", "motd");
+        SERDE(login_response, move(players), move(users), "username", "email", "motd");
         REQUIRE(msg.players.size() == msg2->players.size());
         REQUIRE(msg.online_users.size() == msg2->online_users.size());
         REQUIRE(msg.username == msg2->username);
@@ -91,7 +92,12 @@ TEST_CASE("message serialization tests") {
 
         for(uint32_t i = 0; i < msg.players.size(); i++) {
             REQUIRE(msg.players[i].name == msg2->players[i].name);
+            REQUIRE(msg.players[i].gender == msg2->players[i].gender);
+            REQUIRE(msg.players[i].allegiance == msg2->players[i].allegiance);
+            REQUIRE(msg.players[i].baseclass == msg2->players[i].baseclass);
             REQUIRE(msg.players[i].map_name == msg2->players[i].map_name);
+            REQUIRE(msg.players[i].level == msg2->players[i].level);
+            REQUIRE(msg.players[i].gold == msg2->players[i].gold);
             REQUIRE(msg.players[i].x == msg2->players[i].x);
             REQUIRE(msg.players[i].y == msg2->players[i].y);
         }
@@ -119,12 +125,25 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("create character request") {
-        SERDE(create_character_request, 1, "name", "sex", "allegiance", "baseclass");
+        SERDE(create_character_request, 1, "name", "gender", "allegiance", "baseclass");
         REQUIRE(msg.slot == msg2->slot);
         REQUIRE(msg.name == msg2->name);
-        REQUIRE(msg.sex == msg2->sex);
+        REQUIRE(msg.gender == msg2->gender);
         REQUIRE(msg.allegiance == msg2->allegiance);
         REQUIRE(msg.baseclass == msg2->baseclass);
+    }
+
+    SECTION("create character response") {
+        SERDE(create_character_response, character_object("name", "gender",  "allegiance", "baseclass", "map", 1, 2, 5, 7, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{}));
+        REQUIRE(msg.character.name == msg2->character.name);
+        REQUIRE(msg.character.gender == msg2->character.gender);
+        REQUIRE(msg.character.allegiance == msg2->character.allegiance);
+        REQUIRE(msg.character.baseclass == msg2->character.baseclass);
+        REQUIRE(msg.character.map_name == msg2->character.map_name);
+        REQUIRE(msg.character.level == msg2->character.level);
+        REQUIRE(msg.character.gold == msg2->character.gold);
+        REQUIRE(msg.character.x == msg2->character.x);
+        REQUIRE(msg.character.y == msg2->character.y);
     }
 
     SECTION("character select request") {

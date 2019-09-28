@@ -25,6 +25,18 @@
 using namespace std;
 using namespace lotr;
 
+void emplace_maxhp_maxmp(vector<stat_component> &stat_mods) {
+    auto hp_it = find_if(begin(stat_mods), end(stat_mods), [](stat_component const &sc){ return sc.name == stat_hp;});
+    if(hp_it != end(stat_mods)) {
+        stat_mods.emplace_back(stat_max_hp, hp_it->value);
+    }
+
+    auto mp_it = find_if(begin(stat_mods), end(stat_mods), [](stat_component const &sc){ return sc.name == stat_mp;});
+    if(mp_it != end(stat_mods)) {
+        stat_mods.emplace_back(stat_max_mp, mp_it->value);
+    }
+}
+
 optional<character_select_response> lotr::load_character_select() {
     auto env_contents = read_whole_file("assets/core/charselect.yml");
 
@@ -43,13 +55,13 @@ optional<character_select_response> lotr::load_character_select() {
     vector<stat_component> base_stats;
     for (auto const &stat : stat_names) {
         if (tree["baseStats"][stat]) {
-            spdlog::trace("[{}] loading base stat {}", __FUNCTION__, stat);
             base_stats.emplace_back(stat, tree["baseStats"][stat].as<int32_t>());
         }
     }
 
+    emplace_maxhp_maxmp(base_stats);
+
     if(tree["baseStats"]["gold"]) {
-        spdlog::trace("[{}] loading base stat {}", __FUNCTION__, "gold");
         base_stats.emplace_back("gold", tree["baseStats"]["gold"].as<int32_t>());
     }
 
@@ -63,13 +75,11 @@ optional<character_select_response> lotr::load_character_select() {
         if(allegiance_node["statMods"]) {
             for (auto const &stat : stat_names) {
                 if (allegiance_node["statMods"][stat]) {
-                    spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, stat);
                     stat_mods.emplace_back(stat, allegiance_node["statMods"][stat].as<int32_t>());
                 }
             }
 
             if(allegiance_node["statMods"]["gold"]) {
-                spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, "gold");
                 stat_mods.emplace_back("gold", allegiance_node["statMods"]["gold"].as<int32_t>());
             }
         }
@@ -77,7 +87,6 @@ optional<character_select_response> lotr::load_character_select() {
         if(allegiance_node["baseItems"]) {
             for (auto const &slot : slot_names) {
                 if (allegiance_node["baseItems"][slot]) {
-                    spdlog::trace("[{}] loading base item {}", __FUNCTION__, slot);
                     items.emplace_back(0, 0, 0, slot, "", allegiance_node["baseItems"][slot].as<string>(), vector<stat_component>{});
                 }
             }
@@ -87,7 +96,9 @@ optional<character_select_response> lotr::load_character_select() {
 
         }
 
-        allegiances.emplace_back(allegiance_node["name"].as<string>(), allegiance_node["description"].as<string>(), stat_mods, items, skills);
+        emplace_maxhp_maxmp(stat_mods);
+
+        allegiances.emplace_back(allegiance_node["name"].as<string>(), allegiance_node["description"].as<string>(), move(stat_mods), move(items), move(skills));
     }
 
     vector<character_class> classes;
@@ -97,15 +108,15 @@ optional<character_select_response> lotr::load_character_select() {
 
         for (auto const &stat : stat_names) {
             if (class_node["statMods"][stat]) {
-                spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, stat);
                 stat_mods.emplace_back(stat, class_node["statMods"][stat].as<int32_t>());
             }
         }
 
         if(class_node["statMods"]["gold"]) {
-            spdlog::trace("[{}] loading stat mod {}", __FUNCTION__, "gold");
             stat_mods.emplace_back("gold", class_node["statMods"]["gold"].as<int32_t>());
         }
+
+        emplace_maxhp_maxmp(stat_mods);
 
         classes.emplace_back(class_node["name"].as<string>(), class_node["description"].as<string>(), stat_mods);
     }
