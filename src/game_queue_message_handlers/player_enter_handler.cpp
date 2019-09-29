@@ -43,7 +43,7 @@ namespace lotr {
 
             if(ranges::any_of(m.players, [&](pc_component const &pc){ return pc.name == enter_msg->character_name; })) {
                 spdlog::warn("[{}] character already in game {} {}", __FUNCTION__, enter_msg->character_name, enter_msg->connection_id);
-                outward_queue[enter_msg->connection_id].enqueue(make_unique<generic_error_response>("already playing that character", "already playing that character", "already playing that character", true));
+                outward_queue.enqueue(outward_message{enter_msg->connection_id, make_unique<generic_error_response>("already playing that character", "already playing that character", "already playing that character", true)});
                 return;
             }
         }
@@ -57,7 +57,7 @@ namespace lotr {
 
             if(enter_msg->x >= m.width || enter_msg->y >= m.height) {
                 spdlog::error("[{}] wrong coordinates {} {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y, enter_msg->connection_id);
-                outward_queue[enter_msg->connection_id].enqueue(make_unique<generic_error_response>("Wrong coordinates", "Wrong coordinates", "Wrong coordinates", true));
+                outward_queue.enqueue(outward_message{enter_msg->connection_id, make_unique<generic_error_response>("Wrong coordinates", "Wrong coordinates", "Wrong coordinates", true)});
                 return;
             }
 

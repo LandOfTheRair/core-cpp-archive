@@ -36,4 +36,11 @@ namespace lotr {
         [[nodiscard]]
         virtual string serialize() const = 0;
     };
+
+    struct outward_message {
+        outward_message(uint64_t conn_id, unique_ptr<message> msg) : conn_id(conn_id), msg(move(msg)) {}
+
+        uint64_t conn_id;
+        unique_ptr<message> msg;
+    };
 }

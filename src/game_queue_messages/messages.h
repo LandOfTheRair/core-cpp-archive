@@ -28,7 +28,7 @@ using namespace std;
 
 namespace lotr {
     struct stat_component;
-    using outward_queues = lotr_flat_map<uint32_t, moodycamel::ReaderWriterQueue<unique_ptr<message>>>;
+    using outward_queues = moodycamel::ReaderWriterQueue<outward_message>;
 
     struct queue_message {
         uint32_t type;

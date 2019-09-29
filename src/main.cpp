@@ -95,10 +95,6 @@ int main() {
     characters_repository<database_pool, database_transaction> player_repo(pool);
     uws_is_shit_struct shit_uws{}; // The documentation in uWS is appalling and the attitude the guy has is impossible to deal with. Had to search the issues of the github to find a method to close/stop uWS.
 
-    auto uws_thread = thread([&config, pool, &shit_uws] {
-        run_uws(config, pool, shit_uws, quit);
-    });
-
     entt::registry registry;
 
     load_assets(registry, quit);
@@ -110,7 +106,14 @@ int main() {
 
     select_response = char_sel.value();
 
-    outward_queues per_player_outward_queue;
+    if(quit) {
+        spdlog::warn("[{}] quitting program", __FUNCTION__);
+        return 0;
+    }
+
+    auto uws_thread = run_uws(config, pool, shit_uws, quit);
+
+    outward_queues outward_queue;
     vector<uint64_t> frame_times;
     auto next_tick = chrono::system_clock::now() + chrono::milliseconds(config.tick_length);
     auto next_log_tick_times = chrono::system_clock::now() + chrono::seconds(1);
@@ -131,10 +134,10 @@ int main() {
         auto map_view = registry.view<map_component>();
 
         {
-            unique_ptr<queue_message> msg;
+            unique_ptr<queue_message> msg(nullptr);
             while (game_loop_queue.try_dequeue(msg)) {
                 spdlog::trace("[{}] got game loop msg with type {}", __FUNCTION__, msg->type);
-                game_queue_message_router[msg->type](msg.get(), registry, per_player_outward_queue);
+                game_queue_message_router[msg->type](msg.get(), registry, outward_queue);
             }
         }
 
@@ -171,7 +174,7 @@ int main() {
                     cs.push_back(pc);
                 }
 
-                per_player_outward_queue[player.connection_id].enqueue(make_unique<map_update_response>(cs));
+                outward_queue.enqueue(outward_message{player.connection_id, make_unique<map_update_response>(cs)});
             }
 
             remove_dead_npcs(m.npcs);
@@ -190,30 +193,25 @@ int main() {
         // TODO if moving inner loop to function, we get a double free. I don't understand why.
         if(config.use_ssl) {
             shit_uws.loop->defer([&] {
-                for(auto &[conn_id, q] : per_player_outward_queue) {
-                    auto user_data = user_ssl_connections.find(conn_id);
+                outward_message msg{0, {}};
+                while (outward_queue.try_dequeue(msg)) {
+                    auto user_data = user_ssl_connections.find(msg.conn_id);
                     if (user_data != end(user_ssl_connections)) {
-                        unique_ptr<message> msg;
-                        while (q.try_dequeue(msg)) {
-                            user_data->second->ws->send(msg->serialize(), uWS::OpCode::TEXT, true);
-                        }
+                        user_data->second->ws->send(msg.msg->serialize(), uWS::OpCode::TEXT, true);
                     }
                 }
             });
         } else {
             shit_uws.loop->defer([&] {
-                for(auto &[conn_id, q] : per_player_outward_queue) {
-                    auto user_data = user_connections.find(conn_id);
+                outward_message msg{0, nullptr};
+                while (outward_queue.try_dequeue(msg)) {
+                    auto user_data = user_connections.find(msg.conn_id);
                     if (user_data != end(user_connections)) {
-                        unique_ptr<message> msg;
-                        while (q.try_dequeue(msg)) {
-                            user_data->second->ws->send(msg->serialize(), uWS::OpCode::TEXT, true);
-                        }
+                        user_data->second->ws->send(msg.msg->serialize(), uWS::OpCode::TEXT, true);
                     }
                 }
             });
         }
-
 
         if(config.log_tick_times && tick_end > next_log_tick_times) {
             spdlog::info("[{}] ticks {} - frame times max/avg/min: {} / {} / {} µs", __FUNCTION__, tick_counter,

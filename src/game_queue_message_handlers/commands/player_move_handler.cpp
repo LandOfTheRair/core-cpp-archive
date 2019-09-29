@@ -49,7 +49,7 @@ namespace lotr {
 
             if(move_msg->x >= m.width || move_msg->y >= m.height || !tile_is_walkable(m, move_msg->x, move_msg->y)) {
                 spdlog::error("[{}] wrong coordinates {} {} {} {}", __FUNCTION__, m.name, move_msg->x, move_msg->y, move_msg->connection_id);
-                outward_queue[move_msg->connection_id].enqueue(make_unique<generic_error_response>("Wrong coordinates", "Wrong coordinates", "Wrong coordinates", true));
+                outward_queue.enqueue(outward_message{move_msg->connection_id, make_unique<generic_error_response>("Wrong coordinates", "Wrong coordinates", "Wrong coordinates", true)});
                 return;
             }
 

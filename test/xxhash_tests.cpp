@@ -30,7 +30,7 @@ TEST_CASE("ensure xxhash has no collisions for map locations") {
     for(int x = -1000; x < 1000; x++) {
         for(int y = -1000; y < 1000; y++) {
             auto t = make_tuple(x, y);
-            auto hash = XXH3_64bits(&t, sizeof(uint64_t) * 2);
+            auto hash = XXH3_64bits(&t, tuple_sum_size(t));
 
             if(hashes.find(hash) != end(hashes)) {
                 spdlog::error("hash already found! {}", hash);

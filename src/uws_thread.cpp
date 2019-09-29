@@ -62,6 +62,7 @@ lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> lotr::use
 moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
 string lotr::motd;
 character_select_response lotr::select_response{{}, {}, {}};
+atomic<bool> uws_init_done = false;
 
 template <bool UseSsl>
 void on_open(atomic<bool> const &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequest *req) {
@@ -176,94 +177,104 @@ void add_routes(message_router_type<UseSsl> &message_router) {
     message_router.emplace(set_motd_request::type, set_motd_handler<uWS::WebSocket<UseSsl, true>>);
 }
 
-void lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit) {
+thread lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit) {
     connection_id_counter = 0;
-    shit_uws.loop = uWS::Loop::get();
     motd = "";
 
-    if(config.use_ssl) {
-        message_router_type<true> message_router;
-        add_routes(message_router);
+    auto t = thread([&config, pool, &shit_uws, &quit] {
+        shit_uws.loop = uWS::Loop::get();
 
-        uWS::TemplatedApp<true>({
-                        .key_file_name = "key.pem",
-                        .cert_file_name = "cert.pem",
-                        .passphrase = nullptr,
-                        .dh_params_file_name = nullptr,
-                        .ssl_prefer_low_memory_usage = false
-                        }).
-                        ws<per_socket_data<uWS::WebSocket<true, true>>>("/*", {
-                        .compression = uWS::SHARED_COMPRESSOR,
-                        .maxPayloadLength = ws_max_payload,
-                        .idleTimeout = ws_timeout,
-                        .open = [&](auto *ws, uWS::HttpRequest *req) {
-                            on_open(quit, ws, req);
-                        },
-                        .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
-                            on_message(pool, message_router, ws, message, op_code);
-                        },
-                        .drain = [](auto *ws) {
-                            /* Check getBufferedAmount here */
-                            spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
-                        },
-                        .ping = [](auto *ws) {
-                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
-                            spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
-                        },
-                        .pong = [](auto *ws) {
-                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
-                            spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
-                        },
-                        .close = [](auto *ws, int code, std::string_view message) {
-                            on_close(ws, code, message);
+        if(config.use_ssl) {
+            message_router_type<true> message_router;
+            add_routes(message_router);
+
+            uWS::TemplatedApp<true>({
+                            .key_file_name = "key.pem",
+                            .cert_file_name = "cert.pem",
+                            .passphrase = nullptr,
+                            .dh_params_file_name = nullptr,
+                            .ssl_prefer_low_memory_usage = false
+                            }).
+                            ws<per_socket_data<uWS::WebSocket<true, true>>>("/*", {
+                            .compression = uWS::SHARED_COMPRESSOR,
+                            .maxPayloadLength = ws_max_payload,
+                            .idleTimeout = ws_timeout,
+                            .open = [&](auto *ws, uWS::HttpRequest *req) {
+                                on_open(quit, ws, req);
+                            },
+                            .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
+                                on_message(pool, message_router, ws, message, op_code);
+                            },
+                            .drain = [](auto *ws) {
+                                /* Check getBufferedAmount here */
+                                spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
+                            },
+                            .ping = [](auto *ws) {
+                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
+                                spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
+                            },
+                            .pong = [](auto *ws) {
+                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
+                                spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
+                            },
+                            .close = [](auto *ws, int code, std::string_view message) {
+                                on_close(ws, code, message);
+                            }
+                    })
+
+                    .listen(config.port, [&](us_listen_socket_t *token) {
+                        if (token) {
+                            spdlog::info("[uws] listening_ssl on \"{}:{}\"", config.address, config.port);
+                            shit_uws.socket = token;
+                            uws_init_done = true;
                         }
-                })
+                    }).run();
+        } else {
+            message_router_type<false> message_router;
+            add_routes(message_router);
 
-                .listen(config.port, [&](us_listen_socket_t *token) {
-                    if (token) {
-                        spdlog::info("[uws] listening_ssl on \"{}:{}\"", config.address, config.port);
-                        shit_uws.socket = token;
-                    }
-                }).run();
-    } else {
-        message_router_type<false> message_router;
-        add_routes(message_router);
+            uWS::TemplatedApp<false>().
+                            ws<per_socket_data<uWS::WebSocket<false, true>>>("/*", {
+                            .compression = uWS::SHARED_COMPRESSOR,
+                            .maxPayloadLength = ws_max_payload,
+                            .idleTimeout = ws_timeout,
+                            .open = [&](auto *ws, uWS::HttpRequest *req) {
+                                on_open(quit, ws, req);
+                            },
+                            .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
+                                on_message(pool, message_router, ws, message, op_code);
+                            },
+                            .drain = [](auto *ws) {
+                                /* Check getBufferedAmount here */
+                                spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
+                            },
+                            .ping = [](auto *ws) {
+                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
+                                spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
+                            },
+                            .pong = [](auto *ws) {
+                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData()) ;
+                                spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
+                            },
+                            .close = [](auto *ws, int code, std::string_view message) {
+                                on_close(ws, code, message);
+                            }
+                    })
 
-        uWS::TemplatedApp<false>().
-                        ws<per_socket_data<uWS::WebSocket<false, true>>>("/*", {
-                        .compression = uWS::SHARED_COMPRESSOR,
-                        .maxPayloadLength = ws_max_payload,
-                        .idleTimeout = ws_timeout,
-                        .open = [&](auto *ws, uWS::HttpRequest *req) {
-                            on_open(quit, ws, req);
-                        },
-                        .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
-                            on_message(pool, message_router, ws, message, op_code);
-                        },
-                        .drain = [](auto *ws) {
-                            /* Check getBufferedAmount here */
-                            spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
-                        },
-                        .ping = [](auto *ws) {
-                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
-                            spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
-                        },
-                        .pong = [](auto *ws) {
-                            auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData()) ;
-                            spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
-                        },
-                        .close = [](auto *ws, int code, std::string_view message) {
-                            on_close(ws, code, message);
+                    .listen(config.port, [&](us_listen_socket_t *token) {
+                        if (token) {
+                            spdlog::info("[uws] listening on \"{}:{}\"", config.address, config.port);
+                            shit_uws.socket = token;
+                            uws_init_done = true;
                         }
-                })
+                    }).run();
+        }
 
-                .listen(config.port, [&](us_listen_socket_t *token) {
-                    if (token) {
-                        spdlog::info("[uws] listening on \"{}:{}\"", config.address, config.port);
-                        shit_uws.socket = token;
-                    }
-                }).run();
-    }
+        uws_init_done = true;
+        spdlog::warn("[{}] done", __FUNCTION__);
+    });
 
-    spdlog::warn("[{}] done", __FUNCTION__);
+    while(!uws_init_done) {}
+
+    return t;
 }
