@@ -173,7 +173,7 @@ void lotr::run_ai_on(npc_component &npc, map_component &m, lotr_player_location_
             auto x = lotr::random.generate_single(-1l, 1l);
             auto y = lotr::random.generate_single(-1l, 1l);
 
-            if(tile_is_walkable(m.layers[map_layer_name::Walls], m.layers[map_layer_name::OpaqueDecor], get<0>(npc.loc) + x, get<1>(npc.loc) + y)) {
+            if(tile_is_walkable(m, get<0>(npc.loc) + x, get<1>(npc.loc) + y)) {
                 npc.loc = make_tuple(get<0>(npc.loc) + x, get<1>(npc.loc) + y);
                 num_steps--;
             }

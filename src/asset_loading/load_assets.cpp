@@ -119,14 +119,17 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
     }
 
     auto entity_spawning_start = chrono::system_clock::now();
-    registry.view<map_component>().each([&](map_component &m) noexcept {
+    auto map_view = registry.view<map_component>();
+    for(auto m_entity : map_view) {
         if(quit) {
             return;
         }
 
+        map_component &m = map_view.get(m_entity);
+
         auto &spawners_layer = m.layers[map_layer_name::Spawners];
         if(spawners_layer.name.empty()) {
-            spdlog::warn("No spawner layer found for map {}", m.name);
+            spdlog::warn("[{}] No spawner layer found for map {}", __FUNCTION__, m.name);
             return;
         }
 
@@ -140,7 +143,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
             }
 
             for(uint32_t i = 0; i < spawner_object.script->initial_spawn; i++) {
-                spdlog::trace("spawner_object {} has {} npc_ids", spawner_object.name, spawner_object.script->npc_ids.size());
+                spdlog::trace("[{}] spawner_object {} has {} npc_ids", __FUNCTION__, spawner_object.name, spawner_object.script->npc_ids.size());
                 auto &random_npc_id = spawner_object.script->npc_ids[lotr::random.generate_single(0, spawner_object.script->npc_ids.size() - 1)];
 
                 auto npc = create_npc(random_npc_id, m, &spawner_object.script.value());
@@ -151,16 +154,18 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
                 }
             }
         }
-    });
+    }
 
-    registry.view<map_component>().each([&](map_component &m) noexcept {
+    for(auto m_entity : map_view) {
         if(quit) {
             return;
         }
 
+        map_component &m = map_view.get(m_entity);
+
         auto &npcs_layer = m.layers[map_layer_name::NPCs];
         if(npcs_layer.name.empty()) {
-            spdlog::warn("No npc layer found for map {}", m.name);
+            spdlog::warn("[{}] No npc layer found for map {}", __FUNCTION__, m.name);
             return;
         }
 
@@ -180,7 +185,7 @@ void lotr::load_assets(entt::registry &registry, atomic<bool> const &quit) {
                 entity_count++;
             }
         }
-    });
+    }
 
     auto loading_end = chrono::system_clock::now();
     spdlog::info("[{}] {:n} items loaded in {:n} µs", __FUNCTION__, item_count, chrono::duration_cast<chrono::microseconds>(npcs_loading_start - items_loading_start).count());

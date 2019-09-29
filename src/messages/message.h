@@ -32,6 +32,7 @@ namespace lotr {
 #define KEY_STRING(str) str, string_length(str)
 
     struct message {
+        virtual ~message() = default;
         [[nodiscard]]
         virtual string serialize() const = 0;
     };

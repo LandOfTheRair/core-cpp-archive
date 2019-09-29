@@ -54,15 +54,13 @@ optional<npc_component> lotr::create_npc(spawner_npc_id const &spawner_npc_id, m
 
     if(script->spawn_radius > 0) {
         bool found_coord = false;
-        auto const &walls_layer = m.layers[map_layer_name::Walls];
-        auto const &opaque_layer = m.layers[map_layer_name::OpaqueDecor];
         while(!found_coord) {
             auto x = lotr::random.generate_single((uint64_t)get<0>(script->loc) - script->spawn_radius, get<0>(script->loc) + script->spawn_radius);
             auto y = lotr::random.generate_single((uint64_t)get<1>(script->loc) - script->spawn_radius, get<1>(script->loc) + script->spawn_radius);
             npc.loc = make_tuple(x, y);
 
             //spdlog::trace("[{}] c {} npc x {} y {} w {} h {} map {} script x {} script y {} spawn_radius {} wall {} object {}",  __FUNCTION__, c, get<0>(npc.loc), get<1>(npc.loc), m.width, m.height, m.name, get<0>(script->loc), get<1>(script->loc), script->spawn_radius, walls_layer->data[c], opaque_layer->objects[c].gid);
-            if(tile_is_walkable(walls_layer, opaque_layer, npc.loc)) {
+            if(tile_is_walkable(m, npc.loc)) {
                 found_coord = true;
             }
         }

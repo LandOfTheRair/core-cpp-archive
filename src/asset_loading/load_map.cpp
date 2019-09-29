@@ -275,11 +275,7 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
 
         if(current_layer["type"].GetString() == "objectgroup"s) {
             vector<map_object> objects;
-            objects.reserve(width*height);
-
-            for(uint32_t i2 = 0; i2 < width*height; i2++) {
-                objects.emplace_back();
-            }
+            objects.resize(width*height);
 
             for (SizeType j = 0; j < current_layer["objects"].Size(); j++) {
                 auto& current_object = current_layer["objects"][j];
@@ -299,13 +295,14 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
                 uint32_t x = current_object["x"].GetUint() / tilewidth;
                 uint32_t y = (current_object["y"].GetUint() - tileheight) / tileheight; // something weird about tiled putting an object at offset Y coords
                 auto object_script_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "script";});
-                if((current_layer_enum == map_layer_name::Spawners) && object_script_property != end(object_properties)) {
+                if(current_layer_enum == map_layer_name::Spawners && object_script_property != end(object_properties)) {
                     auto cache_it = spawner_script_cache.find(get<string>(object_script_property->value));
                     if(cache_it == end(spawner_script_cache)) {
                         spawn_script = get_spawner_script(get<string>(object_script_property->value), x, y, registry);
                         spawner_script_cache[get<string>(object_script_property->value)] = spawn_script;
                     } else {
                         spawn_script = cache_it->second;
+                        spawn_script->loc = make_tuple(x, y);
                     }
 
                     auto object_resource_name_property = find_if(begin(object_properties), end(object_properties), [](map_property const &prop) noexcept {return prop.name == "resourceName";});
@@ -330,6 +327,7 @@ optional<map_component> lotr::load_map_from_file(const string &file, entt::regis
                 objects[x + y * width] = map_object(gid, current_object["id"].GetUint(), current_object["width"].GetUint(),
                         current_object["height"].GetUint(), current_object["name"].GetString(), current_object["type"].GetString(), object_properties, spawn_script);
             }
+            spdlog::trace("[{}] layer width {} height {} object size {}", __FUNCTION__, width, height, objects.size());
             // for some reason, width/height are not present in the json files?
             map_layers[current_layer_enum] = map_layer(current_layer["x"].GetInt(), current_layer["y"].GetInt(), width, height, current_layer_name, current_layer["type"].GetString(), move(objects), vector<uint32_t>{});
         }

@@ -33,8 +33,8 @@ TEST_CASE("a star tests") {
             vector<map_object> objects;
             vector<uint32_t> data;
 
-            for (uint32_t x = 0; x < 10; x++) {
-                for (uint32_t y = 0; y < 10; y++) {
+            for (uint32_t x = 0; x < map_size; x++) {
+                for (uint32_t y = 0; y < map_size; y++) {
                     data.push_back(0);
                     objects.emplace_back();
                 }
@@ -69,8 +69,8 @@ TEST_CASE("a star tests") {
             vector<map_object> objects;
             vector<uint32_t> data;
 
-            for (uint32_t x = 0; x < 10; x++) {
-                for (uint32_t y = 0; y < 10; y++) {
+            for (uint32_t x = 0; x < map_size; x++) {
+                for (uint32_t y = 0; y < map_size; y++) {
                     if((x == 4 || x == 5 || x == 6) && y == 5) {
                         data.push_back(1);
                     } else {

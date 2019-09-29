@@ -230,6 +230,9 @@ namespace lotr {
         vector<spawner_npc_id> npc_ids;
         vector<vector<npc_path>> paths;
         vector<string> npc_ai_settings;
+
+        spawner_script() : id(), respawn_rate(), initial_spawn(), max_creatures(), spawn_radius(), random_walk_radius(), leash_radius(), elite_tick_cap(), max_spawn(), loc(),
+        should_be_active(), can_slow_down(), should_serialize(), always_spawn(), require_dead_to_respawn(), do_initial_spawn_immediately(), npc_ids(), paths(), npc_ai_settings() {}
     };
 
     struct silver_purchases_component {
@@ -360,13 +363,13 @@ namespace lotr {
         uint32_t height;
         string name;
         vector<map_property> properties;
-        vector<map_layer> layers;
+        array<map_layer, 15> layers;
         vector<map_tileset> tilesets;
         vector<npc_component> npcs;
         vector<pc_component> players;
 
         map_component(uint32_t width, uint32_t height, string name, vector<map_property> properties, array<map_layer, 15> layers, vector<map_tileset> tilesets)
-            : width(width), height(height), name(move(name)), properties(move(properties)), layers(begin(layers), end(layers)), tilesets(move(tilesets)), npcs(), players() {}
+            : width(width), height(height), name(move(name)), properties(move(properties)), layers(move(layers)), tilesets(move(tilesets)), npcs(), players() {}
     };
 
     // helper functions

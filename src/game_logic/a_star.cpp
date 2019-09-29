@@ -59,7 +59,7 @@ uint32_t heuristic(location const &a, location const &b) noexcept {
     return abs(get<0>(a) - get<0>(b)) + abs(get<1>(a) - get<1>(b));
 }
 
-array<location, 9> get_neighbours(map_component const &m, map_layer const &walls_layer, map_layer const &opaque_layer, location const &loc) {
+array<location, 9> get_neighbours(map_component const &m, location const &loc) {
     array<location, 9> locs{location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}, location{-1, -1}};
     uint32_t counter = 0;
 
@@ -68,7 +68,7 @@ array<location, 9> get_neighbours(map_component const &m, map_layer const &walls
 #ifdef EXTREME_A_STAR_LOGGING
             spdlog::warn("[{}] {}:{}", __FUNCTION__, x, y);
 #endif
-            if(tile_is_walkable(walls_layer, opaque_layer, x, y)) {
+            if(tile_is_walkable(m, x, y)) {
                 locs[counter] = make_tuple(x, y);
                 counter++;
             }
@@ -83,8 +83,6 @@ lotr_flat_map<location, location> lotr::a_star_path(map_component const &m, loca
     a_star_priority_queue frontier(reserve_size);
     lotr_flat_map<location, location> came_from;
     lotr_flat_map<location, uint32_t> cost_so_far;
-    auto const &walls_layer = m.layers[map_layer_name::Walls];
-    auto const &opaque_layer = m.layers[map_layer_name::OpaqueDecor];
 
     came_from.reserve(reserve_size);
     cost_so_far.reserve(reserve_size);
@@ -100,7 +98,7 @@ lotr_flat_map<location, location> lotr::a_star_path(map_component const &m, loca
             break;
         }
 
-        for (auto &next : get_neighbours(m, walls_layer, opaque_layer, current)) {
+        for (auto &next : get_neighbours(m, current)) {
             if(get<0>(next) == -1) {
                 break;
             }
