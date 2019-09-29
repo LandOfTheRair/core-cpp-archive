@@ -51,7 +51,7 @@ namespace lotr {
         }
 
         for (auto &[conn_id, other_user_data] : user_connections) {
-            if( other_user_data->connection_id != user_data->connection_id && other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot == user_data->playing_character_slot) {
+            if( other_user_data->connection_id != user_data->connection_id && other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot == msg->slot) {
                 SEND_ERROR("Already playing that slot on another connection", "", "", true);
                 return;
             }
