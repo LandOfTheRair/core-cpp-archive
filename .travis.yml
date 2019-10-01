@@ -24,6 +24,8 @@ matrix:
           - g++-9
           - cmake
           - binutils
+          - libgoogle-glog-dev
+          - libdouble-conversion-dev
     env:
       - MAKEFLAGS=-j2
       - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"

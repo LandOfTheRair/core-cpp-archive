@@ -37,9 +37,9 @@
 
 using namespace std;
 namespace lotr {
-    template <class WebSocket>
-    void handle_login(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                      per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+    template <class Server, class WebSocket>
+    void handle_login(Server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                      per_socket_data<WebSocket> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket>> &user_connections) {
         MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_NOT_LOGIN_CHECK(login_request)
 
@@ -52,8 +52,7 @@ namespace lotr {
         auto banned_usr = banned_user_repo.is_username_or_ip_banned(msg->username, {}, transaction);
 
         if (banned_usr) {
-            user_data->ws->send("You are banned", op_code, true);
-            user_data->ws->end(0);
+            s->close(user_data->ws, 0, "You are banned");
             return;
         }
 
@@ -77,7 +76,7 @@ namespace lotr {
         }
 
         user_data->user_id = usr->id;
-        user_data->username = new string(usr->username);
+        user_data->username = usr->username;
         user_data->is_game_master = usr->is_game_master;
 
         vector<character_object> message_players;
@@ -97,27 +96,34 @@ namespace lotr {
         }
 
         vector<account_object> online_users;
-        online_users.reserve(user_connections.size());
         user_joined_response join_msg(account_object(usr->is_game_master, false, false, 0, 0, usr->username));
         auto join_msg_str = join_msg.serialize();
-        for (auto &[conn_id, other_user_data] : user_connections) {
-            if(other_user_data->user_id != user_data->user_id) {
-                other_user_data->ws->send(join_msg_str, op_code, true);
-            }
-            if(other_user_data->username != nullptr) {
-                online_users.emplace_back(other_user_data->is_game_master, other_user_data->is_tester, false, 0, other_user_data->subscription_tier, *other_user_data->username);
+        {
+            shared_lock lock(user_connections_mutex);
+            online_users.reserve(user_connections.size());
+            for (auto &[conn_id, other_user_data] : user_connections) {
+                try {
+                    if(other_user_data.ws.expired()) {
+                        continue;
+                    }
+                    if (other_user_data.user_id != user_data->user_id) {
+                        s->send(other_user_data.ws, join_msg_str, websocketpp::frame::opcode::value::TEXT);
+                    }
+                    if (!other_user_data.username.empty()) {
+                        online_users.emplace_back(other_user_data.is_game_master, other_user_data.is_tester, false, 0, other_user_data.subscription_tier,
+                                                  other_user_data.username);
+                    }
+                } catch (...) {
+
+                }
             }
         }
 
         login_response response(move(message_players), move(online_users), usr->username, usr->email, motd);
         auto response_msg = response.serialize();
-        if (!user_data->ws->send(response_msg, op_code, true)) {
-            user_data->ws->end(0);
-        }
+        s->send(user_data->ws, response_msg, websocketpp::frame::opcode::value::TEXT);
     }
 
-    template void handle_login<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-            per_socket_data<uWS::WebSocket<true, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
-    template void handle_login<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-            per_socket_data<uWS::WebSocket<false, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
+    template void handle_login<server, websocketpp::connection_hdl>(server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<websocketpp::connection_hdl> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> &user_connections);
 }

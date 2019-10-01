@@ -1,6 +1,3 @@
-[submodule "external/uWebSockets"]
-	path = external/uWebSockets
-	url = https://github.com/Oipo/uWebSockets.git
 [submodule "external/spdlog"]
 	path = external/spdlog
 	url = https://github.com/gabime/spdlog.git
@@ -35,9 +32,15 @@
 [submodule "external/pcg-cpp"]
 	path = external/pcg-cpp
 	url = https://github.com/imneme/pcg-cpp.git
-[submodule "external/readerwriterqueue"]
-	path = external/readerwriterqueue
-	url = https://github.com/cameron314/readerwriterqueue.git
 [submodule "assets"]
 	path = assets
 	url = https://github.com/LandOfTheRair/Content.git
+[submodule "external/websocketpp"]
+	path = external/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "external/asio"]
+	path = external/asio
+	url = https://github.com/chriskohlhoff/asio.git
+[submodule "external/concurrentqueue"]
+	path = external/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git

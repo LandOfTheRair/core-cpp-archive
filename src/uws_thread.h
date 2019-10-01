@@ -18,33 +18,29 @@
 
 #pragma once
 
-#include <libusockets.h>
-#include <Loop.h>
+#include <shared_mutex>
 #include <config.h>
 #include <database/database_pool.h>
 #include <lotr_flat_map.h>
-#include <WebSocket.h>
-#include <readerwriterqueue.h>
+#include <concurrentqueue.h>
 
 #include <game_queue_messages/messages.h>
 #include "per_socket_data.h"
 
 namespace lotr {
-    struct uws_is_shit_struct {
-        us_listen_socket_t *socket;
-        uWS::Loop *loop;
+    struct server_handle {
+        server* s;
     };
 
     struct character_select_response;
 
-    extern lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections;
-    extern lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_ssl_connections;
-    extern moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> game_loop_queue;
+    extern lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> user_connections;
+    extern moodycamel::ConcurrentQueue<unique_ptr<queue_message>> game_loop_queue;
     extern string motd;
     extern character_select_response select_response;
+    extern shared_mutex user_connections_mutex;
 
-    using user_connections_type = lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *>::value_type;
-    using user_ssl_connections_type = lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *>::value_type;
+    using user_connections_type = lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>>::value_type;
 
-    thread run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit);
+    thread run_uws(config const &config, shared_ptr<database_pool> pool, server_handle &s_handle, atomic<bool> &quit);
 }

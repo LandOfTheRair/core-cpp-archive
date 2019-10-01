@@ -18,7 +18,6 @@
 
 #include "uws_thread.h"
 #include <spdlog/spdlog.h>
-#include <App.h>
 #include <lotr_flat_map.h>
 #include <rapidjson/document.h>
 #include <message_handlers/user_access/login_handler.h>
@@ -48,62 +47,138 @@
 using namespace std;
 using namespace lotr;
 
-template <bool UseSsl>
-using message_router_type = lotr_flat_map<string, function<void(uWS::OpCode, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data<uWS::WebSocket<UseSsl, true>>*,
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<UseSsl, true>> *> user_connections)>>;
+using message_router_type = lotr_flat_map<string, function<void(server*, rapidjson::Document const &, shared_ptr<database_pool>, per_socket_data<websocketpp::connection_hdl>*,
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &, lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> &)>>;
+
+using websocketpp::lib::placeholders::_1;
+using websocketpp::lib::placeholders::_2;
+using websocketpp::lib::bind;
+
+using context_ptr = websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context>;
 
 atomic<uint64_t> connection_id_counter = 0;
-uint32_t const ws_timeout = 300;
-uint32_t const ws_max_payload = 16 * 1024;
-
-
-lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> lotr::user_connections;
-lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> lotr::user_ssl_connections;
-moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
+lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> lotr::user_connections;
+lotr_flat_map<websocketpp::connection_hdl, uint64_t> handle_to_connection_id_map;
+moodycamel::ConcurrentQueue<unique_ptr<queue_message>> lotr::game_loop_queue;
 string lotr::motd;
 character_select_response lotr::select_response{{}, {}, {}};
-atomic<bool> uws_init_done = false;
+shared_mutex lotr::user_connections_mutex;
+atomic<bool> init_done = false;
 
-template <bool UseSsl>
-void on_open(atomic<bool> const &quit, uWS::WebSocket<UseSsl, true> *ws, uWS::HttpRequest *req) {
+// See https://wiki.mozilla.org/Security/Server_Side_TLS for more details about
+// the TLS modes. The code below demonstrates how to implement both the modern
+enum tls_mode {
+    MOZILLA_INTERMEDIATE = 1,
+    MOZILLA_MODERN = 2
+};
+
+context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
+    namespace asio = websocketpp::lib::asio;
+
+    context_ptr ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::sslv23);
+
+    try {
+        if (mode == MOZILLA_MODERN) {
+            // Modern disables TLSv1
+            ctx->set_options(asio::ssl::context::default_workarounds |
+                             asio::ssl::context::no_sslv2 |
+                             asio::ssl::context::no_sslv3 |
+                             asio::ssl::context::no_tlsv1 |
+                             asio::ssl::context::single_dh_use);
+        } else {
+            ctx->set_options(asio::ssl::context::default_workarounds |
+                             asio::ssl::context::no_sslv2 |
+                             asio::ssl::context::no_sslv3 |
+                             asio::ssl::context::single_dh_use);
+        }
+        //ctx->set_password_callback(bind(&get_password));
+        ctx->use_certificate_chain_file("cert.pem");
+        ctx->use_private_key_file("key.pem", asio::ssl::context::pem);
+
+        // Example method of generating this file:
+        // `openssl dhparam -out dh.pem 2048`
+        // Mozilla Intermediate suggests 1024 as the minimum size to use
+        // Mozilla Modern suggests 2048 as the minimum size to use.
+        //ctx->use_tmp_dh_file("key.pem");
+
+        std::string ciphers;
+
+        if (mode == MOZILLA_MODERN) {
+            ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK";
+        } else {
+            ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
+        }
+
+        if (SSL_CTX_set_cipher_list(ctx->native_handle() , ciphers.c_str()) != 1) {
+            spdlog::error("[{}] error setting cipher list", __FUNCTION__);
+        }
+    } catch (std::exception& e) {
+        spdlog::error("[{}] exception {}", __FUNCTION__, e.what());
+    }
+    return ctx;
+}
+
+void on_open(atomic<bool> const &quit, websocketpp::connection_hdl hdl) {
     if(quit) {
         spdlog::debug("[{}] new connection in closing state", __FUNCTION__);
-        ws->end(0);
         return;
     }
 
+    per_socket_data<websocketpp::connection_hdl> user_data{};
     //only called on connect
-    auto *user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
-    user_data->connection_id = connection_id_counter++;
-    user_data->user_id = 0;
-    user_data->playing_character_slot = -1;
-    user_data->username = nullptr;
-    user_data->ws = ws;
-    user_data->subscription_tier = 0;
-    if constexpr(UseSsl) {
-        user_ssl_connections[user_data->connection_id] = user_data;
-    } else {
-        user_connections[user_data->connection_id] = user_data;
+    user_data.connection_id = connection_id_counter++;
+    user_data.user_id = 0;
+    user_data.playing_character_slot = -1;
+    user_data.username = "";
+    user_data.subscription_tier = 0;
+    user_data.ws = hdl;
+    spdlog::debug("[{}] conn {} open connection", __FUNCTION__, user_data.connection_id);
+    {
+        unique_lock lock(user_connections_mutex);
+        handle_to_connection_id_map[hdl] = user_data.connection_id;
+        user_connections[user_data.connection_id] = user_data;
+        spdlog::debug("[{}] conn {} inserted", __FUNCTION__, user_data.connection_id);
     }
-    spdlog::debug("[{}] open connection {} {}", __FUNCTION__, req->getUrl(), user_data->connection_id);
 }
 
-template <bool UseSsl>
-void on_message(shared_ptr<database_pool> pool, message_router_type<UseSsl> &message_router, uWS::WebSocket<UseSsl, true> *ws, string_view message, uWS::OpCode op_code) {
-    spdlog::trace("[{}] message {} {}", __FUNCTION__, message, op_code);
+void on_message(shared_ptr<database_pool> pool, message_router_type &message_router, server* s, websocketpp::connection_hdl hdl, server::message_ptr msg) {
+    string const &message = msg->get_payload();
 
     if (message.empty() || message.length() < 4) {
         spdlog::warn("[{}] deserialize encountered empty buffer", __FUNCTION__);
         return;
     }
 
-    auto user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
+    auto id_map_it = handle_to_connection_id_map.find(hdl);
+    if(id_map_it == cend(handle_to_connection_id_map)) {
+        spdlog::warn("[{}] no id map", __FUNCTION__);
+        generic_error_response resp{"Unrecognized message", "", "", true};
+        s->send(hdl, resp.serialize(), websocketpp::frame::opcode::value::TEXT);
+        return;
+    }
+
+    spdlog::trace("[{}] conn {} message {}", __FUNCTION__, id_map_it->second, message);
+
+
+    per_socket_data<websocketpp::connection_hdl>* user_data = nullptr;
+    {
+        shared_lock lock(user_connections_mutex);
+        auto user_data_it = user_connections.find(id_map_it->second);
+
+        if (user_data_it == cend(user_connections)) {
+            spdlog::warn("[{}] conn {} no user data", __FUNCTION__, id_map_it->second);
+            generic_error_response resp{"Unrecognized message", "", "", true};
+            s->send(hdl, resp.serialize(), websocketpp::frame::opcode::value::TEXT);
+            return;
+        }
+        user_data = &user_data_it->second;
+    }
 
     rapidjson::Document d;
     d.Parse(&message[0], message.size());
 
     if (d.HasParseError() || !d.IsObject() || !d.HasMember("type") || !d["type"].IsString()) {
-        spdlog::warn("[{}] deserialize failed", __FUNCTION__);
+        spdlog::warn("[{}] conn {} deserialize failed", __FUNCTION__, id_map_it->second);
         SEND_ERROR("Unrecognized message", "", "", true);
         return;
     }
@@ -112,169 +187,143 @@ void on_message(shared_ptr<database_pool> pool, message_router_type<UseSsl> &mes
 
     auto handler = message_router.find(type);
     if (handler != message_router.end()) {
-        if constexpr (UseSsl){
-            handler->second(op_code, d, pool, user_data, game_loop_queue, user_ssl_connections);
-        } else {
-            handler->second(op_code, d, pool, user_data, game_loop_queue, user_connections);
+        try {
+            handler->second(s, d, pool, user_data, game_loop_queue, user_connections);
+        } catch (exception const &e) {
+            spdlog::error("[{}] some exception {} message_type {} user_id {} connection_id {} hdl_id {}", __FUNCTION__, e.what(), type, user_data->user_id, user_data->connection_id, id_map_it->second);
         }
     } else {
-        spdlog::trace("[{}] no handler for type {}", __FUNCTION__, type);
+        spdlog::trace("[{}] conn {} no handler for type {}", __FUNCTION__, id_map_it->second, type);
     }
 }
 
-template <bool UseSsl>
-void on_close(uWS::WebSocket<UseSsl, true> *ws, int code, std::string_view message) {
-    auto *user_data = (per_socket_data<uWS::WebSocket<UseSsl, true>> *) ws->getUserData();
-    if constexpr(UseSsl) {
-        user_ssl_connections.erase(user_data->connection_id);
-    } else {
-        user_connections.erase(user_data->connection_id);
+void on_close(server* s, websocketpp::connection_hdl hdl) {
+    auto id_map_it = handle_to_connection_id_map.find(hdl);
+    if(id_map_it == cend(handle_to_connection_id_map)) {
+        spdlog::warn("[{}] no id map", __FUNCTION__);
+        return;
     }
-    if(user_data->playing_character_slot >= 0) {
-        game_loop_queue.enqueue(make_unique<player_leave_message>(user_data->connection_id));
-    }
-    if(user_data->username != nullptr) {
-        if constexpr(UseSsl) {
-            auto same_user_id_it = find_if(begin(user_ssl_connections), end(user_ssl_connections), [&](user_ssl_connections_type const &vt){ return vt.second->user_id == user_data->user_id; });
-
-            if(same_user_id_it == end(user_ssl_connections)) {
-                user_left_response join_msg(*user_data->username);
-                auto join_msg_str = join_msg.serialize();
-                for (auto &[conn_id, other_user_data] : user_ssl_connections) {
-                    if (other_user_data->user_id != user_data->user_id) {
-                        other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
-                    }
-                }
+    {
+        unique_lock lock(user_connections_mutex);
+        auto user_data = user_connections.find(id_map_it->second);
+        if (user_data == cend(user_connections)) {
+            spdlog::warn("[{}] conn {} no user data", __FUNCTION__, id_map_it->second);
+            for(auto const &[key, val] : user_connections) {
+                spdlog::warn("[{}] conn {} no user data {}", __FUNCTION__, id_map_it->second, key);
             }
-        } else {
-            auto same_user_id_it = find_if(begin(user_connections), end(user_connections), [&](user_connections_type const &vt){ return vt.second->user_id == user_data->user_id; });
+            handle_to_connection_id_map.erase(hdl);
+            return;
+        }
+        if (user_data->second.playing_character_slot >= 0) {
+            // TODO improve performance by using queue tokens
+            game_loop_queue.enqueue(make_unique<player_leave_message>(user_data->second.connection_id));
+        }
+        if (!user_data->second.username.empty()) {
+            auto same_user_id_it = find_if(begin(user_connections), end(user_connections),
+                                           [&](user_connections_type const &vt) noexcept { return vt.second.user_id == user_data->second.user_id; });
 
-            if(same_user_id_it == end(user_connections)) {
-                user_left_response join_msg(*user_data->username);
+            if (same_user_id_it == end(user_connections)) {
+                user_left_response join_msg(user_data->second.username);
                 auto join_msg_str = join_msg.serialize();
                 for (auto &[conn_id, other_user_data] : user_connections) {
-                    if (other_user_data->user_id != user_data->user_id) {
-                        other_user_data->ws->send(join_msg_str, uWS::OpCode::TEXT, true);
+                    if (other_user_data.user_id != user_data->second.user_id) {
+                        s->send(other_user_data.ws, join_msg_str, websocketpp::frame::opcode::value::TEXT);
                     }
                 }
             }
         }
-        delete user_data->username;
+        spdlog::trace("[{}] conn {} close connection {}", __FUNCTION__, user_data->second.connection_id, user_data->second.user_id);
+        user_connections.erase(id_map_it->second);
+        handle_to_connection_id_map.erase(hdl);
     }
-    spdlog::trace("[{}] close connection {} {} {} {}", __FUNCTION__, code, message, user_data->connection_id, user_data->user_id);
 }
 
-template <bool UseSsl>
-void add_routes(message_router_type<UseSsl> &message_router) {
-    message_router.emplace(login_request::type, handle_login<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(register_request::type, handle_register<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(play_character_request::type, handle_play_character<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(create_character_request::type, handle_create_character<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(delete_character_request::type, handle_delete_character<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(character_select_request::type, handle_character_select<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(move_request::type, handle_move<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(message_request::type, handle_public_chat<uWS::WebSocket<UseSsl, true>>);
-    message_router.emplace(set_motd_request::type, set_motd_handler<uWS::WebSocket<UseSsl, true>>);
+void on_fail(server* s, websocketpp::connection_hdl hdl) {
+    server::connection_ptr con = s->get_con_from_hdl(hdl);
+    auto id_map = handle_to_connection_id_map.find(hdl);
+    if(id_map == cend(handle_to_connection_id_map)) {
+        spdlog::error("[{}] fail connection {} {}", __FUNCTION__, con->get_ec().value(), con->get_ec().message());
+        return;
+    }
+
+
+    auto user_data = user_connections.find(id_map->second);
+    if(user_data == cend(user_connections)) {
+        spdlog::error("[{}] fail connection {} {}", __FUNCTION__, con->get_ec().value(), con->get_ec().message());
+        return;
+    }
+
+    spdlog::error("[{}] fail connection {} {} {}", __FUNCTION__, con->get_ec().value(), con->get_ec().message(), user_data->second.user_id);
 }
 
-thread lotr::run_uws(config &config, shared_ptr<database_pool> pool, uws_is_shit_struct &shit_uws, atomic<bool> const &quit) {
+void add_routes(message_router_type &message_router) {
+    message_router.emplace(login_request::type, handle_login<server, websocketpp::connection_hdl>);
+    message_router.emplace(register_request::type, handle_register<server, websocketpp::connection_hdl>);
+    message_router.emplace(play_character_request::type, handle_play_character<server, websocketpp::connection_hdl>);
+    message_router.emplace(create_character_request::type, handle_create_character<server, websocketpp::connection_hdl>);
+    message_router.emplace(delete_character_request::type, handle_delete_character<server, websocketpp::connection_hdl>);
+    message_router.emplace(character_select_request::type, handle_character_select<server, websocketpp::connection_hdl>);
+    message_router.emplace(move_request::type, handle_move<server, websocketpp::connection_hdl>);
+    message_router.emplace(message_request::type, handle_public_chat<server, websocketpp::connection_hdl>);
+    message_router.emplace(set_motd_request::type, set_motd_handler<server, websocketpp::connection_hdl>);
+}
+
+thread lotr::run_uws(config const &config, shared_ptr<database_pool> pool, server_handle &s_handle, atomic<bool> &quit) {
     connection_id_counter = 0;
     motd = "";
 
-    auto t = thread([&config, pool, &shit_uws, &quit] {
-        shit_uws.loop = uWS::Loop::get();
+    auto t = thread([&config, pool, &s_handle, &quit] {
+        server rair_server;
+        s_handle.s = &rair_server;
 
-        if(config.use_ssl) {
-            message_router_type<true> message_router;
-            add_routes(message_router);
+        message_router_type message_router;
+        add_routes(message_router);
 
-            uWS::TemplatedApp<true>({
-                            .key_file_name = "key.pem",
-                            .cert_file_name = "cert.pem",
-                            .passphrase = nullptr,
-                            .dh_params_file_name = nullptr,
-                            .ssl_prefer_low_memory_usage = false
-                            }).
-                            ws<per_socket_data<uWS::WebSocket<true, true>>>("/*", {
-                            .compression = uWS::SHARED_COMPRESSOR,
-                            .maxPayloadLength = ws_max_payload,
-                            .idleTimeout = ws_timeout,
-                            .open = [&](auto *ws, uWS::HttpRequest *req) {
-                                on_open(quit, ws, req);
-                            },
-                            .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
-                                on_message(pool, message_router, ws, message, op_code);
-                            },
-                            .drain = [](auto *ws) {
-                                /* Check getBufferedAmount here */
-                                spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
-                            },
-                            .ping = [](auto *ws) {
-                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
-                                spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
-                            },
-                            .pong = [](auto *ws) {
-                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
-                                spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
-                            },
-                            .close = [](auto *ws, int code, std::string_view message) {
-                                on_close(ws, code, message);
-                            }
-                    })
+        try {
+            // Set logging settings
+            //rair_server.set_access_channels(websocketpp::log::alevel::none);
+            rair_server.clear_access_channels(websocketpp::log::alevel::all);
 
-                    .listen(config.port, [&](us_listen_socket_t *token) {
-                        if (token) {
-                            spdlog::info("[uws] listening_ssl on \"{}:{}\"", config.address, config.port);
-                            shit_uws.socket = token;
-                            uws_init_done = true;
-                        }
-                    }).run();
-        } else {
-            message_router_type<false> message_router;
-            add_routes(message_router);
+            // Initialize ASIO
+            rair_server.init_asio();
+            rair_server.set_reuse_addr(true);
 
-            uWS::TemplatedApp<false>().
-                            ws<per_socket_data<uWS::WebSocket<false, true>>>("/*", {
-                            .compression = uWS::SHARED_COMPRESSOR,
-                            .maxPayloadLength = ws_max_payload,
-                            .idleTimeout = ws_timeout,
-                            .open = [&](auto *ws, uWS::HttpRequest *req) {
-                                on_open(quit, ws, req);
-                            },
-                            .message = [pool, &message_router](auto *ws, string_view message, uWS::OpCode op_code) {
-                                on_message(pool, message_router, ws, message, op_code);
-                            },
-                            .drain = [](auto *ws) {
-                                /* Check getBufferedAmount here */
-                                spdlog::debug("[uws] Something about draining {}", ws->getBufferedAmount());
-                            },
-                            .ping = [](auto *ws) {
-                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData());
-                                spdlog::debug("[uws] ping from conn {} user {}", user_data->connection_id, user_data->user_id);
-                            },
-                            .pong = [](auto *ws) {
-                                auto user_data = static_cast<per_socket_data<uWS::WebSocket<true, true>> *>(ws->getUserData()) ;
-                                spdlog::debug("[uws] pong from conn {} user {}", user_data->connection_id, user_data->user_id);
-                            },
-                            .close = [](auto *ws, int code, std::string_view message) {
-                                on_close(ws, code, message);
-                            }
-                    })
+            // Register our message handler
+            rair_server.set_message_handler(bind(&on_message, pool, message_router, &rair_server, ::_1, ::_2));
 
-                    .listen(config.port, [&](us_listen_socket_t *token) {
-                        if (token) {
-                            spdlog::info("[uws] listening on \"{}:{}\"", config.address, config.port);
-                            shit_uws.socket = token;
-                            uws_init_done = true;
-                        }
-                    }).run();
+            rair_server.set_fail_handler(bind(&on_fail, &rair_server, ::_1));
+            rair_server.set_open_handler(bind(&on_open, cref(quit), ::_1));
+            rair_server.set_close_handler(bind(&on_close, &rair_server, ::_1));
+            rair_server.set_tls_init_handler(bind(&on_tls_init,MOZILLA_INTERMEDIATE,::_1));
+            rair_server.set_pong_timeout(2500);
+            rair_server.set_open_handshake_timeout(2500);
+            rair_server.set_close_handshake_timeout(2500);
+
+
+            rair_server.listen(config.port);
+
+            // Start the server accept loop
+            rair_server.start_accept();
+            init_done = true;
+
+            // Start the ASIO io_service run loop
+            rair_server.run();
+        } catch (websocketpp::exception const & e) {
+            spdlog::error("[websocket++] {}", e.what());
+            quit = true;
+        } catch (const std::exception & e) {
+            spdlog::error("[websocket++] regular exception {}", e.what());
+            quit = true;
+        } catch (...) {
+            spdlog::error("[websocket++] other exception");
+            quit = true;
         }
 
-        uws_init_done = true;
+        init_done = true;
         spdlog::warn("[{}] done", __FUNCTION__);
     });
 
-    while(!uws_init_done) {}
+    while(!init_done) {}
 
     return t;
 }

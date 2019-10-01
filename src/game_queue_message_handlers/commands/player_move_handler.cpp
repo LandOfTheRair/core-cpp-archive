@@ -35,7 +35,7 @@ namespace lotr {
             return;
         }
 
-        spdlog::trace("[{}] {} {} {}", __FUNCTION__, move_msg->x, move_msg->y, move_msg->connection_id);
+        spdlog::trace("[{}] conn {} move to {} {}", __FUNCTION__, move_msg->x, move_msg->y, move_msg->connection_id);
 
         auto map_view = registry.view<map_component>();
 
@@ -55,7 +55,7 @@ namespace lotr {
 
             player.back().loc = make_tuple(move_msg->x, move_msg->y);
 
-            spdlog::info("[{}] {} character {} moved to {} {}", __FUNCTION__, move_msg->connection_id, player.back().name, move_msg->x, move_msg->y);
+            spdlog::info("[{}] conn {} character {} moved to {} {}", __FUNCTION__, move_msg->connection_id, player.back().name, move_msg->x, move_msg->y);
             break;
         }
     }

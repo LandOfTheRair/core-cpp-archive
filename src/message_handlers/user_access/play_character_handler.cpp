@@ -34,9 +34,9 @@
 using namespace std;
 
 namespace lotr {
-    template <class WebSocket>
-    void handle_play_character(uWS::OpCode op_code, rapidjson::Document const &d,
-                         shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+    template <class Server, class WebSocket>
+    void handle_play_character(Server *s, rapidjson::Document const &d,
+                         shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket>> &user_connections) {
         MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(play_character_request)
 
@@ -50,20 +50,35 @@ namespace lotr {
             return;
         }
 
-        for (auto &[conn_id, other_user_data] : user_connections) {
-            if( other_user_data->connection_id != user_data->connection_id && other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot == msg->slot) {
-                SEND_ERROR("Already playing that slot on another connection", "", "", true);
-                return;
+        {
+            shared_lock lock(user_connections_mutex);
+            for (auto &[conn_id, other_user_data] : user_connections) {
+                if (other_user_data.connection_id != user_data->connection_id && other_user_data.user_id == user_data->user_id &&
+                    other_user_data.playing_character_slot == msg->slot) {
+                    SEND_ERROR("Already playing that slot on another connection", "", "", true);
+                    return;
+                }
             }
         }
 
         user_data->playing_character_slot = msg->slot;
         auto db_stats = stats_repo.get_by_character_id(character->id, transaction);
 
-        user_entered_game_response enter_msg(*user_data->username);
+        user_entered_game_response enter_msg(user_data->username);
         auto enter_msg_str = enter_msg.serialize();
-        for (auto &[conn_id, other_user_data] : user_connections) {
-            other_user_data->ws->send(enter_msg_str, op_code, true);
+        {
+            shared_lock lock(user_connections_mutex);
+            for (auto &[conn_id, other_user_data] : user_connections) {
+                try {
+                    if(other_user_data.ws.expired()) {
+                        continue;
+                    }
+
+                    s->send(other_user_data.ws, enter_msg_str, websocketpp::frame::opcode::value::TEXT);
+                } catch (...) {
+
+                }
+            }
         }
 
         // TODO move this calculation somewhere global
@@ -110,8 +125,6 @@ namespace lotr {
                 user_data->connection_id, character->level, character->gold, character->loc->x, character->loc->y));
     }
 
-    template void handle_play_character<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-            per_socket_data<uWS::WebSocket<true, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
-    template void handle_play_character<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-            per_socket_data<uWS::WebSocket<false, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
+    template void handle_play_character<server, websocketpp::connection_hdl>(server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<websocketpp::connection_hdl> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> &user_connections);
 }

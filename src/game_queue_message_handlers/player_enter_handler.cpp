@@ -34,7 +34,7 @@ namespace lotr {
             return;
         }
 
-        spdlog::trace("[{}] {} {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y, enter_msg->connection_id);
+        spdlog::trace("[{}] {} {} {}", __FUNCTION__, enter_msg->map_name, enter_msg->x, enter_msg->y);
 
         auto map_view = registry.view<map_component>();
 

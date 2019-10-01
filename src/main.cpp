@@ -27,7 +27,6 @@
 #include <entt/entt.hpp>
 #include <asset_loading/load_assets.h>
 #include <game_logic/logic_helpers.h>
-#include <readerwriterqueue.h>
 #include <sodium.h>
 #include <messages/map_update_response.h>
 #include <game_queue_message_handlers/player_enter_handler.h>
@@ -54,6 +53,7 @@ atomic<bool> quit{false};
 
 void on_sigint(int sig) {
     quit = true;
+    spdlog::info("received sigint");
 }
 
 int main() {
@@ -93,7 +93,7 @@ int main() {
     users_repository<database_pool, database_transaction> user_repo(pool);
     banned_users_repository<database_pool, database_transaction> banned_user_repo(pool);
     characters_repository<database_pool, database_transaction> player_repo(pool);
-    uws_is_shit_struct shit_uws{}; // The documentation in uWS is appalling and the attitude the guy has is impossible to deal with. Had to search the issues of the github to find a method to close/stop uWS.
+    server_handle s_handle{}; // The documentation in uWS is appalling and the attitude the guy has is impossible to deal with. Had to search the issues of the github to find a method to close/stop uWS.
 
     entt::registry registry;
 
@@ -111,7 +111,7 @@ int main() {
         return 0;
     }
 
-    auto uws_thread = run_uws(config, pool, shit_uws, quit);
+    auto uws_thread = run_uws(config, pool, s_handle, quit);
 
     outward_queues outward_queue;
     vector<uint64_t> frame_times;
@@ -190,27 +190,20 @@ int main() {
         next_tick += chrono::milliseconds(config.tick_length);
         tick_counter++;
 
-        // TODO if moving inner loop to function, we get a double free. I don't understand why.
-        if(config.use_ssl) {
-            shit_uws.loop->defer([&] {
-                outward_message msg{0, {}};
-                while (outward_queue.try_dequeue(msg)) {
-                    auto user_data = user_ssl_connections.find(msg.conn_id);
-                    if (user_data != end(user_ssl_connections)) {
-                        user_data->second->ws->send(msg.msg->serialize(), uWS::OpCode::TEXT, true);
-                    }
+        {
+            outward_message msg{{}, nullptr};
+            while (outward_queue.try_dequeue(msg)) {
+                shared_lock lock(user_connections_mutex);
+                auto user_data = user_connections.find(msg.conn_id);
+                if (user_data != end(user_connections) && !user_data->second.ws.expired()) {
+                    try {
+                        s_handle.s->send(user_data->second.ws, msg.msg->serialize(), websocketpp::frame::opcode::value::TEXT);
+                    } catch (...) {}
+                } else {
+                    spdlog::warn("[{}] couldn't find connection id {}, wanted to send outward message", __FUNCTION__, msg.conn_id);
+                    game_loop_queue.enqueue(make_unique<player_leave_message>(msg.conn_id));
                 }
-            });
-        } else {
-            shit_uws.loop->defer([&] {
-                outward_message msg{0, nullptr};
-                while (outward_queue.try_dequeue(msg)) {
-                    auto user_data = user_connections.find(msg.conn_id);
-                    if (user_data != end(user_connections)) {
-                        user_data->second->ws->send(msg.msg->serialize(), uWS::OpCode::TEXT, true);
-                    }
-                }
-            });
+            }
         }
 
         if(config.log_tick_times && tick_end > next_log_tick_times) {
@@ -224,23 +217,7 @@ int main() {
     }
 
     spdlog::warn("[{}] quitting program", __FUNCTION__);
-    if(config.use_ssl) {
-        shit_uws.loop->defer([&shit_uws] {
-            for (auto &[conn_id, user_data] : user_ssl_connections) {
-                user_data->ws->end(0);
-            }
-
-            us_listen_socket_close(1, shit_uws.socket);
-        });
-    } else {
-        shit_uws.loop->defer([&shit_uws] {
-            for (auto &[conn_id, user_data] : user_connections) {
-                user_data->ws->end(0);
-            }
-
-            us_listen_socket_close(0, shit_uws.socket);
-        });
-    }
+    s_handle.s->stop();
     uws_thread.join();
     spdlog::warn("[{}] uws thread stopped", __FUNCTION__);
 

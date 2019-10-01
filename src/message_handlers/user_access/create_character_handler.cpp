@@ -36,9 +36,9 @@
 using namespace std;
 
 namespace lotr {
-    template <class WebSocket>
-    void handle_create_character(uWS::OpCode op_code, rapidjson::Document const &d,
-                               shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+    template <class Server, class WebSocket>
+    void handle_create_character(Server *s, rapidjson::Document const &d,
+                               shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket>> &user_connections) {
         MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(create_character_request)
 
@@ -124,13 +124,9 @@ namespace lotr {
         create_character_response response{character_object{new_player.name, new_player.gender, new_player.allegiance, new_player._class, new_player.loc->map_name,
                                                             new_player.level, new_player.gold, new_player.loc->x, new_player.loc->y, move(player_stats), {}, {}}};
         auto response_msg = response.serialize();
-        if (!user_data->ws->send(response_msg, op_code, true)) {
-            user_data->ws->end(0);
-        }
+        s->send(user_data->ws, response_msg, websocketpp::frame::opcode::value::TEXT);
     }
 
-    template void handle_create_character<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-            per_socket_data<uWS::WebSocket<true, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
-    template void handle_create_character<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-            per_socket_data<uWS::WebSocket<false, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
+    template void handle_create_character<server, websocketpp::connection_hdl>(server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<websocketpp::connection_hdl> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> &user_connections);
 }

@@ -18,7 +18,14 @@
 
 #pragma once
 
+#pragma GCC diagnostic ignored "-Wduplicated-branches"
+#include <websocketpp/server.hpp>
+#include <websocketpp/config/asio.hpp>
+#pragma GCC diagnostic pop
+
 namespace lotr {
+    using server = websocketpp::server<websocketpp::config::asio_tls>;
+
     template <class WebSocket>
     struct per_socket_data {
         uint64_t connection_id;
@@ -27,9 +34,9 @@ namespace lotr {
         bool is_tester;
         bool is_game_master;
         int32_t playing_character_slot;
-        string *username;
-        WebSocket *ws;
+        string username;
+        WebSocket ws;
 
-        per_socket_data() : connection_id(0), user_id(0), subscription_tier(0), is_tester(), is_game_master(), playing_character_slot(), username(nullptr), ws(nullptr) {}
+        per_socket_data() : connection_id(0), user_id(0), subscription_tier(0), is_tester(), is_game_master(), playing_character_slot(), username(), ws() {}
     };
 }

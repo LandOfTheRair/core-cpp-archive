@@ -24,21 +24,26 @@
 #include <messages/user_access/delete_character_request.h>
 #include <repositories/characters_repository.h>
 #include <messages/generic_ok_response.h>
+#include <uws_thread.h>
 #include "message_handlers/handler_macros.h"
 
 using namespace std;
 
 namespace lotr {
-    template <class WebSocket>
-    void handle_delete_character(uWS::OpCode op_code, rapidjson::Document const &d,
-                                 shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+    template <class Server, class WebSocket>
+    void handle_delete_character(Server *s, rapidjson::Document const &d,
+                                 shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket>> &user_connections) {
         MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_NOT_PLAYING_CHECK(delete_character_request)
 
-        for (auto &[conn_id, other_user_data] : user_connections) {
-            if(other_user_data->user_id == user_data->user_id && other_user_data->playing_character_slot >=0 && other_user_data->playing_character_slot == msg->slot) {
-                SEND_ERROR("Already playing that slot on another connection", "", "", true);
-                return;
+        {
+            shared_lock lock(user_connections_mutex);
+            for (auto &[conn_id, other_user_data] : user_connections) {
+                if (other_user_data.user_id == user_data->user_id && other_user_data.playing_character_slot >= 0 &&
+                    other_user_data.playing_character_slot == msg->slot) {
+                    SEND_ERROR("Already playing that slot on another connection", "", "", true);
+                    return;
+                }
             }
         }
 
@@ -49,13 +54,9 @@ namespace lotr {
 
         generic_ok_response response{fmt::format("Character in slot {} deleted", msg->slot)};
         auto response_msg = response.serialize();
-        if (!user_data->ws->send(response_msg, op_code, true)) {
-            user_data->ws->end(0);
-        }
+        s->send(user_data->ws, response_msg, websocketpp::frame::opcode::value::TEXT);
     }
 
-    template void handle_delete_character<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                                                                      per_socket_data<uWS::WebSocket<true, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
-    template void handle_delete_character<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                                                                       per_socket_data<uWS::WebSocket<false, true>> *user_data, moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
+    template void handle_delete_character<server, websocketpp::connection_hdl>(server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+            per_socket_data<websocketpp::connection_hdl> *user_data, moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> &user_connections);
 }

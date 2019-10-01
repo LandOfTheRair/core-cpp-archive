@@ -21,14 +21,14 @@
 #include <string>
 #include <vector>
 #include <lotr_flat_map.h>
-#include <readerwriterqueue.h>
+#include <concurrentqueue.h>
 #include <messages/message.h>
 
 using namespace std;
 
 namespace lotr {
     struct stat_component;
-    using outward_queues = moodycamel::ReaderWriterQueue<outward_message>;
+    using outward_queues = moodycamel::ConcurrentQueue<outward_message>;
 
     struct queue_message {
         uint32_t type;

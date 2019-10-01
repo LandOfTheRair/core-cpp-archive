@@ -29,34 +29,36 @@
 using namespace std;
 
 namespace lotr {
-    template<class WebSocket>
-    void set_motd_handler(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data,
-                          moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket> *> user_connections) {
+    template <class Server, class WebSocket>
+    void set_motd_handler(Server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool, per_socket_data<WebSocket> *user_data,
+                          moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<WebSocket>> &user_connections) {
         if(!user_data->is_game_master) {
-            spdlog::warn("[{}] user {} tried to set motd but is not a game master!", __FUNCTION__, *user_data->username);
+            spdlog::warn("[{}] user {} tried to set motd but is not a game master!", __FUNCTION__, user_data->username);
             return;
         }
 
         MEASURE_TIME_OF_FUNCTION()
         DESERIALIZE_WITH_PLAYING_CHECK(set_motd_request)
 
-        spdlog::info("[{}] motd set to \"{}\" by user {}", __FUNCTION__, msg->motd, *user_data->username);
+        spdlog::info("[{}] motd set to \"{}\" by user {}", __FUNCTION__, msg->motd, user_data->username);
         motd = msg->motd;
 
         update_motd_response motd_msg(motd);
         auto motd_msg_str = motd_msg.serialize();
-        for (auto &[conn_id, other_user_data] : user_connections) {
-            other_user_data->ws->send(motd_msg_str, op_code, true);
+        {
+            shared_lock lock(user_connections_mutex);
+            for (auto &[conn_id, other_user_data] : user_connections) {
+                try {
+                    if (other_user_data.ws.expired()) {
+                        continue;
+                    }
+                    s->send(other_user_data.ws, motd_msg_str, websocketpp::frame::opcode::value::TEXT);
+                } catch (...) {}
+            }
         }
     }
 
-    template void set_motd_handler<uWS::WebSocket<true, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                                                               per_socket_data<uWS::WebSocket<true, true>> *user_data,
-                                                               moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q,
-                                                               lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<true, true>> *> user_connections);
-
-    template void set_motd_handler<uWS::WebSocket<false, true>>(uWS::OpCode op_code, rapidjson::Document const &d, shared_ptr<database_pool> pool,
-                                                                per_socket_data<uWS::WebSocket<false, true>> *user_data,
-                                                                moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> &q,
-                                                                lotr_flat_map<uint64_t, per_socket_data<uWS::WebSocket<false, true>> *> user_connections);
+    template void set_motd_handler<server, websocketpp::connection_hdl>(server *s, rapidjson::Document const &d, shared_ptr<database_pool> pool,
+                                                               per_socket_data<websocketpp::connection_hdl> *user_data,
+                                                               moodycamel::ConcurrentQueue<unique_ptr<queue_message>> &q, lotr_flat_map<uint64_t, per_socket_data<websocketpp::connection_hdl>> &user_connections);
 }

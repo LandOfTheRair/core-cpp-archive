@@ -277,7 +277,7 @@ namespace lotr {
     struct pc_component : character_component {
         vector<silver_purchases_component> silver_purchases;
         bitset<power(fov_diameter)> fov;
-        uint32_t connection_id;
+        uint64_t connection_id;
 
         pc_component() : character_component(), silver_purchases(), fov() {}
     };

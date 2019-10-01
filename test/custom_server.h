@@ -21,18 +21,19 @@
 #include <string>
 
 namespace lotr {
-    class custom_websocket {
+    class custom_server {
     public:
-        bool send(std::string_view message, uWS::OpCode opCode = uWS::OpCode::BINARY, bool compress = false) {
+        bool send(uint64_t handle, string message, websocketpp::frame::opcode::value op_code) {
             sent_message = message;
 
             return true;
         }
 
-        void end(int code, std::string_view message = {}) {
-            return;
+        void close(uint64_t handle, uint64_t code, string message) {
+            close_message = message;
         }
 
         string sent_message;
+        string close_message;
     };
 }

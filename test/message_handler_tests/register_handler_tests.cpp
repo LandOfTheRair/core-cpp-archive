@@ -22,7 +22,7 @@
 #include <message_handlers/user_access/register_handler.h>
 #include <messages/user_access/register_request.h>
 #include <messages/generic_error_response.h>
-#include "../custom_websocket.h"
+#include "../custom_server.h"
 
 using namespace std;
 using namespace lotr;
@@ -30,18 +30,18 @@ using namespace lotr;
 TEST_CASE("register handler tests") {
     SECTION("Prohibit too short usernames") {
         string message = register_request("a", "okay_password", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Usernames needs to be at least 2 characters and at most 20 characters");
@@ -49,18 +49,18 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too short usernames utf8") {
         string message = register_request("漢", "okay_password", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Usernames needs to be at least 2 characters and at most 20 characters");
@@ -68,18 +68,18 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too long usernames") {
         string message = register_request("aalishdiquwhgebilugfhkjsdhasdasd", "okay_password", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Usernames needs to be at least 2 characters and at most 20 characters");
@@ -87,18 +87,18 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too short password") {
         string message = register_request("ab", "shortpw", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Password needs to be at least 8 characters");
@@ -106,18 +106,18 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit too short password utf8") {
         string message = register_request("ab", "漢字漢字漢字", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Password needs to be at least 8 characters");
@@ -125,18 +125,18 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit password equal to username") {
         string message = register_request("okay_p$ssword", "okay_p$ssword", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Password cannot equal username");
@@ -144,18 +144,18 @@ TEST_CASE("register handler tests") {
 
     SECTION("Prohibit password equal to email") {
         string message = register_request("ab", "an_email", "an_email").serialize();
-        per_socket_data<custom_websocket> user_data;
-        moodycamel::ReaderWriterQueue<unique_ptr<queue_message>> q;
-        lotr_flat_map<uint64_t, per_socket_data<custom_websocket> *> user_connections;
-        custom_websocket ws;
-        user_data.ws = &ws;
+        per_socket_data<uint64_t> user_data;
+        moodycamel::ConcurrentQueue<unique_ptr<queue_message>> q;
+        lotr_flat_map<uint64_t, per_socket_data<uint64_t>> user_connections;
+        custom_server s;
+        user_data.ws = 1;
 
         rapidjson::Document d;
         d.Parse(&message[0], message.size());
 
-        handle_register(uWS::OpCode::TEXT, d, db_pool, &user_data, q, user_connections);
+        handle_register(&s, d, db_pool, &user_data, q, user_connections);
 
-        d.Parse(&ws.sent_message[0], ws.sent_message.size());
+        d.Parse(&s.sent_message[0], s.sent_message.size());
         auto new_msg = generic_error_response::deserialize(d);
         REQUIRE(new_msg);
         REQUIRE(new_msg->error == "Password cannot equal email");

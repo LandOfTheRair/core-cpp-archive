@@ -76,16 +76,16 @@ vector<global_npc_component> lotr::load_global_npcs_from_file(string const &file
 
         auto base_stat = npc_node["stats"].as<uint32_t >();
         for (auto const &stat : stat_names) {
-            spdlog::trace("[{}] loading stat {}", __FUNCTION__, stat);
+            //spdlog::trace("[{}] loading stat {}", __FUNCTION__, stat);
             npc.stats.emplace_back(stat, base_stat);
 
             if (npc_node["otherStats"] && npc_node["otherStats"][stat]) {
-                spdlog::trace("[{}] loading stat {}:{}", __FUNCTION__, stat, npc_node["otherStats"][stat].as<int64_t>());
+                //spdlog::trace("[{}] loading stat {}:{}", __FUNCTION__, stat, npc_node["otherStats"][stat].as<int64_t>());
                 npc.stats.back().value = npc_node["otherStats"][stat].as<int64_t>();
             }
 
             if (npc_node[stat]) {
-                spdlog::trace("[{}] loading random stat {}:{}-{}", __FUNCTION__, stat, npc_node[stat]["min"].as<int64_t>(), npc_node[stat]["max"].as<int64_t>());
+                //spdlog::trace("[{}] loading random stat {}:{}-{}", __FUNCTION__, stat, npc_node[stat]["min"].as<int64_t>(), npc_node[stat]["max"].as<int64_t>());
                 npc.random_stats.emplace_back(stat, npc_node[stat]["min"].as<int64_t>(), npc_node[stat]["max"].as<int64_t>());
             }
         }

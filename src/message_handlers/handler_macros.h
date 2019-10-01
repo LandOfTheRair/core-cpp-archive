@@ -22,9 +22,7 @@
 #include <on_leaving_scope.h>
 
 #define SEND_ERROR(err, pretty_name, pretty_desc, clear_login)  generic_error_response resp{err, pretty_name, pretty_desc, clear_login}; \
-                                                                if(!user_data->ws->send(resp.serialize(), op_code, true)) { \
-                                                                    user_data->ws->end(0); \
-                                                                }
+                                                                s->send(user_data->ws, resp.serialize(), websocketpp::frame::opcode::value::TEXT);
 
 #define DESERIALIZE_WITH_CHECK(type)    auto msg = type::deserialize(d); \
                                         if (!msg) { \
@@ -33,7 +31,7 @@
                                             return; \
                                         }
 
-#define DESERIALIZE_WITH_LOGIN_CHECK(type)  if(user_data->username == nullptr) { \
+#define DESERIALIZE_WITH_LOGIN_CHECK(type)  if(user_data->username.empty()) { \
                                                 return; \
                                             } \
                                             auto msg = type::deserialize(d); \
@@ -43,7 +41,7 @@
                                                 return; \
                                             }
 
-#define DESERIALIZE_WITH_NOT_LOGIN_CHECK(type) if(user_data->username != nullptr) { \
+#define DESERIALIZE_WITH_NOT_LOGIN_CHECK(type) if(!user_data->username.empty()) { \
                                                     return; \
                                                 } \
                                                 auto msg = type::deserialize(d); \
@@ -64,7 +62,7 @@
                                                     return; \
                                                 }
 
-#define DESERIALIZE_WITH_NOT_PLAYING_CHECK(type) if(user_data->username == nullptr) { \
+#define DESERIALIZE_WITH_NOT_PLAYING_CHECK(type) if(user_data->username.empty()) { \
                                                     SEND_ERROR("Not logged in", "", "", true); \
                                                     return; \
                                                 } \

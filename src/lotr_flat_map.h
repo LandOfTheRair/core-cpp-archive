@@ -21,6 +21,7 @@
 #include <robin_hood.h>
 #include <xxhash.h>
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -31,6 +32,11 @@ namespace lotr {
         return (sizeof(Ts) + ...);
     }
 
+    template <class T>
+    constexpr bool compare_weak_ptr(weak_ptr<T> const &lhs, weak_ptr<T> const &rhs) {
+        return !lhs.owner_before(rhs) && !rhs.owner_before(lhs);
+    }
+
     template<class Key>
     class xxhash_function
     {
@@ -38,6 +44,17 @@ namespace lotr {
         size_t operator()(Key t) const
         {
             return XXH3_64bits(&t, sizeof(t));
+        }
+    };
+
+    template<>
+    class xxhash_function<weak_ptr<void>>
+    {
+    public:
+        size_t operator()(weak_ptr<void> const &key) const
+        {
+            auto p = key.lock();
+            return XXH3_64bits(p.get(), sizeof(p.get()));
         }
     };
 
@@ -83,6 +100,16 @@ namespace lotr {
         bool operator()(Key const &lhs, Key const &rhs) const
         {
             return lhs == rhs;
+        }
+    };
+
+    template<>
+    class custom_equalto<weak_ptr<void>>
+    {
+    public:
+        bool operator()(weak_ptr<void> const &lhs, weak_ptr<void> const &rhs) const
+        {
+            return compare_weak_ptr(lhs, rhs);
         }
     };
 
