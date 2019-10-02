@@ -37,13 +37,14 @@ matrix:
       - make
       - echo '{ "USE_SSL":false, "ADDRESS":"localhost", "PORT":8080, "DEBUG_LEVEL":"trace", "CONNECTION_STRING":"postgres://@localhost/", "TICK_LENGTH":100, "LOG_TICK_TIMES":true }' &> bin/config.json
       - bin/lotr_test
-#    after_script:
-#      - eval "$(ssh-agent -s)"
-#      - echo "$SSH_KEY" | base64 -d > test.zip
-#      - unzip test.zip
-#      - export TEMPFILE=$(mktemp)
-#      - echo "$SSH_KNOWN_HOSTS" > $TEMPFILE
-#      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux kill-session -t "myTempSession"'
-#      - scp -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
-#      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'cp lotr_backend builds/${TRAVIS_COMMIT}'
-#      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'
+    after_script:
+      - eval "$(ssh-agent -s)"
+      - echo "$SSH_KEY" | base64 -d > test.zip
+      - unzip test.zip
+      - export TEMPFILE=$(mktemp)
+      - echo "$SSH_KNOWN_HOSTS" > $TEMPFILE
+      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'killall -s SIGINT lotr_back "'
+      - sleep 1
+      - scp -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa bin/lotr_backend lotr@${DEPLOY_SERVER}:/home/lotr/lotr_backend
+      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'cp lotr_backend builds/${TRAVIS_COMMIT}'
+      - ssh -o "UserKnownHostsFile $TEMPFILE" -i deploy_rsa lotr@${DEPLOY_SERVER} 'tmux new-session -d -s "myTempSession" /home/lotr/restart_lotr.sh'
