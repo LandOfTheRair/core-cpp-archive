@@ -159,10 +159,11 @@ namespace lotr {
                         }
                         if (other_user_data.user_id != user_data->user_id) {
                             s->send(other_user_data.ws, join_msg_str, websocketpp::frame::opcode::value::TEXT);
-                        }
-                        if (!other_user_data.username.empty()) {
-                            online_users.emplace_back(other_user_data.is_game_master, other_user_data.is_tester, false, 0, other_user_data.subscription_tier,
-                                                      other_user_data.username);
+                            
+                            if (!other_user_data.username.empty()) {
+                                online_users.emplace_back(other_user_data.is_game_master, other_user_data.is_tester, false, 0, other_user_data.subscription_tier,
+                                                          other_user_data.username);
+                            }
                         }
                     } catch (...) {
 
