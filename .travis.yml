@@ -10,6 +10,8 @@ addons:
     build_command_prepend: cmake
     build_command: make
     branch_pattern: coverity_scan
+  sonarcloud:
+    organization: "landoftherair"
 matrix:
   include:
   - os: linux
