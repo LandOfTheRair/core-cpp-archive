@@ -4,8 +4,8 @@ import json
 import sys
 
 ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
-#ws.connect("wss://localhost:8080/")
-ws.connect("wss://62.210.141.213:8081/")
+ws.connect("wss://localhost:8080/")
+#ws.connect("wss://62.210.141.213:8081/")
 ws.send("{\"type\": \"Auth:register\", \"username\": \"char_sel\", \"password\": \"testtest\", \"email\": \"test@test.nl\"}")
 res = ws.recv()
 print(f'res: {res}')

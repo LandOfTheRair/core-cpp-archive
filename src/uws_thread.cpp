@@ -95,12 +95,6 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
         ctx->use_certificate_chain_file("cert.pem");
         ctx->use_private_key_file("key.pem", asio::ssl::context::pem);
 
-        // Example method of generating this file:
-        // `openssl dhparam -out dh.pem 2048`
-        // Mozilla Intermediate suggests 1024 as the minimum size to use
-        // Mozilla Modern suggests 2048 as the minimum size to use.
-        //ctx->use_tmp_dh_file("key.pem");
-
         std::string ciphers;
 
         if (mode == MOZILLA_MODERN) {

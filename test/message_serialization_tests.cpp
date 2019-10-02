@@ -78,8 +78,8 @@ TEST_CASE("message serialization tests") {
 
     SECTION("login response") {
         vector<character_object> players;
-        players.emplace_back("name", "gender",  "allegiance", "baseclass", "map", 1, 2, 5, 7, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{});
-        players.emplace_back("name2", "gender2",  "allegiance2", "baseclass2", "map2", 3, 4, 6, 8, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{});
+        players.emplace_back("name", "gender",  "allegiance", "baseclass", "map", 1, 9, 2, 5, 7, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{});
+        players.emplace_back("name2", "gender2",  "allegiance2", "baseclass2", "map2", 3, 9, 4, 6, 8, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{});
         vector<account_object> users;
         users.emplace_back(false, true, false, 123, 456, "user1");
         users.emplace_back(true, false, true, 890, 342, "user2");
@@ -97,6 +97,7 @@ TEST_CASE("message serialization tests") {
             REQUIRE(msg.players[i].baseclass == msg2->players[i].baseclass);
             REQUIRE(msg.players[i].map_name == msg2->players[i].map_name);
             REQUIRE(msg.players[i].level == msg2->players[i].level);
+            REQUIRE(msg.players[i].slot == msg2->players[i].slot);
             REQUIRE(msg.players[i].gold == msg2->players[i].gold);
             REQUIRE(msg.players[i].x == msg2->players[i].x);
             REQUIRE(msg.players[i].y == msg2->players[i].y);
@@ -134,13 +135,14 @@ TEST_CASE("message serialization tests") {
     }
 
     SECTION("create character response") {
-        SERDE(create_character_response, character_object("name", "gender",  "allegiance", "baseclass", "map", 1, 2, 5, 7, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{}));
+        SERDE(create_character_response, character_object("name", "gender",  "allegiance", "baseclass", "map", 1, 9, 2, 5, 7, vector<stat_component>{}, vector<item_object>{}, vector<skill_object>{}));
         REQUIRE(msg.character.name == msg2->character.name);
         REQUIRE(msg.character.gender == msg2->character.gender);
         REQUIRE(msg.character.allegiance == msg2->character.allegiance);
         REQUIRE(msg.character.baseclass == msg2->character.baseclass);
         REQUIRE(msg.character.map_name == msg2->character.map_name);
         REQUIRE(msg.character.level == msg2->character.level);
+        REQUIRE(msg.character.slot == msg2->character.slot);
         REQUIRE(msg.character.gold == msg2->character.gold);
         REQUIRE(msg.character.x == msg2->character.x);
         REQUIRE(msg.character.y == msg2->character.y);

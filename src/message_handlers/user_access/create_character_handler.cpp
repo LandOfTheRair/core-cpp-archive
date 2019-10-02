@@ -122,7 +122,7 @@ namespace lotr {
 
 
         create_character_response response{character_object{new_player.name, new_player.gender, new_player.allegiance, new_player._class, new_player.loc->map_name,
-                                                            new_player.level, new_player.gold, new_player.loc->x, new_player.loc->y, move(player_stats), {}, {}}};
+                                                            new_player.level, new_player.slot, new_player.gold, new_player.loc->x, new_player.loc->y, move(player_stats), {}, {}}};
         auto response_msg = response.serialize();
         s->send(user_data->ws, response_msg, websocketpp::frame::opcode::value::TEXT);
     }

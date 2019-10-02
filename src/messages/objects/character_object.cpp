@@ -19,8 +19,8 @@
 #include "character_object.h"
 #include <ecs/components.h>
 
-lotr::character_object::character_object(string name, string gender, string allegiance, string baseclass, string map_name, uint32_t level, uint32_t gold, uint32_t x, uint32_t y, vector<stat_component> stats, vector<item_object> items, vector<skill_object> skills) noexcept :
-name(move(name)), gender(move(gender)), allegiance(move(allegiance)), baseclass(move(baseclass)), map_name(move(map_name)), level(level), gold(gold), x(x), y(y), stats(move(stats)), items(move(items)), skills(move(skills)) {}
+lotr::character_object::character_object(string name, string gender, string allegiance, string baseclass, string map_name, uint32_t level, uint32_t slot, uint32_t gold, uint32_t x, uint32_t y, vector<stat_component> stats, vector<item_object> items, vector<skill_object> skills) noexcept :
+name(move(name)), gender(move(gender)), allegiance(move(allegiance)), baseclass(move(baseclass)), map_name(move(map_name)), level(level), slot(slot), gold(gold), x(x), y(y), stats(move(stats)), items(move(items)), skills(move(skills)) {}
 
 void lotr::write_character_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, character_object const &obj) {
     writer.String(KEY_STRING("name"));
@@ -40,6 +40,9 @@ void lotr::write_character_object(rapidjson::Writer<rapidjson::StringBuffer> &wr
 
     writer.String(KEY_STRING("level"));
     writer.Uint(obj.level);
+
+    writer.String(KEY_STRING("slot"));
+    writer.Uint(obj.slot);
 
     writer.String(KEY_STRING("gold"));
     writer.Uint(obj.gold);
@@ -87,6 +90,7 @@ bool lotr::read_character_object_into_vector(rapidjson::Value const &value, vect
        !value.HasMember("allegiance") || !value.HasMember("baseclass") ||
        !value.HasMember("map_name") || !value.HasMember("x") ||
        !value.HasMember("level") || !value.HasMember("gold") ||
+       !value.HasMember("slot") ||
        !value.HasMember("y") || !value.HasMember("stats") ||
        !value.HasMember("items") || !value.HasMember("skills")) {
         return false;
@@ -131,6 +135,6 @@ bool lotr::read_character_object_into_vector(rapidjson::Value const &value, vect
     }
 
     objs.emplace_back(value["name"].GetString(), value["gender"].GetString(), value["allegiance"].GetString(), value["baseclass"].GetString(), value["map_name"].GetString(),
-                      value["level"].GetUint(), value["gold"].GetUint(), value["x"].GetUint(), value["y"].GetUint(), move(stats), move(items), move(skills));
+                      value["level"].GetUint(), value["slot"].GetUint(), value["gold"].GetUint(), value["x"].GetUint(), value["y"].GetUint(), move(stats), move(items), move(skills));
     return true;
 }

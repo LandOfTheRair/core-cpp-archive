@@ -141,7 +141,7 @@ namespace lotr {
                 }
                 vector<item_object> items;
                 vector<skill_object> skills;
-                message_players.emplace_back(player.name, player.gender, player.allegiance, player._class, player.loc->map_name, player.level, player.gold, player.loc->x, player.loc->y, move(stats), move(items), move(skills));
+                message_players.emplace_back(player.name, player.gender, player.allegiance, player._class, player.loc->map_name, player.level, player.slot, player.gold, player.loc->x, player.loc->y, move(stats), move(items), move(skills));
             }
 
             vector<account_object> online_users;

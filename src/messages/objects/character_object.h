@@ -36,6 +36,7 @@ namespace lotr {
         string baseclass;
         string map_name;
         uint32_t level;
+        uint32_t slot;
         uint32_t gold;
         uint32_t x;
         uint32_t y;
@@ -43,7 +44,7 @@ namespace lotr {
         vector<item_object> items;
         vector<skill_object> skills;
 
-        character_object(string name, string gender, string allegiance, string baseclass, string map_name, uint32_t level, uint32_t gold, uint32_t x, uint32_t y, vector<stat_component> stats, vector<item_object> items, vector<skill_object> skills) noexcept;
+        character_object(string name, string gender, string allegiance, string baseclass, string map_name, uint32_t level, uint32_t slot, uint32_t gold, uint32_t x, uint32_t y, vector<stat_component> stats, vector<item_object> items, vector<skill_object> skills) noexcept;
     };
 
     void write_character_object(rapidjson::Writer<rapidjson::StringBuffer> &writer, character_object const &obj);

@@ -41,20 +41,3 @@ TEST_CASE("ensure xxhash has no collisions for map locations") {
         }
     }
 }
-
-TEST_CASE("ensure xxhash has no collisions for uint64_t") {
-    lotr_flat_map <uint64_t, bool> hashes;
-    for(int x = -100; x < 100; x++) {
-        for(int y = -100; y < 100; y++) {
-            auto t = make_tuple(x, y);
-            auto hash = XXH3_64bits(&t, tuple_sum_size(t));
-
-            if(hashes.find(hash) != end(hashes)) {
-                spdlog::error("hash already found! {}", hash);
-                REQUIRE(hashes.find(hash) == end(hashes));
-            } else {
-                hashes[hash] = true;
-            }
-        }
-    }
-}
