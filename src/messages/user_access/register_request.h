@@ -26,7 +26,7 @@
 using namespace std;
 
 namespace lotr {
-    struct register_request : public message {
+    struct register_request : message {
         register_request(string username, string password, string email) noexcept;
 
         ~register_request() noexcept = default;

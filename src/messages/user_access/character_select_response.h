@@ -47,7 +47,7 @@ namespace lotr {
         character_class(string name, string description, vector<stat_component> stat_mods) noexcept;
     };
 
-    struct character_select_response : public message {
+    struct character_select_response : message {
         character_select_response(vector<stat_component> base_stats, vector<character_allegiance> allegiances, vector<character_class> classes) noexcept;
 
         ~character_select_response() noexcept = default;

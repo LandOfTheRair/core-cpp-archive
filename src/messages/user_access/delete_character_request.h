@@ -26,7 +26,7 @@
 using namespace std;
 
 namespace lotr {
-    struct delete_character_request : public message {
+    struct delete_character_request : message {
         explicit delete_character_request(uint32_t slot) noexcept;
 
         ~delete_character_request() noexcept = default;

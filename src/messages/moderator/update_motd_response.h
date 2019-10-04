@@ -26,8 +26,8 @@
 using namespace std;
 
 namespace lotr {
-    struct update_motd_response : public message {
-        update_motd_response(string motd) noexcept;
+    struct update_motd_response : message {
+        explicit update_motd_response(string motd) noexcept;
 
         ~update_motd_response() noexcept = default;
 

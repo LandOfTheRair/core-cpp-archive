@@ -26,7 +26,7 @@
 using namespace std;
 
 namespace lotr {
-    struct generic_error_response : public message {
+    struct generic_error_response : message {
         generic_error_response(string error, string pretty_error_name, string pretty_error_description, bool clear_login_data) noexcept;
 
         ~generic_error_response() noexcept = default;

@@ -27,7 +27,7 @@
 using namespace std;
 
 namespace lotr {
-    struct create_character_response : public message {
+    struct create_character_response : message {
         explicit create_character_response(character_object character) noexcept;
 
         ~create_character_response() noexcept = default;

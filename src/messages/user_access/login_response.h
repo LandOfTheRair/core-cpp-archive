@@ -29,7 +29,7 @@
 using namespace std;
 
 namespace lotr {
-    struct login_response : public message {
+    struct login_response : message {
         login_response(vector<character_object> players, vector<account_object> online_users, string username, string email, string motd) noexcept;
 
         ~login_response() noexcept = default;

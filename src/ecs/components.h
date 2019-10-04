@@ -193,7 +193,7 @@ namespace lotr {
         vector<item_component> items;
         vector<skill_component> skills;
 
-        spawner_npc_id(uint32_t chance, string npc_id) : chance(chance), npc_id(npc_id) {}
+        spawner_npc_id(uint32_t chance, string npc_id) : chance(chance), npc_id(move(npc_id)) {}
         spawner_npc_id(uint32_t chance, global_npc_component const &npc)
         : chance(chance), npc_id(npc.npc_id), allegiance(npc.allegiance), alignment(npc.alignment), gender(npc.gender), dir(npc.dir), hostility(npc.hostility),
         character_class(npc.character_class), monster_class(npc.monster_class), spawn_message(npc.spawn_message), sfx(npc.sfx), level(npc.level), highest_level(npc.highest_level),
@@ -317,7 +317,7 @@ namespace lotr {
         variant<double, string> value;
 
         map_property(string name, double value) : name(move(name)), value(value) {}
-        map_property(string name, string value) : name(move(name)), value(value) {}
+        map_property(string name, string value) : name(move(name)), value(move(value)) {}
     };
 
     struct map_object {

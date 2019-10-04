@@ -53,7 +53,9 @@ namespace lotr {
                         continue;
                     }
                     s->send(other_user_data.ws, motd_msg_str, websocketpp::frame::opcode::value::TEXT);
-                } catch (...) {}
+                } catch (...) {
+                    continue;
+                }
             }
         }
     }

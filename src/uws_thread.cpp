@@ -214,7 +214,7 @@ void on_close(server* s, websocketpp::connection_hdl hdl) {
         }
         if (!user_data->second.username.empty()) {
             auto same_user_id_it = find_if(begin(user_connections), end(user_connections),
-                                           [&](user_connections_type const &vt) noexcept { return vt.second.user_id == user_data->second.user_id; });
+                                           [&user_data](user_connections_type const &vt) noexcept { return vt.second.user_id == user_data->second.user_id; });
 
             if (same_user_id_it == end(user_connections)) {
                 user_left_response join_msg(user_data->second.username);

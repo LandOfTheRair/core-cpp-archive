@@ -26,7 +26,7 @@
 using namespace std;
 
 namespace lotr {
-    struct character_select_request : public message {
+    struct character_select_request : message {
         character_select_request() noexcept;
 
         ~character_select_request() noexcept = default;

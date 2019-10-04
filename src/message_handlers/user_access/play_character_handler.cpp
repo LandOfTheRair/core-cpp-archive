@@ -76,7 +76,7 @@ namespace lotr {
 
                     s->send(other_user_data.ws, enter_msg_str, websocketpp::frame::opcode::value::TEXT);
                 } catch (...) {
-
+                    continue;
                 }
             }
         }
@@ -100,8 +100,8 @@ namespace lotr {
         player_stats_mods.reserve(stat_names.size());
         for(auto const &stat : stat_names) {
             auto value = 0;
-            auto allegiance_value_it = find_if(begin(allegiance_it->stat_mods), end(allegiance_it->stat_mods), [&](stat_component const &sc){ return sc.name == stat; });
-            auto class_value_it = find_if(begin(classes_it->stat_mods), end(classes_it->stat_mods), [&](stat_component const &sc){ return sc.name == stat; });
+            auto allegiance_value_it = find_if(begin(allegiance_it->stat_mods), end(allegiance_it->stat_mods), [&stat](stat_component const &sc){ return sc.name == stat; });
+            auto class_value_it = find_if(begin(classes_it->stat_mods), end(classes_it->stat_mods), [&stat](stat_component const &sc){ return sc.name == stat; });
 
             if(allegiance_value_it != end(allegiance_it->stat_mods)) {
                 value += allegiance_value_it->value;

@@ -40,7 +40,7 @@
 #include "../../../test/custom_server.h"
 #endif
 
-#define crypto_pwhash_argon2id_MEMLIMIT_rair 33554432U
+constexpr uint32_t crypto_pwhash_argon2id_MEMLIMIT_rair = 33554432U;
 
 using namespace std;
 
@@ -166,7 +166,7 @@ namespace lotr {
                             }
                         }
                     } catch (...) {
-
+                        continue;
                     }
                 }
             }

@@ -26,7 +26,7 @@
 using namespace std;
 
 namespace lotr {
-    struct user_left_game_response : public message {
+    struct user_left_game_response : message {
         explicit user_left_game_response(string username) noexcept;
 
         ~user_left_game_response() noexcept = default;

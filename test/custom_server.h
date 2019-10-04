@@ -23,13 +23,13 @@
 namespace lotr {
     class custom_server {
     public:
-        bool send(uint64_t handle, string message, websocketpp::frame::opcode::value op_code) {
+        bool send([[maybe_unused]] uint64_t handle, string message, [[maybe_unused]] websocketpp::frame::opcode::value op_code) {
             sent_message = message;
 
             return true;
         }
 
-        void close(uint64_t handle, uint64_t code, string message) {
+        void close([[maybe_unused]] uint64_t handle, [[maybe_unused]] uint64_t code, string message) {
             close_message = message;
         }
 

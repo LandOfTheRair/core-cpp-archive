@@ -48,7 +48,9 @@ namespace lotr {
                         continue;
                     }
                     s->send(other_user_data.ws, chat_msg, websocketpp::frame::opcode::value::TEXT);
-                } catch (...) {}
+                } catch (...) {
+                    continue;
+                }
             }
         }
     }

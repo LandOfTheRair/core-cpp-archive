@@ -38,7 +38,7 @@ namespace lotr {
         virtual ~queue_message() {}
     };
 
-    struct player_enter_message : public queue_message {
+    struct player_enter_message : queue_message {
         string character_name;
         string gender;
         string allegiance;
@@ -54,13 +54,13 @@ namespace lotr {
         player_enter_message(string character_name, string gender, string allegiance, string baseclass, string map_name, vector<stat_component> player_stats, uint64_t connection_id, uint32_t level, uint32_t gold, uint32_t x, uint32_t y);
     };
 
-    struct player_leave_message : public queue_message {
+    struct player_leave_message : queue_message {
         static uint32_t const _type;
 
-        player_leave_message(uint64_t connection_id);
+        explicit player_leave_message(uint64_t connection_id);
     };
 
-    struct player_move_message : public queue_message {
+    struct player_move_message : queue_message {
         static uint32_t const _type;
         uint32_t x;
         uint32_t y;

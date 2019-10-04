@@ -26,8 +26,8 @@
 using namespace std;
 
 namespace lotr {
-    struct play_character_request : public message {
-        play_character_request(uint32_t slot) noexcept;
+    struct play_character_request : message {
+        explicit play_character_request(uint32_t slot) noexcept;
 
         ~play_character_request() noexcept = default;
 

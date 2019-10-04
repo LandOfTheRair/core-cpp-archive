@@ -51,7 +51,7 @@ using namespace lotr;
 
 atomic<bool> quit{false};
 
-void on_sigint(int sig) {
+void on_sigint([[maybe_unused]] int sig) {
     quit = true;
     spdlog::info("received sigint");
 }
@@ -73,11 +73,9 @@ int main() {
         return 1;
     }
 
-    if(!filesystem::exists("logs")) {
-        if(!filesystem::create_directory("logs")) {
-            spdlog::error("[{}] Fatal error creating logs directory", __FUNCTION__);
-            return 1;
-        }
+    if(!filesystem::exists("logs") && !filesystem::create_directory("logs")) {
+        spdlog::error("[{}] Fatal error creating logs directory", __FUNCTION__);
+        return 1;
     }
 
     reconfigure_logger(config);
@@ -157,8 +155,8 @@ int main() {
 
                 player.fov = compute_fov_restrictive_shadowcasting(m, player.loc, true);
 
-                auto min_x = max(0u, get<0>(player.loc) - fov_max_distance);
-                auto min_y = max(0u, get<1>(player.loc) - fov_max_distance);
+                auto min_x = max(0U, get<0>(player.loc) - fov_max_distance);
+                auto min_y = max(0U, get<1>(player.loc) - fov_max_distance);
                 auto max_x = min(m.width, get<0>(player.loc) + fov_max_distance);
                 auto max_y = min(m.height, get<1>(player.loc) + fov_max_distance);
 
@@ -198,7 +196,9 @@ int main() {
                 if (user_data != end(user_connections) && !user_data->second.ws.expired()) {
                     try {
                         s_handle.s->send(user_data->second.ws, msg.msg->serialize(), websocketpp::frame::opcode::value::TEXT);
-                    } catch (...) {}
+                    } catch (...) {
+                        continue;
+                    }
                 } else {
                     spdlog::warn("[{}] couldn't find connection id {}, wanted to send outward message", __FUNCTION__, msg.conn_id);
                     game_loop_queue.enqueue(make_unique<player_leave_message>(msg.conn_id));
@@ -208,7 +208,7 @@ int main() {
 
         if(config.log_tick_times && tick_end > next_log_tick_times) {
             spdlog::info("[{}] ticks {} - frame times max/avg/min: {} / {} / {} µs", __FUNCTION__, tick_counter,
-                         *max_element(begin(frame_times), end(frame_times)), accumulate(begin(frame_times), end(frame_times), 0ul) / frame_times.size(),
+                         *max_element(begin(frame_times), end(frame_times)), accumulate(begin(frame_times), end(frame_times), 0UL) / frame_times.size(),
                          *min_element(begin(frame_times), end(frame_times)));
             frame_times.clear();
             next_log_tick_times += chrono::seconds(1);

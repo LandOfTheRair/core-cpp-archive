@@ -29,7 +29,7 @@ using namespace std;
 namespace lotr {
     struct character_component;
 
-    struct map_update_response : public message {
+    struct map_update_response : message {
         map_update_response(vector<character_component> npcs) noexcept;
 
         ~map_update_response() noexcept = default;

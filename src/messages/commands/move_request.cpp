@@ -49,7 +49,7 @@ string move_request::serialize() const {
 }
 
 optional<move_request> move_request::deserialize(rapidjson::Document const &d) {
-    if (!d.HasMember("x") || !d.HasMember("x")) {
+    if (!d.HasMember("x") || !d.HasMember("y")) {
         spdlog::warn("[move_request] deserialize failed");
         return nullopt;
     }

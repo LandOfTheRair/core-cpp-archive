@@ -26,7 +26,7 @@
 using namespace std;
 
 namespace lotr {
-    struct move_request : public message {
+    struct move_request : message {
         move_request(uint32_t x, uint32_t y) noexcept;
 
         ~move_request() noexcept = default;

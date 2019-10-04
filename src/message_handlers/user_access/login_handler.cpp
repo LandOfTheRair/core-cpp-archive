@@ -115,7 +115,7 @@ namespace lotr {
                         }
                     }
                 } catch (...) {
-
+                    continue;
                 }
             }
         }

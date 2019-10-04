@@ -69,7 +69,7 @@ unique_ptr<database_transaction> database_pool::create_transaction() {
 
                     spdlog::trace("[database_pool] got connection {}", id);
                 }
-            };
+            }
         }
 
         if(id > _min_connections) {
@@ -89,7 +89,7 @@ void database_pool::release_connection(uint32_t id) {
 
     spdlog::trace("[database_pool] releasing connection {}", id);
 
-    auto result = find_if(begin(_connections), end(_connections), [&](tuple<bool, uint32_t, shared_ptr<connection>> const &t) noexcept {
+    auto result = find_if(begin(_connections), end(_connections), [&id](tuple<bool, uint32_t, shared_ptr<connection>> const &t) noexcept {
         return get<1>(t) == id;
     });
 

@@ -26,8 +26,8 @@
 using namespace std;
 
 namespace lotr {
-    struct generic_ok_response : public message {
-        generic_ok_response(string message) noexcept;
+    struct generic_ok_response : message {
+        explicit generic_ok_response(string message) noexcept;
 
         ~generic_ok_response() noexcept = default;
 

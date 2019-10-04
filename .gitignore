@@ -11,3 +11,5 @@ freshprinceofbijlmer.cbp
 node_modules/
 package-lock.json
 *.js
+.scannerwork
+bw_output

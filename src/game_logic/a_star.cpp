@@ -38,7 +38,7 @@ struct a_star_priority_queue {
 
     priority_queue<priority_element, vector<priority_element>, greater<priority_element>> frontier_queue;
 
-    a_star_priority_queue(size_t const reserved_size) : frontier_queue(greater<priority_element>(), make_reserved<priority_element>(reserved_size)) {}
+    explicit a_star_priority_queue(size_t const reserved_size) : frontier_queue(greater<priority_element>(), make_reserved<priority_element>(reserved_size)) {}
 
     inline bool empty() const {
         return frontier_queue.empty();
@@ -79,7 +79,7 @@ array<location, 9> get_neighbours(map_component const &m, location const &loc) {
 }
 
 lotr_flat_map<location, location> lotr::a_star_path(map_component const &m, location const &start, location const &goal) {
-    uint32_t reserve_size = min(m.width, 8u) * min(m.height, 8u);
+    uint32_t reserve_size = min(m.width, 8U) * min(m.height, 8U);
     a_star_priority_queue frontier(reserve_size);
     lotr_flat_map<location, location> came_from;
     lotr_flat_map<location, uint32_t> cost_so_far;

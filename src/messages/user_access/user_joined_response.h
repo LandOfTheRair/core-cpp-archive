@@ -27,7 +27,7 @@
 using namespace std;
 
 namespace lotr {
-    struct user_joined_response : public message {
+    struct user_joined_response : message {
         explicit user_joined_response(account_object user) noexcept;
 
         ~user_joined_response() noexcept = default;
